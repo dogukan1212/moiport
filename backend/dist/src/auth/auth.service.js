@@ -73,7 +73,7 @@ let AuthService = class AuthService {
         return slug || (0, crypto_1.randomUUID)().slice(0, 8);
     }
     getFrontendUrl() {
-        return process.env.FRONTEND_URL || 'https://kolayentegrasyon.com';
+        return process.env.FRONTEND_URL || 'https://moiport.com';
     }
     normalizeUrlBase(url) {
         const v = String(url || '').trim();

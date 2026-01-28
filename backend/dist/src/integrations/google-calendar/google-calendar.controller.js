@@ -40,7 +40,7 @@ let GoogleCalendarController = class GoogleCalendarController {
     }
     async handleCallback(code, state, res) {
         const tenantId = state;
-        const frontendUrl = process.env.FRONTEND_URL || 'https://kolayentegrasyon.com';
+        const frontendUrl = process.env.FRONTEND_URL || 'https://moiport.com';
         try {
             await this.googleService.exchangeCode(tenantId, code);
             return res.redirect(`${frontendUrl}/dashboard/settings?tab=google-calendar&success=true`);
@@ -58,6 +58,20 @@ let GoogleCalendarController = class GoogleCalendarController {
     }
     testConnection(tenantId) {
         return this.googleService.testConnection(tenantId);
+    }
+    listEvents(tenantId, calendarId, timeMin, timeMax, maxResults, q) {
+        const parsedMax = typeof maxResults === 'string' && maxResults.trim()
+            ? Number(maxResults)
+            : undefined;
+        return this.googleService.listEvents(tenantId, {
+            calendarId: calendarId || null,
+            timeMin: timeMin || null,
+            timeMax: timeMax || null,
+            maxResults: Number.isFinite(parsedMax)
+                ? parsedMax
+                : null,
+            q: q || null,
+        });
     }
     createEvent(tenantId, body) {
         return this.googleService.createEvent(tenantId, body);
@@ -136,6 +150,18 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], GoogleCalendarController.prototype, "testConnection", null);
+__decorate([
+    (0, common_1.Get)('events'),
+    __param(0, (0, user_decorator_1.GetTenantId)()),
+    __param(1, (0, common_1.Query)('calendarId')),
+    __param(2, (0, common_1.Query)('timeMin')),
+    __param(3, (0, common_1.Query)('timeMax')),
+    __param(4, (0, common_1.Query)('maxResults')),
+    __param(5, (0, common_1.Query)('q')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, String, String, String]),
+    __metadata("design:returntype", void 0)
+], GoogleCalendarController.prototype, "listEvents", null);
 __decorate([
     (0, common_1.Post)('events'),
     __param(0, (0, user_decorator_1.GetTenantId)()),

@@ -636,11 +636,13 @@ export class GoogleCalendarService {
       end: string;
       timeZone?: string | null;
       attendees?: Array<{ email: string }>;
+      createMeetLink?: boolean;
     },
   ) {
     const summary = String(body?.summary || '').trim();
     const start = String(body?.start || '').trim();
     const end = String(body?.end || '').trim();
+    const createMeetLink = body?.createMeetLink !== false; // Varsayılan true
 
     if (!summary) {
       throw new BadRequestException('Toplantı başlığı zorunludur.');
@@ -687,11 +689,13 @@ export class GoogleCalendarService {
       eventBody.attendees = attendees;
     }
 
-    eventBody.conferenceData = {
-      createRequest: {
-        requestId: `${tenantId}-${Date.now()}`,
-      },
-    };
+    if (createMeetLink) {
+      eventBody.conferenceData = {
+        createRequest: {
+          requestId: `${tenantId}-${Date.now()}`,
+        },
+      };
+    }
 
     try {
       const hasAttendees = Array.isArray(attendees) && attendees.length > 0;

@@ -36,7 +36,7 @@ let ParasutController = class ParasutController {
         return { url };
     }
     async handleCallback(code, state, res) {
-        const frontendUrl = process.env.FRONTEND_URL || 'https://kolayentegrasyon.com';
+        const frontendUrl = process.env.FRONTEND_URL || 'https://moiport.com';
         try {
             await this.parasutService.handleCallback(code, state);
             return res.redirect(`${frontendUrl}/dashboard/settings?tab=parasut&success=true`);

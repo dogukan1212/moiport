@@ -32,6 +32,7 @@ export declare class GoogleCalendarService {
         googleCalendarIsActive?: boolean;
     }): Promise<{
         id: string;
+        updatedAt: Date;
         facebookAppId: string | null;
         facebookAppSecret: string | null;
         facebookVerifyToken: string | null;
@@ -54,7 +55,6 @@ export declare class GoogleCalendarService {
         googleOAuthClientSecret: string | null;
         googleOAuthRedirectUri: string | null;
         googleCalendarIsActive: boolean;
-        updatedAt: Date;
     }>;
     testSystemConfig(): Promise<{
         ok: boolean;
@@ -68,20 +68,33 @@ export declare class GoogleCalendarService {
         isActive?: boolean;
     }): Promise<{
         id: string;
-        updatedAt: Date;
         email: string | null;
+        tenantId: string;
         isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
         accessToken: string | null;
         refreshToken: string | null;
         tokenExpiresAt: Date | null;
         primaryCalendar: string | null;
-        createdAt: Date;
-        tenantId: string;
     }>;
     testConnection(tenantId: string): Promise<{
         ok: boolean;
         email: any;
         calendarCount: any;
+    }>;
+    listEvents(tenantId: string, query?: {
+        calendarId?: string | null;
+        timeMin?: string | null;
+        timeMax?: string | null;
+        maxResults?: number | null;
+        q?: string | null;
+    }): Promise<{
+        ok: boolean;
+        calendarId: string;
+        timeMin: string;
+        timeMax: string;
+        items: any;
     }>;
     createEvent(tenantId: string, body: {
         calendarId?: string | null;
@@ -93,6 +106,7 @@ export declare class GoogleCalendarService {
         attendees?: Array<{
             email: string;
         }>;
+        createMeetLink?: boolean;
     }): Promise<{
         id: any;
         htmlLink: any;

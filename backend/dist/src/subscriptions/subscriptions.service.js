@@ -28,7 +28,7 @@ let SubscriptionsService = class SubscriptionsService {
         return process.env.BACKEND_URL || 'https://api.kolayentegrasyon.com';
     }
     getFrontendUrl() {
-        return process.env.FRONTEND_URL || 'https://kolayentegrasyon.com';
+        return process.env.FRONTEND_URL || 'https://moiport.com';
     }
     async getPaytrSystemConfig() {
         let config = await this.prisma.systemConfig.findFirst();

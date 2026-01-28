@@ -227,7 +227,7 @@ export default function CalendarPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-8">
+      <div className="grid grid-cols-1 gap-8 pb-8">
         <Card className="p-6 space-y-4">
           <CardHeader className="p-0 mb-3">
             <CardTitle className="text-base flex items-center gap-2">
@@ -357,100 +357,6 @@ export default function CalendarPage() {
               </div>
             </div>
           )}
-        </Card>
-
-        <Card className="p-6 space-y-4">
-          <CardHeader className="p-0 mb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <CalendarIcon className="h-5 w-5 text-indigo-500" />
-              Google Calendar Entegrasyonu
-            </CardTitle>
-            <CardDescription>
-              Bağlı Google hesabı ve entegrasyon durumu hakkında özet bilgi.
-            </CardDescription>
-          </CardHeader>
-
-          {loadingConfig ? (
-            <div className="flex items-center justify-center min-h-[80px]">
-              <Loader2 className="h-5 w-5 animate-spin text-slate-500" />
-            </div>
-          ) : config ? (
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-slate-500">Bağlı Google hesabı</span>
-                <span className="font-medium">
-                  {config.email || 'Henüz hesap bağlanmamış'}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Durum</span>
-                <span
-                  className={
-                    isReady ? 'font-medium text-emerald-600' : 'font-medium text-amber-600'
-                  }
-                >
-                  {isReady ? 'Aktif' : 'Pasif'}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Varsayılan Takvim</span>
-                <span className="font-medium">
-                  {config.primaryCalendar || 'primary'}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="text-sm text-slate-500">
-              Entegrasyon bilgisi alınamadı. Lütfen daha sonra tekrar deneyin.
-            </div>
-          )}
-
-          <div className="flex gap-2 pt-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push('/dashboard/settings?tab=google-calendar')}
-            >
-              Ayarları Aç
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleTestConnection}
-              disabled={testing}
-            >
-              {testing && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Bağlantıyı Test Et
-            </Button>
-          </div>
-        </Card>
-
-        <Card className="p-6 space-y-4">
-          <CardHeader className="p-0 mb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Video className="h-5 w-5 text-indigo-500" />
-              Toplantı Planlama
-            </CardTitle>
-            <CardDescription>
-              Google Meet ile yeni toplantılar oluşturmak için özel ekrana geçiş yapın.
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="p-0 space-y-3">
-            <p className="text-sm text-slate-600 dark:text-slate-300">
-              Toplantılar ekranından ajans veya müşteri toplantılarınızı planlayabilir, Google
-              Calendar takviminize ekleyebilir ve otomatik Meet bağlantısı oluşturabilirsiniz.
-            </p>
-
-            <div className="flex gap-2">
-              <Button
-                className="bg-black text-white hover:bg-neutral-900"
-                onClick={() => router.push('/dashboard/meetings')}
-              >
-                Toplantı Oluşturma Ekranına Git
-              </Button>
-            </div>
-          </CardContent>
         </Card>
       </div>
     </div>

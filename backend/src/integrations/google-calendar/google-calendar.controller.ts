@@ -141,6 +141,7 @@ export class GoogleCalendarController {
       end: string;
       timeZone?: string | null;
       attendees?: Array<{ email: string }>;
+      createMeetLink?: boolean;
     },
   ) {
     return this.googleService.createEvent(tenantId, body);

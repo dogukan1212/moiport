@@ -50,6 +50,7 @@ export default function MeetingsPage() {
   const [durationMinutes, setDurationMinutes] = useState(30);
   const [timeZone, setTimeZone] = useState('Europe/Istanbul');
   const [attendeesRaw, setAttendeesRaw] = useState('');
+  const [eventType, setEventType] = useState<'meeting' | 'note'>('meeting');
 
   const router = useRouter();
   const isReady = !!config && config.isActive && config.hasRefreshToken;
@@ -73,6 +74,7 @@ export default function MeetingsPage() {
     if (!isReady) return;
     setLoadingEvents(true);
     try {
+      // Varsayılan: 6 ay öncesi ve 3 ay sonrası
       const timeMin = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString();
       const timeMax = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
       const res = await api.get('/integrations/google-calendar/events', {
@@ -198,19 +200,21 @@ export default function MeetingsPage() {
 
     setCreating(true);
     try {
+      const isMeeting = eventType === 'meeting';
       const res = await api.post('/integrations/google-calendar/events', {
-        summary: title || 'Toplantı',
+        summary: title || (isMeeting ? 'Toplantı' : 'Etkinlik'),
         description: description || null,
         start: startIso,
         end: endIso,
         timeZone,
-        attendees: emails.map((email) => ({ email })),
+        attendees: isMeeting ? emails.map((email) => ({ email })) : [],
+        createMeetLink: isMeeting,
       });
 
       const data = res.data || {};
       const link = data.hangoutLink || data.htmlLink || '';
 
-      toast.success('Google Meet toplantısı oluşturuldu.', {
+      toast.success(isMeeting ? 'Google Meet toplantısı oluşturuldu.' : 'Etkinlik takvime eklendi.', {
         description: link || undefined,
       });
       fetchEvents();
@@ -218,7 +222,7 @@ export default function MeetingsPage() {
       const msg =
         error?.response?.data?.message ||
         error?.response?.data?.error ||
-        'Toplantı oluşturulamadı.';
+        'Etkinlik oluşturulamadı.';
       toast.error(msg);
     } finally {
       setCreating(false);
@@ -229,24 +233,59 @@ export default function MeetingsPage() {
     <div className="h-full flex flex-col gap-8">
       <div>
         <h1 className="text-[28px] font-normal tracking-[-0.03em] text-slate-900 dark:text-slate-50 flex items-center gap-2">
-          <Video className="h-6 w-6 text-slate-900 dark:text-slate-50" />
-          <span>Toplantılar</span>
+          <Calendar className="h-6 w-6 text-slate-900 dark:text-slate-50" />
+          <span>Etkinlikler & Toplantılar</span>
         </h1>
         <p className="text-slate-500 dark:text-slate-300 text-sm mt-2">
-          Google Calendar ve Meet üzerinden hızlı online toplantılar planlayın.
+          Google Calendar üzerinden hızlı toplantılar planlayın veya kişisel etkinlikler oluşturun.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-8 pb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="p-4 flex items-center gap-4">
+          <div className="h-12 w-12 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+             <Video className="h-6 w-6" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Toplam</p>
+            <p className="text-2xl font-bold text-slate-900 dark:text-slate-50">{kpis.total}</p>
+          </div>
+        </Card>
+        <Card className="p-4 flex items-center gap-4">
+          <div className="h-12 w-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+             <Calendar className="h-6 w-6" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Yaklaşan</p>
+            <p className="text-2xl font-bold text-slate-900 dark:text-slate-50">{kpis.upcoming}</p>
+          </div>
+        </Card>
+        <Card className="p-4 flex items-center gap-4">
+          <div className="h-12 w-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+             <Clock className="h-6 w-6" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Geçmiş</p>
+            <p className="text-2xl font-bold text-slate-900 dark:text-slate-50">{kpis.past}</p>
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-8 pb-8">
         <Card className="p-6 space-y-6">
           <CardHeader className="p-0 mb-4">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Video className="h-5 w-5 text-indigo-500" />
-              Yeni Google Meet Toplantısı
+              {eventType === 'meeting' ? (
+                <Video className="h-5 w-5 text-indigo-500" />
+              ) : (
+                <Calendar className="h-5 w-5 text-indigo-500" />
+              )}
+              {eventType === 'meeting' ? 'Yeni Google Meet Toplantısı' : 'Yeni Etkinlik / Not'}
             </CardTitle>
             <CardDescription>
-              Başlık, tarih ve katılımcıları belirleyin. Google Calendar&apos;a eklenmiş bir Meet
-              bağlantısı oluşturulur.
+              {eventType === 'meeting'
+                ? 'Başlık, tarih ve katılımcıları belirleyin. Google Calendar\'a eklenmiş bir Meet bağlantısı oluşturulur.'
+                : 'Takviminize kişisel bir not, hatırlatma veya blok zaman ekleyin.'}
             </CardDescription>
           </CardHeader>
 
@@ -276,9 +315,32 @@ export default function MeetingsPage() {
           ) : null}
 
           <div className="grid gap-4">
+            <div className="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-lg w-fit">
+              <button
+                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  eventType === 'meeting'
+                    ? 'bg-white dark:bg-slate-700 shadow-sm text-slate-900 dark:text-slate-50'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+                onClick={() => setEventType('meeting')}
+              >
+                Toplantı (Meet)
+              </button>
+              <button
+                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  eventType === 'note'
+                    ? 'bg-white dark:bg-slate-700 shadow-sm text-slate-900 dark:text-slate-50'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+                onClick={() => setEventType('note')}
+              >
+                Kişisel Not / Etkinlik
+              </button>
+            </div>
+
             <div className="grid gap-2">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                Toplantı Başlığı
+                {eventType === 'meeting' ? 'Toplantı Başlığı' : 'Etkinlik Başlığı'}
               </label>
               <Input value={title} onChange={(e) => setTitle(e.target.value)} />
             </div>
@@ -357,21 +419,23 @@ export default function MeetingsPage() {
                 </select>
               </div>
 
-              <div className="grid gap-2">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-200 flex items-center gap-1">
-                  <Mail className="h-4 w-4 text-slate-500" />
-                  Katılımcı E-postaları
-                </label>
-                <Textarea
-                  rows={3}
-                  value={attendeesRaw}
-                  onChange={(e) => setAttendeesRaw(e.target.value)}
-                  placeholder="ornek@domain.com, diger@domain.com"
-                />
-                <span className="text-[11px] text-slate-400">
-                  Virgül veya satır sonu ile birden fazla e-posta girebilirsiniz.
-                </span>
-              </div>
+              {eventType === 'meeting' && (
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-200 flex items-center gap-1">
+                    <Mail className="h-4 w-4 text-slate-500" />
+                    Katılımcı E-postaları
+                  </label>
+                  <Textarea
+                    rows={3}
+                    value={attendeesRaw}
+                    onChange={(e) => setAttendeesRaw(e.target.value)}
+                    placeholder="ornek@domain.com, diger@domain.com"
+                  />
+                  <span className="text-[11px] text-slate-400">
+                    Virgül veya satır sonu ile birden fazla e-posta girebilirsiniz.
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="flex justify-end">
@@ -381,7 +445,7 @@ export default function MeetingsPage() {
                 disabled={creating}
               >
                 {creating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                Google Meet Toplantısı Oluştur
+                {eventType === 'meeting' ? 'Google Meet Toplantısı Oluştur' : 'Etkinliği Takvime Ekle'}
               </Button>
             </div>
           </div>
@@ -413,34 +477,7 @@ export default function MeetingsPage() {
               </div>
             </div>
 
-            {isReady && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                <div className="rounded-lg border border-slate-200 dark:border-slate-800 p-3 bg-white dark:bg-slate-900">
-                  <div className="text-[11px] text-slate-500">Toplam</div>
-                  <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                    {kpis.total}
-                  </div>
-                </div>
-                <div className="rounded-lg border border-slate-200 dark:border-slate-800 p-3 bg-white dark:bg-slate-900">
-                  <div className="text-[11px] text-slate-500">Yaklaşan</div>
-                  <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                    {kpis.upcoming}
-                  </div>
-                </div>
-                <div className="rounded-lg border border-slate-200 dark:border-slate-800 p-3 bg-white dark:bg-slate-900">
-                  <div className="text-[11px] text-slate-500">Geçmiş</div>
-                  <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                    {kpis.past}
-                  </div>
-                </div>
-                <div className="rounded-lg border border-slate-200 dark:border-slate-800 p-3 bg-white dark:bg-slate-900">
-                  <div className="text-[11px] text-slate-500">Meet</div>
-                  <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                    {kpis.withMeet}
-                  </div>
-                </div>
-              </div>
-            )}
+
 
             {!isReady ? (
               <div className="text-sm text-slate-500">
@@ -498,60 +535,6 @@ export default function MeetingsPage() {
                 ))}
               </div>
             )}
-          </div>
-        </Card>
-
-        <Card className="p-6 space-y-4">
-          <CardHeader className="p-0 mb-3">
-            <CardTitle className="text-base">Entegrasyon Durumu</CardTitle>
-            <CardDescription>
-              Google hesabı bağlantısı ve kullanılacak takvim bilgisi.
-            </CardDescription>
-          </CardHeader>
-
-          {loadingConfig ? (
-            <div className="flex items-center justify-center min-h-[80px]">
-              <Loader2 className="h-5 w-5 animate-spin text-slate-500" />
-            </div>
-          ) : config ? (
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-slate-500">Bağlı Google hesabı</span>
-                <span className="font-medium">
-                  {config.email || 'Henüz hesap bağlanmamış'}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Durum</span>
-                <span className="font-medium">
-                  {config.isActive && config.hasRefreshToken ? 'Aktif' : 'Pasif'}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Varsayılan Takvim</span>
-                <span className="font-medium">
-                  {config.primaryCalendar || 'primary'}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="text-sm text-slate-500">
-              Entegrasyon bilgisi alınamadı. Lütfen daha sonra tekrar deneyin.
-            </div>
-          )}
-
-          <div className="pt-2 border-t border-slate-200 mt-2">
-            <div className="text-xs text-slate-500 mb-2">
-              Ayrıntılı entegrasyon ayarları için Ayarlar &gt; Google Calendar sekmesini
-              kullanabilirsiniz.
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push('/dashboard/settings?tab=google-calendar')}
-            >
-              Google Calendar Ayarlarını Aç
-            </Button>
           </div>
         </Card>
       </div>
