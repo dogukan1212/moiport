@@ -15,7 +15,6 @@ export declare class GoogleCalendarController {
         googleCalendarIsActive?: boolean;
     }): Promise<{
         id: string;
-        updatedAt: Date;
         facebookAppId: string | null;
         facebookAppSecret: string | null;
         facebookVerifyToken: string | null;
@@ -38,6 +37,7 @@ export declare class GoogleCalendarController {
         googleOAuthClientSecret: string | null;
         googleOAuthRedirectUri: string | null;
         googleCalendarIsActive: boolean;
+        updatedAt: Date;
     }>;
     testSystemConfig(): Promise<{
         ok: boolean;
@@ -71,15 +71,15 @@ export declare class GoogleCalendarController {
         isActive?: boolean;
     }): Promise<{
         id: string;
-        email: string | null;
-        tenantId: string;
-        isActive: boolean;
-        createdAt: Date;
         updatedAt: Date;
+        email: string | null;
+        isActive: boolean;
         accessToken: string | null;
         refreshToken: string | null;
         tokenExpiresAt: Date | null;
         primaryCalendar: string | null;
+        createdAt: Date;
+        tenantId: string;
     }>;
     testConnection(tenantId: string): Promise<{
         ok: boolean;

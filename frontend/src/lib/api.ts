@@ -9,15 +9,28 @@ const resolveBase = () => {
 
     const host = window.location.host || "";
     const hostname = window.location.hostname || "";
+    const lowerHost = host.toLowerCase();
+    const lowerHostname = hostname.toLowerCase();
     
     // Yerel geliştirme ortamları için
     if (
-      hostname === "localhost" || 
-      hostname === "127.0.0.1" || 
-      hostname.startsWith("192.168.") || 
-      hostname.endsWith(".local")
+      lowerHostname === "localhost" || 
+      lowerHostname === "127.0.0.1" || 
+      lowerHostname.startsWith("192.168.") || 
+      lowerHostname.endsWith(".local")
     ) {
       return `http://${hostname}:3001`;
+    }
+
+    if (lowerHost.endsWith("moiport.com") || lowerHostname.endsWith("moiport.com")) {
+      return "https://api.moiport.com";
+    }
+
+    if (
+      lowerHost.endsWith("kolayentegrasyon.com") ||
+      lowerHostname.endsWith("kolayentegrasyon.com")
+    ) {
+      return "https://api.kolayentegrasyon.com";
     }
   }
   
@@ -26,7 +39,7 @@ const resolveBase = () => {
       ? process.env.NEXT_PUBLIC_SOCKET_URL
       : null;
       
-  return envUrl || "https://api.kolayentegrasyon.com";
+  return envUrl || "https://api.moiport.com";
 };
 
 export const SOCKET_URL = resolveBase();

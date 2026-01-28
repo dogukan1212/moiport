@@ -30,7 +30,7 @@ let GoogleCalendarService = class GoogleCalendarService {
         const redirectFromEnv = String(process.env.GOOGLE_OAUTH_REDIRECT_URI || '').trim();
         const defaultRedirect = 'https://api.moiport.com/integrations/google-calendar/callback';
         const initialRedirect = redirectFromEnv || redirectFromDb || defaultRedirect;
-        let redirectUri = initialRedirect;
+        const redirectUri = initialRedirect;
         const redirectSource = redirectFromDb
             ? 'db'
             : redirectFromEnv
@@ -90,8 +90,9 @@ let GoogleCalendarService = class GoogleCalendarService {
         const { clientId, redirectUri } = await this.getClientConfig();
         const scope = [
             'https://www.googleapis.com/auth/calendar.events',
-            'https://www.googleapis.com/auth/userinfo.email',
-            'https://www.googleapis.com/auth/userinfo.profile',
+            'openid',
+            'email',
+            'profile',
         ].join(' ');
         const params = new url_1.URLSearchParams({
             client_id: clientId,
@@ -106,7 +107,10 @@ let GoogleCalendarService = class GoogleCalendarService {
         return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
     }
     async exchangeCode(tenantId, code) {
-        console.log('--- GOOGLE CALENDAR EXCHANGE CODE START ---', { tenantId, codeLength: code?.length });
+        console.log('--- GOOGLE CALENDAR EXCHANGE CODE START ---', {
+            tenantId,
+            codeLength: code?.length,
+        });
         const { clientId, clientSecret, redirectUri } = await this.getClientConfig();
         if (!code || !code.trim()) {
             throw new common_1.BadRequestException('Google yetkilendirme kodu eksik.');
@@ -139,19 +143,36 @@ let GoogleCalendarService = class GoogleCalendarService {
         if (!accessToken) {
             throw new common_1.BadRequestException('Google erişim anahtarı alınamadı. Lütfen tekrar deneyin.');
         }
-        let email = null;
+        const parseEmailFromIdToken = (idToken) => {
+            try {
+                if (!idToken)
+                    return null;
+                const parts = idToken.split('.');
+                if (parts.length < 2)
+                    return null;
+                const payload = parts[1];
+                const padded = payload.padEnd(payload.length + ((4 - (payload.length % 4)) % 4), '=');
+                const json = Buffer.from(padded.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+                const data = JSON.parse(json);
+                const email = typeof data.email === 'string' ? data.email.trim() : '';
+                return email || null;
+            }
+            catch {
+                return null;
+            }
+        };
+        let email = parseEmailFromIdToken(tokenData.id_token);
         try {
-            const me = await axios_1.default.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+            const me = await axios_1.default.get('https://openidconnect.googleapis.com/v1/userinfo', {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
             });
-            email = String(me.data?.email || '').trim() || null;
+            email = String(me.data?.email || '').trim() || email;
             console.log('--- GOOGLE USER INFO ---', { email, data: me.data });
         }
         catch (error) {
             console.error('--- GOOGLE USER INFO ERROR ---', error);
-            email = null;
         }
         const expiresAt = typeof tokenData.expires_in === 'number'
             ? new Date(Date.now() + tokenData.expires_in * 1000)
@@ -170,13 +191,14 @@ let GoogleCalendarService = class GoogleCalendarService {
             throw error;
         }
         const nextRefreshToken = refreshToken || existing?.refreshToken || null;
+        const nextEmail = email || existing?.email || null;
         const isActive = true;
         if (existing) {
             console.log('--- UPDATING EXISTING CONFIG WITH isActive=TRUE ---');
             await this.prisma.googleCalendarConfig.update({
                 where: { id: existing.id },
                 data: {
-                    email,
+                    email: nextEmail,
                     accessToken,
                     refreshToken: nextRefreshToken,
                     tokenExpiresAt: expiresAt,
@@ -188,7 +210,7 @@ let GoogleCalendarService = class GoogleCalendarService {
             await this.prisma.googleCalendarConfig.create({
                 data: {
                     tenantId,
-                    email,
+                    email: nextEmail,
                     accessToken,
                     refreshToken: nextRefreshToken,
                     tokenExpiresAt: expiresAt,
@@ -211,7 +233,7 @@ let GoogleCalendarService = class GoogleCalendarService {
                 isActive: config?.isActive,
                 hasAccess: !!config?.accessToken,
                 hasRefresh: !!config?.refreshToken,
-                expiresAt: config?.tokenExpiresAt
+                expiresAt: config?.tokenExpiresAt,
             });
         }
         catch (error) {

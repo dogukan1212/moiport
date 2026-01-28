@@ -32,7 +32,7 @@ export class GoogleCalendarService {
     const initialRedirect =
       redirectFromEnv || redirectFromDb || defaultRedirect;
 
-    let redirectUri = initialRedirect;
+    const redirectUri = initialRedirect;
     // Localhost kontrolü kaldırıldı - kullanıcı ne tanımladıysa o gitsin
     // if (
     //   redirectUri.startsWith('http://localhost') ||
@@ -112,8 +112,9 @@ export class GoogleCalendarService {
     const { clientId, redirectUri } = await this.getClientConfig();
     const scope = [
       'https://www.googleapis.com/auth/calendar.events',
-      'https://www.googleapis.com/auth/userinfo.email',
-      'https://www.googleapis.com/auth/userinfo.profile',
+      'openid',
+      'email',
+      'profile',
     ].join(' ');
 
     const params = new URLSearchParams({
@@ -131,8 +132,11 @@ export class GoogleCalendarService {
   }
 
   async exchangeCode(tenantId: string, code: string) {
-    console.log('--- GOOGLE CALENDAR EXCHANGE CODE START ---', { tenantId, codeLength: code?.length });
-    
+    console.log('--- GOOGLE CALENDAR EXCHANGE CODE START ---', {
+      tenantId,
+      codeLength: code?.length,
+    });
+
     const { clientId, clientSecret, redirectUri } =
       await this.getClientConfig();
 
@@ -184,21 +188,42 @@ export class GoogleCalendarService {
       );
     }
 
-    let email: string | null = null;
+    const parseEmailFromIdToken = (idToken?: string) => {
+      try {
+        if (!idToken) return null;
+        const parts = idToken.split('.');
+        if (parts.length < 2) return null;
+        const payload = parts[1];
+        const padded = payload.padEnd(
+          payload.length + ((4 - (payload.length % 4)) % 4),
+          '=',
+        );
+        const json = Buffer.from(
+          padded.replace(/-/g, '+').replace(/_/g, '/'),
+          'base64',
+        ).toString('utf8');
+        const data = JSON.parse(json) as { email?: unknown };
+        const email = typeof data.email === 'string' ? data.email.trim() : '';
+        return email || null;
+      } catch {
+        return null;
+      }
+    };
+
+    let email: string | null = parseEmailFromIdToken(tokenData.id_token);
     try {
       const me = await axios.get(
-        'https://www.googleapis.com/oauth2/v3/userinfo',
+        'https://openidconnect.googleapis.com/v1/userinfo',
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         },
       );
-      email = String(me.data?.email || '').trim() || null;
+      email = String(me.data?.email || '').trim() || email;
       console.log('--- GOOGLE USER INFO ---', { email, data: me.data });
     } catch (error) {
       console.error('--- GOOGLE USER INFO ERROR ---', error);
-      email = null;
     }
 
     const expiresAt =
@@ -222,15 +247,16 @@ export class GoogleCalendarService {
     }
 
     const nextRefreshToken = refreshToken || existing?.refreshToken || null;
+    const nextEmail = email || existing?.email || null;
     // Token alındıysa kesinlikle aktif et
-    const isActive = true; 
+    const isActive = true;
 
     if (existing) {
       console.log('--- UPDATING EXISTING CONFIG WITH isActive=TRUE ---');
       await this.prisma.googleCalendarConfig.update({
         where: { id: existing.id },
         data: {
-          email,
+          email: nextEmail,
           accessToken,
           refreshToken: nextRefreshToken,
           tokenExpiresAt: expiresAt,
@@ -241,7 +267,7 @@ export class GoogleCalendarService {
       await this.prisma.googleCalendarConfig.create({
         data: {
           tenantId,
-          email,
+          email: nextEmail,
           accessToken,
           refreshToken: nextRefreshToken,
           tokenExpiresAt: expiresAt,
@@ -262,12 +288,12 @@ export class GoogleCalendarService {
       config = await this.prisma.googleCalendarConfig.findFirst({
         where: { tenantId },
       });
-      console.log('--- DB CONFIG ---', { 
-        id: config?.id, 
-        isActive: config?.isActive, 
-        hasAccess: !!config?.accessToken, 
+      console.log('--- DB CONFIG ---', {
+        id: config?.id,
+        isActive: config?.isActive,
+        hasAccess: !!config?.accessToken,
         hasRefresh: !!config?.refreshToken,
-        expiresAt: config?.tokenExpiresAt 
+        expiresAt: config?.tokenExpiresAt,
       });
     } catch (error: any) {
       const msg = String(error?.message || '');

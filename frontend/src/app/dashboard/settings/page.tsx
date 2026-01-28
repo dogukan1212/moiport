@@ -2495,10 +2495,11 @@ export default function SettingsPage() {
                   <div className="flex items-center justify-between p-4 border rounded-lg bg-white dark:bg-slate-900 dark:border-slate-800">
                     <div className="text-sm text-slate-700 dark:text-slate-200">
                       <div className="font-medium flex items-center gap-2">
-                        {googleCalendarConfig?.email ? (
+                        {googleCalendarConfig?.email ||
+                        googleCalendarConfig?.hasRefreshToken ? (
                           <>
                             <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                            {googleCalendarConfig.email}
+                            {googleCalendarConfig?.email || 'Google hesabı bağlı'}
                             <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full border border-green-100 ml-2">Bağlı</span>
                           </>
                         ) : (
@@ -2513,8 +2514,20 @@ export default function SettingsPage() {
                       </div>
                     </div>
                     <Button
-                      variant={googleCalendarConfig?.email ? "outline" : "default"}
-                      className={!googleCalendarConfig?.email ? "bg-black text-white hover:bg-neutral-900" : ""}
+                      variant={
+                        googleCalendarConfig?.email ||
+                        googleCalendarConfig?.hasRefreshToken
+                          ? 'outline'
+                          : 'default'
+                      }
+                      className={
+                        !(
+                          googleCalendarConfig?.email ||
+                          googleCalendarConfig?.hasRefreshToken
+                        )
+                          ? 'bg-black text-white hover:bg-neutral-900'
+                          : ''
+                      }
                       onClick={handleGoogleCalendarConnect}
                       disabled={saving}
                     >

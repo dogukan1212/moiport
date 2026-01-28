@@ -69,8 +69,8 @@ export declare class GoogleCalendarService {
     }): Promise<{
         id: string;
         updatedAt: Date;
-        isActive: boolean;
         email: string | null;
+        isActive: boolean;
         accessToken: string | null;
         refreshToken: string | null;
         tokenExpiresAt: Date | null;

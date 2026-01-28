@@ -82,7 +82,7 @@ export default function SettingsPage() {
         smtp2goIsActive: Boolean(smtp2goData.smtp2goIsActive),
         googleOAuthClientId: googleData.googleOAuthClientId || "",
         googleOAuthClientSecret: googleData.googleOAuthClientSecret || "",
-        googleOAuthRedirectUri: googleData.googleOAuthRedirectUri || "https://api.kolayentegrasyon.com/integrations/google-calendar/callback",
+        googleOAuthRedirectUri: googleData.googleOAuthRedirectUri || "https://api.moiport.com/integrations/google-calendar/callback",
         googleCalendarIsActive: Boolean(googleData.googleCalendarIsActive),
       }));
     } catch (error) {
@@ -195,7 +195,7 @@ export default function SettingsPage() {
             Facebook Leads ve Instagram DM/Yorum entegrasyonları için global uygulama bilgilerini girin. 
             Tek bir Meta Uygulaması hem Facebook hem Instagram için kullanılır.
             <br className="mb-2"/>
-            Webhook URL: <code className="bg-slate-100 px-1 rounded">https://api.kolayentegrasyon.com/webhooks/meta</code>
+            Webhook URL: <code className="bg-slate-100 px-1 rounded">https://api.moiport.com/webhooks/meta</code>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -243,7 +243,7 @@ export default function SettingsPage() {
             <br className="mb-2" />
             Önerilen Redirect URI:
             <code className="bg-slate-100 px-1 rounded ml-1">
-              https://api.kolayentegrasyon.com/integrations/google-calendar/callback
+              https://api.moiport.com/integrations/google-calendar/callback
             </code>
           </CardDescription>
         </CardHeader>
@@ -293,7 +293,7 @@ export default function SettingsPage() {
               onChange={(e) =>
                 setConfig({ ...config, googleOAuthRedirectUri: e.target.value })
               }
-              placeholder="https://api.kolayentegrasyon.com/integrations/google-calendar/callback"
+              placeholder="https://api.moiport.com/integrations/google-calendar/callback"
             />
           </div>
 
