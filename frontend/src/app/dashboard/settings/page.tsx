@@ -603,8 +603,9 @@ export default function SettingsPage() {
 
   const fetchGoogleCalendarConfig = async () => {
     try {
+      console.log('--- FETCHING GOOGLE CONFIG ---');
       const response = await api.get('/integrations/google-calendar/config');
-      console.log('Google Calendar Config:', response.data);
+      console.log('--- FETCHED GOOGLE CONFIG ---', response.data);
       setGoogleCalendarConfig(response.data);
       setGoogleCalendarPrimary(response.data?.primaryCalendar || '');
     } catch (error) {
@@ -2621,7 +2622,9 @@ export default function SettingsPage() {
                   
                   {/* DEBUG INFO - Bunu canlıda görüp görmediğimizi kontrol edeceğiz */}
                   <div className="p-2 bg-red-100 text-red-600 text-xs rounded border border-red-200 mt-4">
-                    DEBUG: v2.2 - AutoActive:ON - EnvPriority:ON - LogCreds:ON
+                    DEBUG: v2.3 - AutoActive:ON - EnvPriority:ON - LogCreds:ON - FE:CheckConsole
+                    <br/>
+                    Email: {googleCalendarConfig?.email || 'NULL'}
                   </div>
                 </div>
               </Card>
