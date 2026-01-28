@@ -2525,6 +2525,16 @@ export default function SettingsPage() {
                       )}
                       Google ile Bağlan
                     </Button>
+                    
+                    {/* Manuel yenileme butonu - Debug için */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => fetchGoogleCalendarConfig()}
+                      title="Durumu Yenile"
+                    >
+                      <CheckCheck className="h-4 w-4 text-slate-400" />
+                    </Button>
                   </div>
 
                   <div>
@@ -2623,7 +2633,7 @@ export default function SettingsPage() {
                   
                   {/* DEBUG INFO - Bunu canlıda görüp görmediğimizi kontrol edeceğiz */}
                   <div className="p-2 bg-red-100 text-red-600 text-xs rounded border border-red-200 mt-4">
-                    DEBUG: v2.3 - AutoActive:ON - EnvPriority:ON - LogCreds:ON - FE:CheckConsole
+                    DEBUG: v2.4 - AutoActive:ON - EnvPriority:ON - LogCreds:ON - FE:CheckConsole
                     <br/>
                     Email: {googleCalendarConfig?.email || 'NULL'}
                   </div>
