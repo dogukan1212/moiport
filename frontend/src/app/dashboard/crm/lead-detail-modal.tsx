@@ -11,7 +11,12 @@ import {
   Clock,
   Plus,
   ExternalLink,
-  Facebook
+  Facebook,
+  Pencil,
+  Trash2,
+  MoreVertical,
+  Save,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +25,12 @@ import {
   DialogContent,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Select,
   SelectContent,
@@ -103,6 +114,56 @@ export function LeadDetailModal({ lead, isOpen, onClose, onUpdate }: LeadDetailM
   const [reminderNote, setReminderNote] = useState('');
   const [users, setUsers] = useState<User[]>([]);
   const [fetchingUsers, setFetchingUsers] = useState(false);
+
+  // Edit Mode States
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    company: '',
+    value: 0,
+    source: '',
+  });
+
+  useEffect(() => {
+    if (lead) {
+      setEditForm({
+        name: lead.name || '',
+        email: lead.email || '',
+        phone: lead.phone || '',
+        company: lead.company || '',
+        value: lead.value || 0,
+        source: lead.source || '',
+      });
+    }
+  }, [lead]);
+
+  const handleUpdateLead = async () => {
+    if (!lead) return;
+    try {
+      await api.patch(`/crm/leads/${lead.id}`, editForm);
+      toast.success('Aday bilgileri güncellendi.');
+      setIsEditing(false);
+      onUpdate?.();
+    } catch (error) {
+      toast.error('Güncelleme hatası.');
+    }
+  };
+
+  const handleDeleteLead = async () => {
+    if (!lead) return;
+    if (!confirm('Bu adayı silmek istediğinize emin misiniz?')) return;
+    
+    try {
+      await api.delete(`/crm/leads/${lead.id}`);
+      toast.success('Aday silindi.');
+      onClose();
+      onUpdate?.();
+    } catch (error) {
+      toast.error('Silme hatası.');
+    }
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -307,7 +368,7 @@ export function LeadDetailModal({ lead, isOpen, onClose, onUpdate }: LeadDetailM
           {/* Header Section */}
           <div className="p-8 pb-6 bg-white border-b border-slate-100 dark:bg-slate-900 dark:border-slate-800">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 flex-1">
                 <div className="flex items-center gap-2 mb-2">
                   <Select
                     defaultValue={lead.stageId}
@@ -329,35 +390,95 @@ export function LeadDetailModal({ lead, isOpen, onClose, onUpdate }: LeadDetailM
                     ID: #{lead.id.slice(-4)}
                   </span>
                 </div>
-                <DialogTitle className="text-2xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">{lead.name}</DialogTitle>
-                <p className="text-slate-500 text-sm flex items-center gap-2 dark:text-slate-400">
-                  <Building2 className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                  {lead.company || 'Bireysel Müşteri'}
-                </p>
+
+                {isEditing ? (
+                  <div className="space-y-2 max-w-md">
+                    <Input 
+                      value={editForm.name} 
+                      onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                      className="text-lg font-bold h-10"
+                      placeholder="Aday Adı"
+                    />
+                    <div className="flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-slate-400" />
+                      <Input 
+                        value={editForm.company} 
+                        onChange={(e) => setEditForm({ ...editForm, company: e.target.value })}
+                        className="h-8 text-sm"
+                        placeholder="Firma Adı"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <DialogTitle className="text-2xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">{lead.name}</DialogTitle>
+                    <p className="text-slate-500 text-sm flex items-center gap-2 dark:text-slate-400">
+                      <Building2 className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                      {lead.company || 'Bireysel Müşteri'}
+                    </p>
+                  </>
+                )}
               </div>
 
               <div className="flex items-center gap-2">
-                <Button 
-                  variant="outline" 
-                  className="rounded-lg h-9 px-4 border-slate-200 bg-white hover:bg-slate-50 shadow-sm transition-all dark:bg-slate-900 dark:border-slate-700 dark:hover:bg-slate-800"
-                  onClick={() => window.open(`tel:${lead.phone}`, '_self')}
-                >
-                  <Phone className="h-3.5 w-3.5 mr-2 text-slate-600 dark:text-slate-300" />
-                  <span className="font-bold text-xs text-slate-700 dark:text-slate-100">Ara</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="rounded-lg h-9 px-4 border-slate-200 bg-white text-slate-900 hover:bg-slate-50 shadow-sm transition-all dark:bg-emerald-500/10 dark:border-emerald-500/40 dark:text-emerald-300 dark:hover:bg-emerald-500/20"
-                  onClick={() => window.open(`https://wa.me/${lead.phone?.replace(/\s+/g, '')}`, '_blank')}
-                >
-                  <span className="font-bold text-xs text-slate-700 dark:text-emerald-200">WhatsApp</span>
-                </Button>
-                <Button 
-                  className="rounded-lg h-9 px-6 bg-slate-900 text-white hover:bg-slate-800 shadow-sm transition-all"
-                  onClick={() => handleConvertToCustomer(lead.id)}
-                >
-                  <span className="font-bold text-xs text-white">Lead'i Dönüştür</span>
-                </Button>
+                {isEditing ? (
+                  <>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setIsEditing(false)}
+                      className="h-9 w-9 p-0"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      onClick={handleUpdateLead}
+                      className="h-9 bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
+                    >
+                      <Save className="h-4 w-4" />
+                      Kaydet
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button 
+                      variant="outline" 
+                      className="rounded-lg h-9 px-4 border-slate-200 bg-white hover:bg-slate-50 shadow-sm transition-all dark:bg-slate-900 dark:border-slate-700 dark:hover:bg-slate-800"
+                      onClick={() => window.open(`tel:${lead.phone}`, '_self')}
+                    >
+                      <Phone className="h-3.5 w-3.5 mr-2 text-slate-600 dark:text-slate-300" />
+                      <span className="font-bold text-xs text-slate-700 dark:text-slate-100">Ara</span>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="rounded-lg h-9 px-4 border-slate-200 bg-white text-slate-900 hover:bg-slate-50 shadow-sm transition-all dark:bg-emerald-500/10 dark:border-emerald-500/40 dark:text-emerald-300 dark:hover:bg-emerald-500/20"
+                      onClick={() => window.open(`https://wa.me/${lead.phone?.replace(/\s+/g, '')}`, '_blank')}
+                    >
+                      <span className="font-bold text-xs text-slate-700 dark:text-emerald-200">WhatsApp</span>
+                    </Button>
+                    
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-9 w-9 p-0 rounded-lg">
+                          <MoreVertical className="h-4 w-4 text-slate-500" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                          <Pencil className="h-4 w-4 mr-2" />
+                          Düzenle
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleConvertToCustomer(lead.id)}>
+                          <User className="h-4 w-4 mr-2" />
+                          Müşteriye Dönüştür
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-600 focus:text-red-600" onClick={handleDeleteLead}>
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Sil
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -389,27 +510,61 @@ export function LeadDetailModal({ lead, isOpen, onClose, onUpdate }: LeadDetailM
                           <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-500 group-hover:text-slate-900 transition-colors dark:bg-slate-900/60 dark:text-slate-400 dark:group-hover:text-slate-50">
                             <Mail className="h-4 w-4" />
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">E-posta</p>
-                            <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{lead.email || '—'}</p>
+                            {isEditing ? (
+                              <Input 
+                                value={editForm.email} 
+                                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                                className="h-8 mt-1"
+                              />
+                            ) : (
+                              <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{lead.email || '—'}</p>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center gap-4 group">
                           <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-500 group-hover:text-slate-900 transition-colors dark:bg-slate-900/60 dark:text-slate-400 dark:group-hover:text-slate-50">
                             <Phone className="h-4 w-4" />
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Telefon</p>
-                            <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{lead.phone || '—'}</p>
+                            {isEditing ? (
+                              <Input 
+                                value={editForm.phone} 
+                                onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                                className="h-8 mt-1"
+                              />
+                            ) : (
+                              <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{lead.phone || '—'}</p>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center gap-4 group">
                           <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-500 group-hover:text-slate-900 transition-colors dark:bg-slate-900/60 dark:text-slate-400 dark:group-hover:text-slate-50">
                             <ExternalLink className="h-4 w-4" />
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Kaynak</p>
-                            <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{lead.source || '—'}</p>
+                            {isEditing ? (
+                              <Select 
+                                value={editForm.source} 
+                                onValueChange={(val) => setEditForm({ ...editForm, source: val })}
+                              >
+                                <SelectTrigger className="h-8 mt-1">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="WEB_FORM">Web Form</SelectItem>
+                                  <SelectItem value="WHATSAPP">WhatsApp</SelectItem>
+                                  <SelectItem value="INSTAGRAM">Instagram</SelectItem>
+                                  <SelectItem value="PHONE">Telefon</SelectItem>
+                                  <SelectItem value="OTHER">Diğer</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{lead.source || '—'}</p>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -442,9 +597,18 @@ export function LeadDetailModal({ lead, isOpen, onClose, onUpdate }: LeadDetailM
                       <div className="space-y-6">
                         <div>
                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mb-1">Tahmini Değer</p>
-                          <p className="text-4xl font-light text-slate-900 tracking-tight dark:text-slate-100">
-                            {new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(estimatedValue || 0)}
-                          </p>
+                          {isEditing ? (
+                            <Input 
+                              type="number"
+                              value={editForm.value} 
+                              onChange={(e) => setEditForm({ ...editForm, value: Number(e.target.value) })}
+                              className="text-2xl font-light h-12"
+                            />
+                          ) : (
+                            <p className="text-4xl font-light text-slate-900 tracking-tight dark:text-slate-100">
+                              {new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(estimatedValue || 0)}
+                            </p>
+                          )}
                         </div>
                         <div className="grid grid-cols-2 gap-8">
                           <div>
