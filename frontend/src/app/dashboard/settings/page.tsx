@@ -229,7 +229,7 @@ export default function SettingsPage() {
         window.history.replaceState({}, '', newUrl.toString());
         
         // Config'i hemen çek
-        await fetchGoogleCalendarConfig();
+        fetchGoogleCalendarConfig();
       } else {
         toast.success('Facebook hesabı başarıyla bağlandı.');
         router.replace('/dashboard/settings?tab=facebook');
