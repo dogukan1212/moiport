@@ -25,10 +25,19 @@ export class GoogleCalendarService {
     const redirectFromEnv = String(
       process.env.GOOGLE_OAUTH_REDIRECT_URI || '',
     ).trim();
-    const redirectUri =
-      redirectFromDb ||
-      redirectFromEnv ||
-      'https://api.kolayentegrasyon.com/integrations/google-calendar/callback';
+    const defaultRedirect =
+      'https://api.moiport.com/integrations/google-calendar/callback';
+
+    const initialRedirect =
+      redirectFromDb || redirectFromEnv || defaultRedirect;
+
+    let redirectUri = initialRedirect;
+    if (
+      redirectUri.startsWith('http://localhost') ||
+      redirectUri.includes('kolayentegrasyon.com')
+    ) {
+      redirectUri = defaultRedirect;
+    }
 
     const redirectSource = redirectFromDb
       ? 'db'
@@ -349,7 +358,7 @@ export class GoogleCalendarService {
       googleOAuthRedirectUri:
         config.googleOAuthRedirectUri ||
         process.env.GOOGLE_OAUTH_REDIRECT_URI ||
-        'https://api.kolayentegrasyon.com/integrations/google-calendar/callback',
+        'https://api.moiport.com/integrations/google-calendar/callback',
       googleCalendarIsActive: !!config.googleCalendarIsActive,
     };
   }
