@@ -30,6 +30,18 @@ export class GoogleCalendarService {
       redirectFromEnv ||
       'https://api.kolayentegrasyon.com/integrations/google-calendar/callback';
 
+    const redirectSource = redirectFromDb
+      ? 'db'
+      : redirectFromEnv
+        ? 'env'
+        : 'default';
+    console.log(
+      '[GoogleCalendar] Using redirectUri',
+      redirectUri,
+      'source',
+      redirectSource,
+    );
+
     if (!clientId || !clientSecret || !redirectUri) {
       throw new BadRequestException(
         'Google entegrasyonu için geliştirici ayarları eksik. Lütfen sistem yöneticisi olarak admin panelinden Google ayarlarını yapılandırın.',
