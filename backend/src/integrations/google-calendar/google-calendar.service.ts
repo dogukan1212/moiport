@@ -32,12 +32,13 @@ export class GoogleCalendarService {
       redirectFromDb || redirectFromEnv || defaultRedirect;
 
     let redirectUri = initialRedirect;
-    if (
-      redirectUri.startsWith('http://localhost') ||
-      redirectUri.includes('kolayentegrasyon.com')
-    ) {
-      redirectUri = defaultRedirect;
-    }
+    // Localhost kontrolü kaldırıldı - kullanıcı ne tanımladıysa o gitsin
+    // if (
+    //   redirectUri.startsWith('http://localhost') ||
+    //   redirectUri.includes('kolayentegrasyon.com')
+    // ) {
+    //   redirectUri = defaultRedirect;
+    // }
 
     const redirectSource = redirectFromDb
       ? 'db'
@@ -45,9 +46,9 @@ export class GoogleCalendarService {
         ? 'env'
         : 'default';
     console.log(
-      '[GoogleCalendar] Using redirectUri',
+      '[GoogleCalendar] Using redirectUri:',
       redirectUri,
-      'source',
+      '| Source:',
       redirectSource,
     );
 
@@ -158,6 +159,8 @@ export class GoogleCalendarService {
       console.error(
         'Google OAuth token exchange error:',
         error?.response?.data || error?.message || error,
+        '| Used Redirect URI:',
+        redirectUri,
       );
       const msg =
         error?.response?.data?.error_description ||

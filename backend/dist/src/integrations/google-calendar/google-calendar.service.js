@@ -28,7 +28,15 @@ let GoogleCalendarService = class GoogleCalendarService {
         const clientSecret = String(config?.googleOAuthClientSecret || '').trim();
         const redirectFromDb = String(config?.googleOAuthRedirectUri || '').trim();
         const redirectFromEnv = String(process.env.GOOGLE_OAUTH_REDIRECT_URI || '').trim();
-        const redirectUri = redirectFromDb || redirectFromEnv || 'https://api.kolayentegrasyon.com/integrations/google-calendar/callback';
+        const defaultRedirect = 'https://api.moiport.com/integrations/google-calendar/callback';
+        const initialRedirect = redirectFromDb || redirectFromEnv || defaultRedirect;
+        let redirectUri = initialRedirect;
+        const redirectSource = redirectFromDb
+            ? 'db'
+            : redirectFromEnv
+                ? 'env'
+                : 'default';
+        console.log('[GoogleCalendar] Using redirectUri:', redirectUri, '| Source:', redirectSource);
         if (!clientId || !clientSecret || !redirectUri) {
             throw new common_1.BadRequestException('Google entegrasyonu için geliştirici ayarları eksik. Lütfen sistem yöneticisi olarak admin panelinden Google ayarlarını yapılandırın.');
         }
@@ -117,6 +125,7 @@ let GoogleCalendarService = class GoogleCalendarService {
             tokenData = res.data;
         }
         catch (error) {
+            console.error('Google OAuth token exchange error:', error?.response?.data || error?.message || error, '| Used Redirect URI:', redirectUri);
             const msg = error?.response?.data?.error_description ||
                 error?.response?.data?.error ||
                 error?.message;
@@ -156,7 +165,7 @@ let GoogleCalendarService = class GoogleCalendarService {
             throw error;
         }
         const nextRefreshToken = refreshToken || existing?.refreshToken || null;
-        const isActive = !!nextRefreshToken;
+        const isActive = !!(nextRefreshToken || accessToken);
         if (existing) {
             await this.prisma.googleCalendarConfig.update({
                 where: { id: existing.id },
@@ -198,7 +207,7 @@ let GoogleCalendarService = class GoogleCalendarService {
             }
             throw error;
         }
-        if (!config || !config.refreshToken) {
+        if (!config) {
             throw new common_1.BadRequestException('Google Calendar entegrasyonu için önce yetki vermelisiniz.');
         }
         if (!config.isActive) {
@@ -210,7 +219,9 @@ let GoogleCalendarService = class GoogleCalendarService {
         const expiresAt = config.tokenExpiresAt
             ? new Date(config.tokenExpiresAt).getTime()
             : 0;
-        if (!accessToken || !expiresAt || expiresAt - now < 60_000) {
+        const shouldRefresh = !!refreshToken &&
+            (!accessToken || !expiresAt || expiresAt - now < 60_000);
+        if (shouldRefresh) {
             try {
                 const body = new url_1.URLSearchParams({
                     client_id: clientId,
@@ -244,7 +255,7 @@ let GoogleCalendarService = class GoogleCalendarService {
             }
         }
         if (!accessToken) {
-            throw new common_1.BadRequestException('Geçerli bir Google erişim anahtarı bulunamadı.');
+            throw new common_1.BadRequestException('Google Calendar entegrasyonu için önce yetki vermelisiniz.');
         }
         return {
             accessToken,
@@ -264,7 +275,7 @@ let GoogleCalendarService = class GoogleCalendarService {
             googleOAuthClientSecret: config.googleOAuthClientSecret || '',
             googleOAuthRedirectUri: config.googleOAuthRedirectUri ||
                 process.env.GOOGLE_OAUTH_REDIRECT_URI ||
-                'https://api.kolayentegrasyon.com/integrations/google-calendar/callback',
+                'https://api.moiport.com/integrations/google-calendar/callback',
             googleCalendarIsActive: !!config.googleCalendarIsActive,
         };
     }
@@ -324,7 +335,7 @@ let GoogleCalendarService = class GoogleCalendarService {
             });
         }
         const nextIsActive = typeof data.isActive === 'boolean' ? data.isActive : existing.isActive;
-        if (nextIsActive && !existing.refreshToken) {
+        if (nextIsActive && !existing.refreshToken && !existing.accessToken) {
             throw new common_1.BadRequestException('Entegrasyonu aktif etmek için önce Google ile yetki vermelisiniz.');
         }
         return this.prisma.googleCalendarConfig.update({
