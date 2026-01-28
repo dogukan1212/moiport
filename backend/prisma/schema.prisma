@@ -1,0 +1,1015 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  logoUrl   String?
+  address   String?
+  title     String?
+  phone     String?
+  email     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  payrollCalculationStartDay      Int?    @default(1)
+  payrollCalculationEndDay        Int?    @default(30)
+  payrollPaymentDay               Int?    @default(15)
+  payrollExpenseVisibilityDaysBefore Int? @default(7)
+  payrollAutoGenerate             Boolean @default(true)
+
+  // Subscription Info
+  subscriptionPlan       String?   @default("STARTER")
+  subscriptionStatus     String?   @default("ACTIVE")
+  subscriptionEndsAt     DateTime?
+  maxUsers               Int?      @default(5)
+  maxStorage             Int?      @default(1024) // MB
+  autoRenew              Boolean   @default(true)
+
+  users                 User[]
+  customers             Customer[]
+  projects              Project[]
+  tasks                 Task[]
+  transactions          Transaction[]
+  recurringTransactions RecurringTransaction[]
+  invoices              Invoice[]
+  invoicePayments       InvoicePayment[]
+  whatsappConfigs       WhatsappConfig[]
+  payrolls              Payroll[]
+  proposals             Proposal[]
+  services              Service[]
+  socialMediaPosts      SocialMediaPost[]
+  socialMediaPlans      SocialMediaPlan[]
+  columnWatchers        ColumnWatcher[]
+  employeeAdvances      EmployeeAdvance[]
+  chatRooms             ChatRoom[]
+  chatMemberships       ChatMembership[]
+  chatMessages          ChatMessage[]
+  notifications         Notification[]
+  facebookConfigs       FacebookConfig[]
+  parasutConfigs        ParasutConfig[]
+  paytrConfigs          PaytrConfig[]
+  vatansmsConfigs       VatansmsConfig[]
+  netgsmConfigs         NetgsmConfig[]
+  googleCalendarConfigs GoogleCalendarConfig[]
+  trelloConfigs         TrelloConfig[]
+  smsSettings           SmsSettings?
+  smsTemplates          SmsTemplate[]
+  smsTriggers           SmsTrigger[]
+  smsLogs               SmsLog[]
+  
+  // CRM
+  pipelines             Pipeline[]
+  leads                 Lead[]
+  crmActivities         CrmActivity[]
+  paymentMethods        PaymentMethod[]
+  subscriptionPayments  SubscriptionPayment[]
+
+  // Modules
+  wordpressModuleEnabled Boolean @default(false)
+  wordpressSites         WordpressSite[]
+  wordpressPosts         WordpressPost[]
+
+  twoFactorEnabled Boolean @default(false)
+}
+
+model WordpressSite {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  
+  siteUrl   String
+  apiKey    String   // Secret key to communicate with WP plugin
+  
+  isActive  Boolean  @default(true)
+  lastSyncAt DateTime?
+  
+  siteAnalysis String? // JSON data for site analysis result
+
+  posts WordpressPost[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WordpressPost {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  siteId String
+  site   WordpressSite @relation(fields: [siteId], references: [id])
+
+  wpPostId Int
+  postUrl  String?
+
+  title            String
+  content          String?
+  status           String
+  tags             String? // JSON array of tag names
+  categories       String? // JSON array of category IDs
+  featuredImageUrl String?
+
+  scheduledAt DateTime?
+  publishedAt DateTime?
+  deletedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId, siteId])
+  @@unique([siteId, wpPostId])
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  emailVerifiedAt DateTime?
+  password  String
+  name      String?
+  avatar    String?
+  role      String   @default("STAFF") // ADMIN, STAFF, CLIENT
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  
+  customerId String?
+  customer   Customer? @relation("UserCustomer", fields: [customerId], references: [id])
+  
+  // HR / Payroll info
+  salary      Float?    @default(0)
+  iban        String?
+  phone       String?
+  phoneVerifiedAt DateTime?
+  startDate   DateTime?
+  isActive    Boolean   @default(true)
+  tckn        String?
+  address     String?
+  birthDate   DateTime?
+  jobTitle    String?
+  department  String?
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  bankName    String?
+  bankBranch  String?
+  bankAccountNumber String?
+  maritalStatus String?
+  childrenCount Int?
+  bloodType    String?
+  educationLevel String?
+  contractType String?
+  socialSecurityNumber String?
+  taxNumber    String?
+  weeklyHours  Int?
+  probationMonths Int?
+  confidentialityYears Int?
+  nonCompeteMonths Int?
+  penaltyAmount Float?
+  equipmentList String?
+  benefits     String?
+  performancePeriod String?
+  workplace    String?
+  bonusPolicy  String?
+  leavePolicy  String?
+  noticePeriodWeeks Int?
+  
+  allowedModules String? // Comma separated list: CRM,WHATSAPP,FINANCE,PROJECTS,TASKS,CHAT,SOCIAL_MEDIA_PLANS
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  assignedTasks Task[] @relation("Assignee")
+  assignedLeads Lead[] @relation("LeadAssignee")
+  columnWatchers ColumnWatcher[]
+  payrolls      Payroll[]
+  advances      EmployeeAdvance[]
+  chatMemberships ChatMembership[]
+  chatMessages   ChatMessage[]
+  notifications  Notification[]
+
+  managedSocialMediaPlans SocialMediaPlan[] @relation("PlanManager")
+  designedSocialMediaPlans SocialMediaPlan[] @relation("PlanDesigner")
+  crmActivities   CrmActivity[]
+
+  verifications UserVerification[]
+  twoFactorAuths TwoFactorAuth[]
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  
+  title     String
+  message   String
+  type      String   // TASK_ASSIGNMENT, TASK_MENTION, TASK_DUE, SYSTEM
+  referenceId String? // ID of the task or related entity
+  referenceType String? // TASK, PROJECT, etc.
+  
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Customer {
+  id        String   @id @default(uuid())
+  name      String
+  email     String?
+  phone     String?
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projects  Project[]
+  proposals Proposal[]
+  socialMediaPosts SocialMediaPost[]
+  socialMediaPlans SocialMediaPlan[]
+  invoices  Invoice[]
+  recurringTransactions RecurringTransaction[]
+  transactions Transaction[]
+  
+  // Client Portal & CRM
+  users           User[]           @relation("UserCustomer")
+  whatsappConfigs WhatsappConfig[]
+  facebookConfigs FacebookConfig[]
+  parasutConfigs  ParasutConfig[]
+  pipelines       Pipeline[]
+  wordpressSites  WordpressSite[]
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  status      String   @default("ACTIVE") // ACTIVE, COMPLETED, ON_HOLD
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tasks Task[]
+}
+
+model Task {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  status      String   @default("TODO") // TODO, IN_PROGRESS, REVIEW, DONE
+  priority    String   @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  order       Int      @default(0)
+  mirrorGroupId String?
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id])
+  assigneeId  String?
+  assignee    User?    @relation("Assignee", fields: [assigneeId], references: [id])
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  dueDate     DateTime?
+  
+  labels             String? // JSON array of label IDs
+  checklist          String? // JSON array of checklist items
+  checklistTotal     Int     @default(0)
+  checklistCompleted Int     @default(0)
+  members            String? // JSON array of member IDs
+  memberCount        Int     @default(0)
+  watchers           String? // JSON array of watcher IDs
+  watcherCount       Int     @default(0)
+  attachments        String? // JSON array of attachment objects
+  attachmentCount    Int     @default(0)
+  coverColor         String?
+  comments           String? // JSON array of comments
+  activities         String? // JSON array of activities
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ColumnWatcher {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  columnId  String   // Status (TODO, IN_PROGRESS etc.)
+  projectId String?  // Optional, if we want to watch a column specific to a project
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, tenantId, columnId, projectId])
+}
+
+model Transaction {
+  id          String   @id @default(uuid())
+  type        String   // INCOME, EXPENSE
+  amount      Float
+  category    String   // Salary, Service, Rent, Tax, etc.
+  description String?
+  date        DateTime @default(now())
+  status      String   @default("PAID") // PENDING, PAID, CANCELLED
+  
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  
+  // Relations
+  customerId  String?
+  customer    Customer? @relation(fields: [customerId], references: [id])
+  
+  invoiceId   String?
+  invoice     Invoice? @relation(fields: [invoiceId], references: [id])
+  
+  payrollId   String?
+  payroll     Payroll? @relation(fields: [payrollId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Map to old FinanceRecord table name if needed, but let's just use Transaction
+}
+
+model RecurringTransaction {
+  id          String   @id @default(uuid())
+  type        String   // INCOME, EXPENSE
+  category    String
+  description String?
+  amount      Float
+  interval    String   // DAILY, WEEKLY, MONTHLY, YEARLY
+  nextRunDate DateTime
+  isActive    Boolean  @default(true)
+  
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  
+  customerId  String?
+  customer    Customer? @relation(fields: [customerId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Invoice {
+  id          String   @id @default(uuid())
+  number      String   // INV-2024-001
+  status      String   @default("DRAFT") // DRAFT, SENT, PAID, OVERDUE, CANCELLED
+  issueDate   DateTime @default(now())
+  dueDate     DateTime
+  amount      Float
+  taxRate     Float    @default(20)
+  taxAmount   Float
+  totalAmount Float
+  currency    String   @default("TRY")
+  
+  notes       String?
+  
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  
+  items       InvoiceItem[]
+  transactions Transaction[]
+  payments     InvoicePayment[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model InvoiceItem {
+  id          String   @id @default(uuid())
+  description String
+  quantity    Int      @default(1)
+  unitPrice   Float
+  totalPrice  Float
+  
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}
+
+model InvoicePayment {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  invoiceId String
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  provider  String   @default("PAYTR")
+  status    String   @default("PENDING")
+  amount    Float
+  currency  String   @default("TRY")
+
+  paytrLinkId     String?
+  paytrLinkUrl    String?
+  paytrMerchantOid String?
+  rawCallback     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  paidAt    DateTime?
+
+  @@index([tenantId, invoiceId])
+  @@index([tenantId, status])
+  @@index([tenantId, paytrLinkId])
+  @@index([tenantId, paytrMerchantOid])
+}
+
+model Payroll {
+  id          String   @id @default(uuid())
+  period      String   // "2024-02"
+  baseSalary  Float
+  bonus       Float    @default(0)
+  deductions  Float    @default(0)
+  netSalary   Float
+  status      String   @default("PENDING") // PENDING, PAID
+  paymentDate DateTime?
+  
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id])
+  
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  
+  transactions Transaction[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model EmployeeAdvance {
+  id          String   @id @default(uuid())
+  amount      Float
+  date        DateTime @default(now())
+  description String?
+  isDeducted  Boolean  @default(false)
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SocialMediaPost {
+  id          String   @id @default(uuid())
+  content     String
+  type        String   // POST, REELS, STORY
+  platform    String   @default("INSTAGRAM")
+  status      String   @default("DRAFT") // DRAFT, SCHEDULED, PUBLISHED
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  metadata    String?  // JSON string for storing services, pricing, etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Service {
+  id           String   @id @default(uuid())
+  name         String
+  description  String?
+  basePrice    Float?
+  billingCycle String?  @default("MONTHLY") // MONTHLY, YEARLY, ONCE
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Proposal {
+  id          String   @id @default(uuid())
+  title       String
+  content     String
+  status      String   @default("DRAFT") // DRAFT, SENT, APPROVED, REJECTED
+  metadata    String?
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// --- Chat ---
+
+model ChatRoom {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  type      String   @default("CHANNEL") // CHANNEL, PROJECT, DM
+  name      String
+  projectId String?
+  isPrivate Boolean  @default(false)
+
+  // Integration
+  platform  String   @default("INTERNAL") // INTERNAL, WHATSAPP, FACEBOOK, INSTAGRAM
+  externalId String? // External Thread ID / Phone Number
+  metadata  String?  // JSON for extra info (customer name, avatar, etc.)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships ChatMembership[]
+  messages    ChatMessage[]
+}
+
+model ChatMembership {
+  id        String   @id @default(uuid())
+  roomId    String
+  room      ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  role      String?  // ADMIN, MODERATOR, MEMBER
+  createdAt DateTime @default(now())
+
+  @@unique([roomId, userId])
+}
+
+model ChatMessage {
+  id          String   @id @default(uuid())
+  roomId      String
+  room        ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  content     String
+  attachments String?  // JSON array string
+  platform    String   @default("INTERNAL") // INTERNAL, WHATSAPP, FACEBOOK, INSTAGRAM
+  externalId  String?  // External Message ID
+  metadata    String?  // JSON for extra info
+
+  pinned      Boolean  @default(false)
+  status      String   @default("SENT") // SENT, DELIVERED, READ
+  createdAt   DateTime @default(now())
+  deletedAt   DateTime?
+}
+
+model SocialMediaPlan {
+  id                    String   @id @default(uuid())
+  tenantId              String
+  tenant                Tenant   @relation(fields: [tenantId], references: [id])
+  
+  brandName             String?
+  customerId            String?
+  customer              Customer? @relation(fields: [customerId], references: [id])
+
+  currentPlanEndDate    DateTime?
+  newPlanStartDate      DateTime?
+  briefDeadline         DateTime?
+  presentationDeadline  DateTime?
+  
+  briefStatus           String   @default("Bekliyor")
+  designStatus          String   @default("Bekliyor")
+  
+  socialMediaManager    String?
+  socialMediaManagerId  String?
+  socialMediaManagerUser User?   @relation("PlanManager", fields: [socialMediaManagerId], references: [id])
+
+  designer              String?
+  designerId            String?
+  designerUser          User?      @relation("PlanDesigner", fields: [designerId], references: [id])
+  
+  calendarUrl           String?
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+// --- CRM ---
+
+model Pipeline {
+  id        String   @id @default(uuid())
+  name      String
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  
+  stages    Stage[]
+  leads     Lead[]
+  facebookMappings FacebookLeadMapping[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Stage {
+  id          String   @id @default(uuid())
+  name        String
+  order       Int      @default(0)
+  color       String?  @default("#3b82f6")
+  pipelineId  String
+  pipeline    Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  
+  leads       Lead[]
+  facebookMappings FacebookLeadMapping[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Lead {
+  id            String   @id @default(uuid())
+  name          String
+  email         String?
+  phone         String?
+  company       String?
+  source        String?  // INSTAGRAM, WHATSAPP, LINKEDIN, WEB_FORM, etc.
+  status        String   @default("NEW") // NEW, CONTACTED, QUALIFIED, LOST, WON
+  score         Int      @default(0)
+  value         Float?   @default(0)
+  isWhatsappArchived Boolean @default(false)
+  
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+
+  assigneeId    String?
+  assignee      User?    @relation("LeadAssignee", fields: [assigneeId], references: [id])
+  
+  pipelineId    String
+  pipeline      Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  
+  stageId       String
+  stage         Stage    @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  
+  facebookFormId String? // Added to filter by assigned users
+  
+  customerId    String?  // Linked if converted
+  
+  activities    CrmActivity[]
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model CrmActivity {
+  id          String   @id @default(uuid())
+  type        String   // NOTE, CALL, EMAIL, MEETING, MESSAGE
+  content     String
+  
+  leadId      String
+  lead        Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id])
+  
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  
+  reminderDate DateTime?
+  isReminderSent Boolean @default(false)
+  
+  status      String?  // SENT, DELIVERED, READ (for WhatsApp)
+  externalId  String?  // WhatsApp Message ID
+
+  createdAt   DateTime @default(now())
+}
+
+// --- Integration ---
+
+model SystemConfig {
+  id                String   @id @default(uuid())
+  facebookAppId     String?
+  facebookAppSecret String?
+  facebookVerifyToken String?
+  paytrMerchantId   String?
+  paytrMerchantKey  String?
+  paytrMerchantSalt String?
+  paytrIsActive     Boolean  @default(false)
+  paytrTestMode     Boolean  @default(true)
+  netgsmUsercode    String?
+  netgsmPassword    String?
+  netgsmMsgheader   String?
+  netgsmIsActive    Boolean  @default(false)
+  registrationSmsVerificationEnabled Boolean @default(false)
+  smtp2goUsername   String?
+  smtp2goPassword   String?
+  smtp2goFromEmail  String?
+  smtp2goFromName   String?
+  smtp2goIsActive   Boolean  @default(false)
+  googleOAuthClientId     String?
+  googleOAuthClientSecret String?
+  googleOAuthRedirectUri  String?
+  googleCalendarIsActive  Boolean  @default(false)
+  updatedAt         DateTime @updatedAt
+}
+
+model UserVerification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  purpose   String
+  codeHash  String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId, purpose])
+}
+
+model TwoFactorAuth {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  otpHash   String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model FacebookConfig {
+  id             String   @id @default(uuid())
+  tenantId       String
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  customerId     String?
+  customer       Customer? @relation(fields: [customerId], references: [id])
+  accessToken    String?  // Bu artık Page Access Token olacak
+  userAccessToken String? // Yeni eklenen: User Access Token
+  pageId         String?
+  pageName       String?
+  instagramBusinessAccountId String? // Linked Instagram Business Account ID
+  isActive       Boolean  @default(false)
+  updatedAt      DateTime @updatedAt
+  
+  mappings       FacebookLeadMapping[]
+}
+
+model FacebookLeadMapping {
+  id               String   @id @default(uuid())
+  configId         String
+  config           FacebookConfig @relation(fields: [configId], references: [id])
+  facebookFormId   String?
+  facebookFormName String?
+  pipelineId       String
+  pipeline         Pipeline @relation(fields: [pipelineId], references: [id])
+  stageId          String
+  stage            Stage    @relation(fields: [stageId], references: [id])
+  fieldMappings    String?  // JSON string: { "fb_field": "lead_field" }
+  assignedUserIds  String?  // JSON string: ["user_id_1", "user_id_2"] - Boşsa herkes görebilir
+  defaultAssigneeId String? // Yeni: Lead geldiğinde otomatik atanacak kişi
+  createdAt        DateTime @default(now())
+}
+
+model WhatsappConfig {
+  id            String   @id @default(uuid())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  customerId    String?
+  customer      Customer? @relation(fields: [customerId], references: [id])
+  phoneNumberId String?
+  accessToken   String?
+  apiVersion    String?  @default("v21.0")
+  provider      String   @default("meta")
+  twilioAccountSid String?
+  isActive      Boolean  @default(false)
+  aiEnabled     Boolean  @default(false)
+  autoReplyEnabled Boolean @default(false)
+  autoReplyTemplates String?
+  updatedAt     DateTime @updatedAt
+}
+
+model ParasutConfig {
+  id          String   @id @default(uuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  customerId  String?
+  customer    Customer? @relation(fields: [customerId], references: [id])
+  companyId   String?
+  accessToken String?
+  refreshToken String?
+  tokenType   String?
+  scope       String?
+  expiresAt   DateTime?
+  isActive    Boolean  @default(false)
+  updatedAt   DateTime @updatedAt
+}
+
+model VatansmsConfig {
+  id                 String   @id @default(uuid())
+  tenantId           String
+  tenant             Tenant   @relation(fields: [tenantId], references: [id])
+  apiId              String?
+  apiKey             String?
+  sender             String?
+  messageType        String   @default("normal")
+  messageContentType String   @default("bilgi")
+  isActive           Boolean  @default(false)
+  updatedAt          DateTime @updatedAt
+
+  @@unique([tenantId])
+}
+
+model PaytrConfig {
+  id           String   @id @default(uuid())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+  merchantId   String?
+  merchantKey  String?
+  merchantSalt String?
+  isActive     Boolean  @default(false)
+  updatedAt    DateTime @updatedAt
+
+  @@unique([tenantId])
+}
+
+model NetgsmConfig {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  usercode  String?
+  password  String?
+  msgheader String?
+  isActive  Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId])
+}
+
+model TrelloConfig {
+  id       String  @id @default(uuid())
+  tenantId String
+  tenant   Tenant  @relation(fields: [tenantId], references: [id])
+  apiKey   String?
+  token    String?
+  isActive Boolean @default(false)
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId])
+}
+
+model GoogleCalendarConfig {
+  id              String   @id @default(uuid())
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  email           String?
+  accessToken     String?
+  refreshToken    String?
+  tokenExpiresAt  DateTime?
+  primaryCalendar String?
+  isActive        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([tenantId])
+}
+
+model SmsSettings {
+  id        String   @id @default(uuid())
+  tenantId  String   @unique
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  provider  String   @default("VATANSMS") // VATANSMS, NETGSM
+  isActive  Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+}
+
+model SmsTemplate {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  key       String
+  title     String
+  content   String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, key])
+  @@index([tenantId])
+}
+
+model SmsTrigger {
+  id            String   @id @default(uuid())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  event         String
+  enabled       Boolean  @default(false)
+  recipientType String   @default("CUSTOMER_PHONE")
+  templateKey   String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([tenantId, event])
+  @@index([tenantId])
+}
+
+model SmsLog {
+  id                String   @id @default(uuid())
+  tenantId           String
+  tenant             Tenant   @relation(fields: [tenantId], references: [id])
+  provider           String
+  event              String?
+  to                 String
+  message            String
+  status             String   @default("SUCCESS") // SUCCESS, FAILED
+  providerMessageId  String?
+  error              String?
+  referenceType      String?
+  referenceId        String?
+  createdAt          DateTime @default(now())
+
+  @@index([tenantId, createdAt])
+  @@index([tenantId, referenceType, referenceId])
+}
+
+model SystemLog {
+  id        String   @id @default(uuid())
+  level     String   @default("INFO") // INFO, ERROR, DEBUG
+  source    String   @default("SYSTEM") // WEBHOOK, CRON, API
+  message   String
+  details   String?  // JSON
+  tenantId  String?  // Optional tenant ID for filtering
+  createdAt DateTime @default(now())
+}
+
+// --- Subscriptions / Billing ---
+
+model Plan {
+  id           String   @id @default(uuid())
+  code         String   @unique
+  name         String
+  description  String?
+  monthlyPrice Float
+  yearlyPrice  Float?
+  isPopular    Boolean  @default(false)
+  maxUsers     Int?
+  maxStorage   Int?     // MB
+  features     String?  // JSON array of strings
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model PaymentMethod {
+  id             String   @id @default(uuid())
+  tenantId       String
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  provider       String   @default("PAYTR")
+  paytrUserId    String?
+  paytrCardToken String?
+  last4          String?
+  brand          String?
+  expiry         String?
+  isDefault      Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model SubscriptionPayment {
+  id                String   @id @default(uuid())
+  tenantId          String
+  tenant            Tenant   @relation(fields: [tenantId], references: [id])
+  planCode          String
+  amount            Float
+  currency          String   @default("TRY")
+  period            String   @default("MONTHLY") // MONTHLY, YEARLY
+  status            String   @default("PENDING") // PENDING, PAID, FAILED
+  provider          String   @default("PAYTR")
+  providerToken     String?
+  providerReference String?
+  errorMessage      String?
+  createdAt         DateTime @default(now())
+  paidAt            DateTime?
+}
+
+model AuthOtp {
+  id         String   @id @default(uuid())
+  purpose    String
+  email      String?
+  phone      String?
+  tenantId   String?
+  userId     String?
+  codeHash   String
+  attempts   Int      @default(0)
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime @default(now())
+
+  @@index([purpose, expiresAt])
+  @@index([tenantId, userId])
+  @@index([email])
+  @@index([phone])
+}

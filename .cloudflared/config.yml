@@ -1,0 +1,9 @@
+tunnel: ajans-tunnel
+credentials-file: C:\Projeler\ajans\.cloudflared\ajans-tunnel.json
+
+ingress:
+  - hostname: kolayentegrasyon.com
+    service: http://127.0.0.1:3000
+  - hostname: api.kolayentegrasyon.com
+    service: http://127.0.0.1:3001
+  - service: http_status:404

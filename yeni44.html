@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nexus Agency OS</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1773cf",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#050505", /* Darker black for better contrast */
+                        "surface-dark": "#0a0a0a",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"],
+                        "body": ["Manrope", "sans-serif"],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+        .glass-border {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-border:hover {
+            border-color: rgba(23, 115, 207, 0.5);
+            background: rgba(255, 255, 255, 0.02);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white overflow-x-hidden antialiased selection:bg-primary selection:text-white">
+<!-- Navigation -->
+<nav class="fixed top-0 z-50 w-full border-b border-white/5 bg-background-dark/80 backdrop-blur-md">
+<div class="mx-auto max-w-7xl px-6 lg:px-8">
+<div class="flex h-16 items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="flex size-8 items-center justify-center rounded bg-white text-black">
+<span class="material-symbols-outlined text-xl font-bold">all_inclusive</span>
+</div>
+<span class="text-lg font-bold tracking-tight text-white">Nexus</span>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-sm font-medium text-zinc-400 hover:text-white transition-colors" href="#features">Features</a>
+<a class="text-sm font-medium text-zinc-400 hover:text-white transition-colors" href="#workflow">Workflow</a>
+<a class="text-sm font-medium text-zinc-400 hover:text-white transition-colors" href="#pricing">Pricing</a>
+</div>
+<div class="flex items-center gap-4">
+<a class="hidden md:block text-sm font-medium text-white hover:text-primary transition-colors" href="#">Log in</a>
+<a class="rounded bg-primary px-4 py-2 text-sm font-bold text-white transition hover:bg-primary/90" href="#">Get Started</a>
+</div>
+</div>
+</div>
+</nav>
+<!-- Hero Section -->
+<section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+<!-- Background Glow -->
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-primary/20 blur-[120px] rounded-full opacity-20 pointer-events-none"></div>
+<div class="mx-auto max-w-7xl px-6 lg:px-8 flex flex-col items-center text-center relative z-10">
+<h1 class="max-w-4xl text-5xl font-extrabold tracking-tight text-white sm:text-7xl mb-6">
+                Orchestrate <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-500">Excellence</span>
+</h1>
+<p class="max-w-2xl text-lg text-zinc-400 mb-10 leading-relaxed font-light">
+                The operating system for modern agencies. Experience the future of agency management with precision, clarity, and speed.
+            </p>
+<div class="flex items-center gap-4 mb-20">
+<button class="h-12 px-8 rounded bg-white text-black text-sm font-bold hover:bg-zinc-200 transition-colors">
+                    Start Free Trial
+                </button>
+<button class="h-12 px-8 rounded border border-zinc-700 text-white text-sm font-bold hover:border-zinc-500 transition-colors flex items-center gap-2 group">
+                    View Demo
+                    <span class="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1">arrow_forward</span>
+</button>
+</div>
+<!-- UI Mockup -->
+<div class="w-full max-w-5xl rounded-xl border border-white/10 bg-surface-dark p-2 shadow-2xl relative">
+<!-- Abstract representation of the UI to avoid broken images -->
+<div class="w-full aspect-[16/9] rounded-lg overflow-hidden bg-zinc-900 border border-white/5 relative group" data-alt="Dark themed dashboard UI showing project timeline and analytics">
+<!-- Sidebar Mock -->
+<div class="absolute left-0 top-0 bottom-0 w-64 border-r border-white/5 bg-background-dark/50 hidden md:flex flex-col p-4 gap-4">
+<div class="h-8 w-8 bg-zinc-800 rounded"></div>
+<div class="h-4 w-32 bg-zinc-800 rounded opacity-50"></div>
+<div class="h-4 w-24 bg-zinc-800 rounded opacity-50"></div>
+<div class="h-4 w-28 bg-zinc-800 rounded opacity-50"></div>
+</div>
+<!-- Topbar Mock -->
+<div class="absolute top-0 left-0 right-0 h-16 border-b border-white/5 bg-background-dark/50 flex items-center px-6 md:pl-72 justify-between">
+<div class="h-4 w-40 bg-zinc-800 rounded"></div>
+<div class="flex gap-2">
+<div class="h-8 w-8 bg-zinc-800 rounded-full"></div>
+<div class="h-8 w-8 bg-primary rounded-full"></div>
+</div>
+</div>
+<!-- Content Mock -->
+<div class="absolute top-16 left-0 right-0 bottom-0 p-6 md:pl-72 overflow-hidden bg-gradient-to-br from-zinc-900 to-black">
+<div class="grid grid-cols-3 gap-4 mb-6">
+<div class="h-24 rounded border border-white/5 bg-white/5"></div>
+<div class="h-24 rounded border border-white/5 bg-white/5"></div>
+<div class="h-24 rounded border border-white/5 bg-white/5"></div>
+</div>
+<div class="h-64 rounded border border-white/5 bg-white/5 w-full"></div>
+</div>
+<!-- Gradient overlay on image -->
+<div class="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent opacity-60"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Social Proof -->
+<section class="py-12 border-y border-white/5 bg-black/40">
+<div class="mx-auto max-w-7xl px-6 lg:px-8">
+<p class="text-center text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-8">Trusted by elite design teams</p>
+<div class="flex flex-wrap justify-center gap-12 md:gap-20 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+<!-- Text-based logos for minimalist aesthetic -->
+<span class="text-xl font-bold font-display tracking-tight text-white">Acme Studio</span>
+<span class="text-xl font-bold font-display tracking-tight text-white flex items-center gap-1"><div class="w-3 h-3 bg-white rounded-full"></div> Sphere</span>
+<span class="text-xl font-bold font-display tracking-tight text-white">MONOLITH</span>
+<span class="text-xl font-bold font-display tracking-tight text-white italic">Vertex</span>
+<span class="text-xl font-bold font-display tracking-tight text-white">Onyx &amp; Co.</span>
+</div>
+</div>
+</section>
+<!-- Features Grid -->
+<section class="py-24 lg:py-32 relative" id="features">
+<div class="mx-auto max-w-7xl px-6 lg:px-8">
+<div class="max-w-2xl mb-16">
+<h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl mb-4">Agency Core Modules</h2>
+<p class="text-zinc-400">Everything you need to run a world-class agency in one integrated system.</p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+<!-- Feature 1 -->
+<div class="glass-border rounded-lg p-6 flex flex-col gap-4 group transition-colors duration-300">
+<div class="w-10 h-10 rounded bg-white/5 flex items-center justify-center text-white group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">ecg_heart</span>
+</div>
+<div>
+<h3 class="text-lg font-bold text-white mb-2">Project Pulse</h3>
+<p class="text-sm text-zinc-500 leading-relaxed">Real-time velocity tracking and health metrics for every active engagement.</p>
+</div>
+</div>
+<!-- Feature 2 -->
+<div class="glass-border rounded-lg p-6 flex flex-col gap-4 group transition-colors duration-300">
+<div class="w-10 h-10 rounded bg-white/5 flex items-center justify-center text-white group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<div>
+<h3 class="text-lg font-bold text-white mb-2">Client CRM</h3>
+<p class="text-sm text-zinc-500 leading-relaxed">Relationship intelligence that goes beyond contact details to interaction history.</p>
+</div>
+</div>
+<!-- Feature 3 -->
+<div class="glass-border rounded-lg p-6 flex flex-col gap-4 group transition-colors duration-300">
+<div class="w-10 h-10 rounded bg-white/5 flex items-center justify-center text-white group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<div>
+<h3 class="text-lg font-bold text-white mb-2">Financial Flow</h3>
+<p class="text-sm text-zinc-500 leading-relaxed">Seamless invoice generation, expense tracking, and revenue forecasting.</p>
+</div>
+</div>
+<!-- Feature 4 -->
+<div class="glass-border rounded-lg p-6 flex flex-col gap-4 group transition-colors duration-300">
+<div class="w-10 h-10 rounded bg-white/5 flex items-center justify-center text-white group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">hub</span>
+</div>
+<div>
+<h3 class="text-lg font-bold text-white mb-2">Team Synergy</h3>
+<p class="text-sm text-zinc-500 leading-relaxed">Visual resource allocation maps to prevent burnout and optimize utilization.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Interactive Workflow Timeline -->
+<section class="py-24 bg-surface-dark border-y border-white/5" id="workflow">
+<div class="mx-auto max-w-7xl px-6 lg:px-8">
+<div class="grid lg:grid-cols-2 gap-16 items-center">
+<div>
+<h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl mb-6">Workflow Intelligence</h2>
+<p class="text-zinc-400 mb-8 leading-relaxed">
+                        From the initial brief to final delivery, Nexus tracks every milestone. Our linear workflow engine ensures nothing falls through the cracks.
+                    </p>
+<div class="flex gap-4">
+<div class="flex flex-col gap-2">
+<h3 class="text-4xl font-bold text-white">40%</h3>
+<p class="text-sm text-zinc-500">Faster Delivery</p>
+</div>
+<div class="w-px h-16 bg-white/10 mx-4"></div>
+<div class="flex flex-col gap-2">
+<h3 class="text-4xl font-bold text-white">Zero</h3>
+<p class="text-sm text-zinc-500">Missed Deadlines</p>
+</div>
+</div>
+</div>
+<!-- Vertical Timeline -->
+<div class="relative pl-8 border-l border-white/10 space-y-12">
+<!-- Step 1 -->
+<div class="relative group">
+<div class="absolute -left-[41px] top-1 h-5 w-5 rounded-full border-2 border-primary bg-background-dark z-10 flex items-center justify-center">
+<div class="w-2 h-2 bg-primary rounded-full"></div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl">description</span>
+<h3 class="text-lg font-bold text-white">Client Brief</h3>
+</div>
+<p class="text-sm text-zinc-500 pl-8">Automated intake forms populate project requirements instantly.</p>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="relative group">
+<div class="absolute -left-[41px] top-1 h-5 w-5 rounded-full border-2 border-zinc-700 bg-background-dark z-10 group-hover:border-primary transition-colors"></div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-zinc-400 group-hover:text-primary transition-colors text-xl">lightbulb</span>
+<h3 class="text-lg font-medium text-zinc-300 group-hover:text-white transition-colors">Strategy Phase</h3>
+</div>
+<p class="text-sm text-zinc-600 group-hover:text-zinc-500 transition-colors pl-8">Research integration and collaborative moodboarding.</p>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="relative group">
+<div class="absolute -left-[41px] top-1 h-5 w-5 rounded-full border-2 border-zinc-700 bg-background-dark z-10 group-hover:border-primary transition-colors"></div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-zinc-400 group-hover:text-primary transition-colors text-xl">design_services</span>
+<h3 class="text-lg font-medium text-zinc-300 group-hover:text-white transition-colors">Design &amp; Iteration</h3>
+</div>
+<p class="text-sm text-zinc-600 group-hover:text-zinc-500 transition-colors pl-8">Version control for creative assets and client feedback loops.</p>
+</div>
+</div>
+<!-- Step 4 -->
+<div class="relative group">
+<div class="absolute -left-[41px] top-1 h-5 w-5 rounded-full border-2 border-zinc-700 bg-background-dark z-10 group-hover:border-primary transition-colors"></div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-zinc-400 group-hover:text-primary transition-colors text-xl">rocket_launch</span>
+<h3 class="text-lg font-medium text-zinc-300 group-hover:text-white transition-colors">Final Delivery</h3>
+</div>
+<p class="text-sm text-zinc-600 group-hover:text-zinc-500 transition-colors pl-8">Automated asset handover and invoice generation.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Pricing -->
+<section class="py-24 relative overflow-hidden" id="pricing">
+<div class="mx-auto max-w-7xl px-6 lg:px-8">
+<div class="text-center mb-16">
+<h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Transparent Pricing</h2>
+<p class="text-zinc-400 mt-4">Scalable plans for teams of all sizes.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Studio -->
+<div class="glass-border rounded-xl p-8 flex flex-col relative bg-transparent">
+<h3 class="text-lg font-medium text-white mb-2">Studio</h3>
+<p class="text-sm text-zinc-500 mb-6">For solopreneurs and freelancers.</p>
+<div class="flex items-baseline gap-1 mb-8">
+<span class="text-4xl font-bold text-white">$49</span>
+<span class="text-zinc-500">/mo</span>
+</div>
+<ul class="flex flex-col gap-3 mb-8 flex-1">
+<li class="flex gap-3 text-sm text-zinc-300">
+<span class="material-symbols-outlined text-green-500 text-lg">check</span>
+                            Up to 3 Active Projects
+                        </li>
+<li class="flex gap-3 text-sm text-zinc-300">
+<span class="material-symbols-outlined text-green-500 text-lg">check</span>
+                            Basic CRM
+                        </li>
+<li class="flex gap-3 text-sm text-zinc-300">
+<span class="material-symbols-outlined text-green-500 text-lg">check</span>
+                            Invoicing
+                        </li>
+</ul>
+<button class="w-full py-2.5 rounded border border-white/20 text-white text-sm font-bold hover:bg-white hover:text-black transition-colors">Start Studio</button>
+</div>
+<!-- Agency (Popular) -->
+<div class="glass-border rounded-xl p-8 flex flex-col relative bg-white/5 border-primary/50">
+<div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full">Most Popular</div>
+<h3 class="text-lg font-medium text-white mb-2">Agency</h3>
+<p class="text-sm text-zinc-500 mb-6">For growing creative teams.</p>
+<div class="flex items-baseline gap-1 mb-8">
+<span class="text-4xl font-bold text-white">$199</span>
+<span class="text-zinc-500">/mo</span>
+</div>
+<ul class="flex flex-col gap-3 mb-8 flex-1">
+<li class="flex gap-3 text-sm text-zinc-300">
+<span class="material-symbols-outlined text-primary text-lg">check</span>
+                            Unlimited Projects
+                        </li>
+<li class="flex gap-3 text-sm text-zinc-300">
+<span class="material-symbols-outlined text-primary text-lg">check</span>
+                            Full CRM Suite
+                        </li>
+<li class="flex gap-3 text-sm text-zinc-300">
+<span class="material-symbols-outlined text-primary text-lg">check</span>
+                            Team Resource Management
+                        </li>
+<li class="flex gap-3 text-sm text-zinc-300">
+<span class="material-symbols-outlined text-primary text-lg">check</span>
+                            Client Portal
+                        </li>
+</ul>
+<button class="w-full py-2.5 rounded bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-colors">Start Agency</button>
+</div>
+<!-- Enterprise -->
+<div class="glass-border rounded-xl p-8 flex flex-col relative bg-transparent">
+<h3 class="text-lg font-medium text-white mb-2">Enterprise</h3>
+<p class="text-sm text-zinc-500 mb-6">Global scale operations.</p>
+<div class="flex items-baseline gap-1 mb-8">
+<span class="text-4xl font-bold text-white">Custom</span>
+</div>
+<ul class="flex flex-col gap-3 mb-8 flex-1">
+<li class="flex gap-3 text-sm text-zinc-300">
+<span class="material-symbols-outlined text-zinc-500 text-lg">check</span>
+                            Dedicated Support
+                        </li>
+<li class="flex gap-3 text-sm text-zinc-300">
+<span class="material-symbols-outlined text-zinc-500 text-lg">check</span>
+                            API Access
+                        </li>
+<li class="flex gap-3 text-sm text-zinc-300">
+<span class="material-symbols-outlined text-zinc-500 text-lg">check</span>
+                            Custom Integrations
+                        </li>
+<li class="flex gap-3 text-sm text-zinc-300">
+<span class="material-symbols-outlined text-zinc-500 text-lg">check</span>
+                            SLA Agreement
+                        </li>
+</ul>
+<button class="w-full py-2.5 rounded border border-white/20 text-white text-sm font-bold hover:bg-white hover:text-black transition-colors">Contact Sales</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="border-t border-white/10 bg-black pt-16 pb-12">
+<div class="mx-auto max-w-7xl px-6 lg:px-8">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24">
+<!-- Left: Newsletter -->
+<div class="flex flex-col gap-6">
+<div class="flex items-center gap-2">
+<div class="flex size-6 items-center justify-center rounded bg-white text-black">
+<span class="material-symbols-outlined text-sm font-bold">all_inclusive</span>
+</div>
+<span class="text-lg font-bold tracking-tight text-white">Nexus</span>
+</div>
+<p class="text-zinc-400 max-w-sm text-sm">Join the newsletter for elite agency owners. No spam, just operations strategy.</p>
+<div class="flex gap-2 max-w-sm">
+<input class="w-full bg-white/5 border border-white/10 rounded px-4 py-2 text-white placeholder-zinc-600 focus:outline-none focus:border-primary text-sm" placeholder="Enter your email" type="email"/>
+<button class="bg-white text-black px-4 py-2 rounded text-sm font-bold hover:bg-zinc-200 transition-colors">Subscribe</button>
+</div>
+</div>
+<!-- Right: Links -->
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-8">
+<div class="flex flex-col gap-4">
+<h4 class="text-white font-bold text-sm">Product</h4>
+<a class="text-zinc-500 hover:text-white text-sm transition-colors" href="#">Features</a>
+<a class="text-zinc-500 hover:text-white text-sm transition-colors" href="#">Pricing</a>
+<a class="text-zinc-500 hover:text-white text-sm transition-colors" href="#">Changelog</a>
+<a class="text-zinc-500 hover:text-white text-sm transition-colors" href="#">Docs</a>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="text-white font-bold text-sm">Company</h4>
+<a class="text-zinc-500 hover:text-white text-sm transition-colors" href="#">About</a>
+<a class="text-zinc-500 hover:text-white text-sm transition-colors" href="#">Blog</a>
+<a class="text-zinc-500 hover:text-white text-sm transition-colors" href="#">Careers</a>
+<a class="text-zinc-500 hover:text-white text-sm transition-colors" href="#">Contact</a>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="text-white font-bold text-sm">Legal</h4>
+<a class="text-zinc-500 hover:text-white text-sm transition-colors" href="#">Privacy</a>
+<a class="text-zinc-500 hover:text-white text-sm transition-colors" href="#">Terms</a>
+<a class="text-zinc-500 hover:text-white text-sm transition-colors" href="#">Security</a>
+</div>
+</div>
+</div>
+<div class="mt-16 pt-8 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4">
+<p class="text-zinc-600 text-xs">© 2023 Nexus Inc. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="text-zinc-600 hover:text-white transition-colors" href="#">
+<span class="sr-only">Twitter</span>
+<svg class="h-5 w-5" fill="currentColor" viewbox="0 0 24 24"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path></svg>
+</a>
+<a class="text-zinc-600 hover:text-white transition-colors" href="#">
+<span class="sr-only">GitHub</span>
+<svg class="h-5 w-5" fill="currentColor" viewbox="0 0 24 24"><path clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" fill-rule="evenodd"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

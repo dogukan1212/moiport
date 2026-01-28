@@ -1,0 +1,458 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  logoUrl   String?
+  address   String?
+  title     String?
+  phone     String?
+  email     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  payrollCalculationStartDay      Int?    @default(1)
+  payrollCalculationEndDay        Int?    @default(30)
+  payrollPaymentDay               Int?    @default(15)
+  payrollExpenseVisibilityDaysBefore Int? @default(7)
+  payrollAutoGenerate             Boolean @default(true)
+
+  // Subscription Info
+  subscriptionPlan       String?   @default("STARTER") // STARTER, PRO, ENTERPRISE
+  subscriptionStatus     String?   @default("ACTIVE") // ACTIVE, PAST_DUE, CANCELED
+  subscriptionEndsAt     DateTime?
+  maxUsers               Int?      @default(5)
+  maxStorage             Int?      @default(1024) // MB
+
+  users                 User[]
+  customers             Customer[]
+  projects              Project[]
+  tasks                 Task[]
+  transactions          Transaction[]
+  recurringTransactions RecurringTransaction[]
+  invoices              Invoice[]
+  payrolls              Payroll[]
+  proposals             Proposal[]
+  services              Service[]
+  socialMediaPosts      SocialMediaPost[]
+  socialMediaPlans      SocialMediaPlan[]
+  columnWatchers        ColumnWatcher[]
+  employeeAdvances      EmployeeAdvance[]
+  chatRooms             ChatRoom[]
+  chatMemberships       ChatMembership[]
+  chatMessages          ChatMessage[]
+  notifications         Notification[]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  avatar    String?
+  role      String   @default("STAFF") // ADMIN, STAFF, CLIENT
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  
+  // HR / Payroll info
+  salary      Float?    @default(0)
+  iban        String?
+  phone       String?
+  startDate   DateTime?
+  isActive    Boolean   @default(true)
+  tckn        String?
+  address     String?
+  birthDate   DateTime?
+  jobTitle    String?
+  department  String?
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  bankName    String?
+  bankBranch  String?
+  bankAccountNumber String?
+  maritalStatus String?
+  childrenCount Int?
+  bloodType    String?
+  educationLevel String?
+  contractType String?
+  socialSecurityNumber String?
+  taxNumber    String?
+  weeklyHours  Int?
+  probationMonths Int?
+  confidentialityYears Int?
+  nonCompeteMonths Int?
+  penaltyAmount Float?
+  equipmentList String?
+  benefits     String?
+  performancePeriod String?
+  workplace    String?
+  bonusPolicy  String?
+  leavePolicy  String?
+  noticePeriodWeeks Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  assignedTasks Task[] @relation("Assignee")
+  columnWatchers ColumnWatcher[]
+  payrolls      Payroll[]
+  advances      EmployeeAdvance[]
+  chatMemberships ChatMembership[]
+  chatMessages   ChatMessage[]
+  notifications  Notification[]
+
+  managedSocialMediaPlans SocialMediaPlan[] @relation("PlanManager")
+  designedSocialMediaPlans SocialMediaPlan[] @relation("PlanDesigner")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  
+  title     String
+  message   String
+  type      String   // TASK_ASSIGNMENT, TASK_MENTION, TASK_DUE, SYSTEM
+  referenceId String? // ID of the task or related entity
+  referenceType String? // TASK, PROJECT, etc.
+  
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Customer {
+  id        String   @id @default(uuid())
+  name      String
+  email     String?
+  phone     String?
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projects  Project[]
+  proposals Proposal[]
+  socialMediaPosts SocialMediaPost[]
+  socialMediaPlans SocialMediaPlan[]
+  invoices  Invoice[]
+  recurringTransactions RecurringTransaction[]
+  transactions Transaction[]
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  status      String   @default("ACTIVE") // ACTIVE, COMPLETED, ON_HOLD
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tasks Task[]
+}
+
+model Task {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  status      String   @default("TODO") // TODO, IN_PROGRESS, REVIEW, DONE
+  priority    String   @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  order       Int      @default(0)
+  mirrorGroupId String?
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id])
+  assigneeId  String?
+  assignee    User?    @relation("Assignee", fields: [assigneeId], references: [id])
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  dueDate     DateTime?
+  
+  labels             String? // JSON array of label IDs
+  checklist          String? // JSON array of checklist items
+  checklistTotal     Int     @default(0)
+  checklistCompleted Int     @default(0)
+  members            String? // JSON array of member IDs
+  memberCount        Int     @default(0)
+  watchers           String? // JSON array of watcher IDs
+  watcherCount       Int     @default(0)
+  attachments        String? // JSON array of attachment objects
+  attachmentCount    Int     @default(0)
+  coverColor         String?
+  comments           String? // JSON array of comments
+  activities         String? // JSON array of activities
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ColumnWatcher {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  columnId  String   // Status (TODO, IN_PROGRESS etc.)
+  projectId String?  // Optional, if we want to watch a column specific to a project
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, tenantId, columnId, projectId])
+}
+
+model Transaction {
+  id          String   @id @default(uuid())
+  type        String   // INCOME, EXPENSE
+  amount      Float
+  category    String   // Salary, Service, Rent, Tax, etc.
+  description String?
+  date        DateTime @default(now())
+  status      String   @default("PAID") // PENDING, PAID, CANCELLED
+  
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  
+  // Relations
+  customerId  String?
+  customer    Customer? @relation(fields: [customerId], references: [id])
+  
+  invoiceId   String?
+  invoice     Invoice? @relation(fields: [invoiceId], references: [id])
+  
+  payrollId   String?
+  payroll     Payroll? @relation(fields: [payrollId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Map to old FinanceRecord table name if needed, but let's just use Transaction
+}
+
+model RecurringTransaction {
+  id          String   @id @default(uuid())
+  type        String   // INCOME, EXPENSE
+  category    String
+  description String?
+  amount      Float
+  interval    String   // DAILY, WEEKLY, MONTHLY, YEARLY
+  nextRunDate DateTime
+  isActive    Boolean  @default(true)
+  
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  
+  customerId  String?
+  customer    Customer? @relation(fields: [customerId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Invoice {
+  id          String   @id @default(uuid())
+  number      String   // INV-2024-001
+  status      String   @default("DRAFT") // DRAFT, SENT, PAID, OVERDUE, CANCELLED
+  issueDate   DateTime @default(now())
+  dueDate     DateTime
+  amount      Float
+  taxRate     Float    @default(20)
+  taxAmount   Float
+  totalAmount Float
+  currency    String   @default("TRY")
+  
+  notes       String?
+  
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  
+  items       InvoiceItem[]
+  transactions Transaction[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model InvoiceItem {
+  id          String   @id @default(uuid())
+  description String
+  quantity    Int      @default(1)
+  unitPrice   Float
+  totalPrice  Float
+  
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}
+
+model Payroll {
+  id          String   @id @default(uuid())
+  period      String   // "2024-02"
+  baseSalary  Float
+  bonus       Float    @default(0)
+  deductions  Float    @default(0)
+  netSalary   Float
+  status      String   @default("PENDING") // PENDING, PAID
+  paymentDate DateTime?
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  
+  transactions Transaction[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model EmployeeAdvance {
+  id          String   @id @default(uuid())
+  amount      Float
+  date        DateTime @default(now())
+  description String?
+  isDeducted  Boolean  @default(false)
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SocialMediaPost {
+  id          String   @id @default(uuid())
+  content     String
+  type        String   // POST, REELS, STORY
+  platform    String   @default("INSTAGRAM")
+  status      String   @default("DRAFT") // DRAFT, SCHEDULED, PUBLISHED
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  metadata    String?  // JSON string for storing services, pricing, etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Service {
+  id           String   @id @default(uuid())
+  name         String
+  description  String?
+  basePrice    Float?
+  billingCycle String?  @default("MONTHLY") // MONTHLY, YEARLY, ONCE
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Proposal {
+  id          String   @id @default(uuid())
+  title       String
+  content     String
+  status      String   @default("DRAFT") // DRAFT, SENT, APPROVED, REJECTED
+  metadata    String?
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// --- Chat ---
+
+model ChatRoom {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  type      String   @default("CHANNEL") // CHANNEL, PROJECT, DM
+  name      String
+  projectId String?
+  isPrivate Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships ChatMembership[]
+  messages    ChatMessage[]
+}
+
+model ChatMembership {
+  id        String   @id @default(uuid())
+  roomId    String
+  room      ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  role      String?  // ADMIN, MODERATOR, MEMBER
+  createdAt DateTime @default(now())
+
+  @@unique([roomId, userId])
+}
+
+model ChatMessage {
+  id          String   @id @default(uuid())
+  roomId      String
+  room        ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  content     String
+  attachments String?  // JSON array string
+  pinned      Boolean  @default(false)
+  status      String   @default("SENT") // SENT, DELIVERED, READ
+  createdAt   DateTime @default(now())
+  deletedAt   DateTime?
+}
+
+model SocialMediaPlan {
+  id                    String   @id @default(uuid())
+  tenantId              String
+  tenant                Tenant   @relation(fields: [tenantId], references: [id])
+  
+  brandName             String?
+  customerId            String?
+  customer              Customer? @relation(fields: [customerId], references: [id])
+
+  currentPlanEndDate    DateTime?
+  newPlanStartDate      DateTime?
+  briefDeadline         DateTime?
+  presentationDeadline  DateTime?
+  
+  briefStatus           String   @default("Bekliyor")
+  designStatus          String   @default("Bekliyor")
+  
+  socialMediaManager    String?
+  socialMediaManagerId  String?
+  socialMediaManagerUser User?   @relation("PlanManager", fields: [socialMediaManagerId], references: [id])
+
+  designer              String?
+  designerId            String?
+  designerUser          User?      @relation("PlanDesigner", fields: [designerId], references: [id])
+  
+  calendarUrl           String?
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}

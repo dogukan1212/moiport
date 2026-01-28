@@ -1,0 +1,594 @@
+import { FinanceService } from './finance.service';
+export declare class FinanceController {
+    private readonly financeService;
+    constructor(financeService: FinanceService);
+    findAll(tenantId: string, user: any): Promise<({
+        customer: {
+            name: string;
+        } | null;
+        invoice: {
+            number: string;
+        } | null;
+        payroll: {
+            user: {
+                name: string | null;
+            } | null;
+            period: string;
+        } | null;
+    } & {
+        id: string;
+        tenantId: string;
+        customerId: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        status: string;
+        type: string;
+        date: Date;
+        description: string | null;
+        amount: number;
+        category: string;
+        invoiceId: string | null;
+        payrollId: string | null;
+    })[]>;
+    getStats(tenantId: string, user: any): Promise<{
+        totalIncome: number;
+        totalExpense: number;
+        pendingIncome: number;
+        pendingExpense: number;
+        balance: number;
+        receivables: number;
+        monthlyRecurringRevenue: number;
+    }>;
+    create(tenantId: string, data: any): Promise<{
+        id: string;
+        tenantId: string;
+        customerId: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        status: string;
+        type: string;
+        date: Date;
+        description: string | null;
+        amount: number;
+        category: string;
+        invoiceId: string | null;
+        payrollId: string | null;
+    }>;
+    update(id: string, tenantId: string, data: any): Promise<{
+        id: string;
+        tenantId: string;
+        customerId: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        status: string;
+        type: string;
+        date: Date;
+        description: string | null;
+        amount: number;
+        category: string;
+        invoiceId: string | null;
+        payrollId: string | null;
+    }>;
+    remove(id: string, tenantId: string): Promise<{
+        id: string;
+        tenantId: string;
+        customerId: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        status: string;
+        type: string;
+        date: Date;
+        description: string | null;
+        amount: number;
+        category: string;
+        invoiceId: string | null;
+        payrollId: string | null;
+    }>;
+    findAllRecurring(tenantId: string, user: any): Promise<({
+        customer: {
+            name: string;
+        } | null;
+    } & {
+        id: string;
+        tenantId: string;
+        customerId: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        type: string;
+        description: string | null;
+        amount: number;
+        category: string;
+        interval: string;
+        nextRunDate: Date;
+    })[]>;
+    createRecurring(tenantId: string, data: any): Promise<{
+        id: string;
+        tenantId: string;
+        customerId: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        type: string;
+        description: string | null;
+        amount: number;
+        category: string;
+        interval: string;
+        nextRunDate: Date;
+    }>;
+    toggleRecurring(id: string, tenantId: string): Promise<{
+        id: string;
+        tenantId: string;
+        customerId: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        type: string;
+        description: string | null;
+        amount: number;
+        category: string;
+        interval: string;
+        nextRunDate: Date;
+    } | null>;
+    updateRecurring(id: string, tenantId: string, data: any): Promise<{
+        id: string;
+        tenantId: string;
+        customerId: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        type: string;
+        description: string | null;
+        amount: number;
+        category: string;
+        interval: string;
+        nextRunDate: Date;
+    }>;
+    removeRecurring(id: string, tenantId: string): Promise<{
+        id: string;
+        tenantId: string;
+        customerId: string | null;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        type: string;
+        description: string | null;
+        amount: number;
+        category: string;
+        interval: string;
+        nextRunDate: Date;
+    }>;
+    getCustomerStats(tenantId: string): Promise<{
+        monthlyRevenue: number;
+        monthlyExpense: number;
+        totalRevenue: number;
+        recurringStatus: {
+            id: string;
+            category: string;
+            amount: number;
+            day: number;
+            isPaid: boolean;
+            nextDate: Date;
+        }[];
+        profitability: number;
+        transactions: {
+            id: string;
+            tenantId: string;
+            customerId: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            status: string;
+            type: string;
+            date: Date;
+            description: string | null;
+            amount: number;
+            category: string;
+            invoiceId: string | null;
+            payrollId: string | null;
+        }[];
+        recurringTransactions: {
+            id: string;
+            tenantId: string;
+            customerId: string | null;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            type: string;
+            description: string | null;
+            amount: number;
+            category: string;
+            interval: string;
+            nextRunDate: Date;
+        }[];
+        id: string;
+        email: string | null;
+        name: string;
+        tenantId: string;
+        phone: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+    }[]>;
+    findAllInvoices(tenantId: string, user: any): Promise<({
+        customer: {
+            id: string;
+            email: string | null;
+            name: string;
+            phone: string | null;
+        };
+        items: {
+            id: string;
+            description: string;
+            invoiceId: string;
+            quantity: number;
+            unitPrice: number;
+            totalPrice: number;
+        }[];
+    } & {
+        number: string;
+        id: string;
+        tenantId: string;
+        customerId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        status: string;
+        dueDate: Date;
+        issueDate: Date;
+        amount: number;
+        taxRate: number;
+        taxAmount: number;
+        totalAmount: number;
+        currency: string;
+        notes: string | null;
+    })[]>;
+    createInvoice(tenantId: string, data: any): Promise<{
+        items: {
+            id: string;
+            description: string;
+            invoiceId: string;
+            quantity: number;
+            unitPrice: number;
+            totalPrice: number;
+        }[];
+    } & {
+        number: string;
+        id: string;
+        tenantId: string;
+        customerId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        status: string;
+        dueDate: Date;
+        issueDate: Date;
+        amount: number;
+        taxRate: number;
+        taxAmount: number;
+        totalAmount: number;
+        currency: string;
+        notes: string | null;
+    }>;
+    updateInvoice(id: string, tenantId: string, data: any): Promise<({
+        customer: {
+            name: string;
+        };
+        items: {
+            id: string;
+            description: string;
+            invoiceId: string;
+            quantity: number;
+            unitPrice: number;
+            totalPrice: number;
+        }[];
+    } & {
+        number: string;
+        id: string;
+        tenantId: string;
+        customerId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        status: string;
+        dueDate: Date;
+        issueDate: Date;
+        amount: number;
+        taxRate: number;
+        taxAmount: number;
+        totalAmount: number;
+        currency: string;
+        notes: string | null;
+    }) | null>;
+    removeInvoice(id: string, tenantId: string): Promise<{
+        number: string;
+        id: string;
+        tenantId: string;
+        customerId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        status: string;
+        dueDate: Date;
+        issueDate: Date;
+        amount: number;
+        taxRate: number;
+        taxAmount: number;
+        totalAmount: number;
+        currency: string;
+        notes: string | null;
+    } | null>;
+    remindInvoice(id: string, tenantId: string, body?: {
+        forceSms?: boolean;
+    }): Promise<{
+        ok: boolean;
+    } | null>;
+    getInvoicePaymentLink(id: string, tenantId: string, user: any): Promise<{
+        id: string;
+        url: string | null;
+        status: string;
+    } | null>;
+    createInvoicePaymentLink(id: string, tenantId: string): Promise<{
+        id: string;
+        url: string;
+    }>;
+    getEmployees(tenantId: string): Promise<{
+        id: string;
+        email: string;
+        name: string | null;
+        role: string;
+        salary: number | null;
+        iban: string | null;
+        startDate: Date | null;
+        isActive: boolean;
+    }[]>;
+    getEmployeeDetails(id: string, tenantId: string): Promise<{
+        user: {
+            id: string;
+            email: string;
+            name: string | null;
+            role: string;
+            salary: number | null;
+            iban: string | null;
+            phone: string | null;
+            startDate: Date | null;
+            isActive: boolean;
+            tckn: string | null;
+            address: string | null;
+            birthDate: Date | null;
+            jobTitle: string | null;
+            department: string | null;
+            emergencyContactName: string | null;
+            emergencyContactPhone: string | null;
+            bankName: string | null;
+            bankBranch: string | null;
+            bankAccountNumber: string | null;
+            maritalStatus: string | null;
+            childrenCount: number | null;
+            bloodType: string | null;
+            educationLevel: string | null;
+            contractType: string | null;
+            socialSecurityNumber: string | null;
+            taxNumber: string | null;
+            weeklyHours: number | null;
+            probationMonths: number | null;
+            confidentialityYears: number | null;
+            nonCompeteMonths: number | null;
+            penaltyAmount: number | null;
+            equipmentList: string | null;
+            benefits: string | null;
+            performancePeriod: string | null;
+            createdAt: Date;
+        };
+        payrolls: {
+            id: string;
+            tenantId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            status: string;
+            userId: string | null;
+            period: string;
+            baseSalary: number;
+            bonus: number;
+            deductions: number;
+            netSalary: number;
+            paymentDate: Date | null;
+        }[];
+        advances: {
+            id: string;
+            tenantId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: string;
+            date: Date;
+            description: string | null;
+            amount: number;
+            isDeducted: boolean;
+        }[];
+    } | null>;
+    terminateEmployee(id: string, tenantId: string): Promise<{
+        id: string;
+        email: string;
+        emailVerifiedAt: Date | null;
+        password: string;
+        name: string | null;
+        avatar: string | null;
+        role: string;
+        tenantId: string;
+        customerId: string | null;
+        salary: number | null;
+        iban: string | null;
+        phone: string | null;
+        phoneVerifiedAt: Date | null;
+        startDate: Date | null;
+        isActive: boolean;
+        tckn: string | null;
+        address: string | null;
+        birthDate: Date | null;
+        jobTitle: string | null;
+        department: string | null;
+        emergencyContactName: string | null;
+        emergencyContactPhone: string | null;
+        bankName: string | null;
+        bankBranch: string | null;
+        bankAccountNumber: string | null;
+        maritalStatus: string | null;
+        childrenCount: number | null;
+        bloodType: string | null;
+        educationLevel: string | null;
+        contractType: string | null;
+        socialSecurityNumber: string | null;
+        taxNumber: string | null;
+        weeklyHours: number | null;
+        probationMonths: number | null;
+        confidentialityYears: number | null;
+        nonCompeteMonths: number | null;
+        penaltyAmount: number | null;
+        equipmentList: string | null;
+        benefits: string | null;
+        performancePeriod: string | null;
+        workplace: string | null;
+        bonusPolicy: string | null;
+        leavePolicy: string | null;
+        noticePeriodWeeks: number | null;
+        allowedModules: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    updateEmployee(id: string, tenantId: string, data: any): Promise<{
+        id: string;
+        email: string;
+        emailVerifiedAt: Date | null;
+        password: string;
+        name: string | null;
+        avatar: string | null;
+        role: string;
+        tenantId: string;
+        customerId: string | null;
+        salary: number | null;
+        iban: string | null;
+        phone: string | null;
+        phoneVerifiedAt: Date | null;
+        startDate: Date | null;
+        isActive: boolean;
+        tckn: string | null;
+        address: string | null;
+        birthDate: Date | null;
+        jobTitle: string | null;
+        department: string | null;
+        emergencyContactName: string | null;
+        emergencyContactPhone: string | null;
+        bankName: string | null;
+        bankBranch: string | null;
+        bankAccountNumber: string | null;
+        maritalStatus: string | null;
+        childrenCount: number | null;
+        bloodType: string | null;
+        educationLevel: string | null;
+        contractType: string | null;
+        socialSecurityNumber: string | null;
+        taxNumber: string | null;
+        weeklyHours: number | null;
+        probationMonths: number | null;
+        confidentialityYears: number | null;
+        nonCompeteMonths: number | null;
+        penaltyAmount: number | null;
+        equipmentList: string | null;
+        benefits: string | null;
+        performancePeriod: string | null;
+        workplace: string | null;
+        bonusPolicy: string | null;
+        leavePolicy: string | null;
+        noticePeriodWeeks: number | null;
+        allowedModules: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    createAdvance(tenantId: string, data: any): Promise<{
+        user: {
+            name: string | null;
+        };
+    } & {
+        id: string;
+        tenantId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: string;
+        date: Date;
+        description: string | null;
+        amount: number;
+        isDeducted: boolean;
+    }>;
+    getPayrolls(tenantId: string): Promise<({
+        user: {
+            name: string | null;
+        } | null;
+    } & {
+        id: string;
+        tenantId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        status: string;
+        userId: string | null;
+        period: string;
+        baseSalary: number;
+        bonus: number;
+        deductions: number;
+        netSalary: number;
+        paymentDate: Date | null;
+    })[]>;
+    getPayrollSettings(tenantId: string): Promise<{
+        calculationStartDay: number;
+        calculationEndDay: number;
+        paymentDay: number;
+        expenseVisibilityDaysBefore: number;
+        autoGenerate: boolean;
+    }>;
+    updatePayrollSettings(tenantId: string, data: any): Promise<{
+        calculationStartDay: number;
+        calculationEndDay: number;
+        paymentDay: number;
+        expenseVisibilityDaysBefore: number;
+        autoGenerate: boolean;
+    }>;
+    generatePayroll(tenantId: string, period: string): Promise<any[]>;
+    payPayroll(id: string, tenantId: string): Promise<{
+        id: string;
+        tenantId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        status: string;
+        userId: string | null;
+        period: string;
+        baseSalary: number;
+        bonus: number;
+        deductions: number;
+        netSalary: number;
+        paymentDate: Date | null;
+    } | undefined>;
+    updatePayroll(id: string, tenantId: string, data: any): Promise<{
+        id: string;
+        tenantId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        status: string;
+        userId: string | null;
+        period: string;
+        baseSalary: number;
+        bonus: number;
+        deductions: number;
+        netSalary: number;
+        paymentDate: Date | null;
+    } | null>;
+    deletePayroll(id: string, tenantId: string): Promise<{
+        id: string;
+        tenantId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        status: string;
+        userId: string | null;
+        period: string;
+        baseSalary: number;
+        bonus: number;
+        deductions: number;
+        netSalary: number;
+        paymentDate: Date | null;
+    }>;
+    seedData(tenantId: string): Promise<{
+        message: string;
+    }>;
+}

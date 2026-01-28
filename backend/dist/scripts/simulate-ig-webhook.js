@@ -1,0 +1,39 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const axios_1 = __importDefault(require("axios"));
+const IG_BUSINESS_ID = '17841454594155308';
+const SENDER_ID = '1234567890';
+const payload = {
+    object: 'instagram',
+    entry: [
+        {
+            id: IG_BUSINESS_ID,
+            messaging: [
+                {
+                    sender: { id: SENDER_ID },
+                    recipient: { id: IG_BUSINESS_ID },
+                    timestamp: Date.now(),
+                    message: {
+                        mid: `mid.${Date.now()}`,
+                        text: "Merhaba, bu bir test mesajıdır! 🚀"
+                    }
+                }
+            ]
+        }
+    ]
+};
+async function main() {
+    try {
+        console.log('Webhook gönderiliyor...');
+        const res = await axios_1.default.post('http://localhost:3001/webhooks/meta', payload);
+        console.log('Başarılı:', res.data);
+    }
+    catch (error) {
+        console.error('Hata:', error.response?.data || error.message);
+    }
+}
+main();
+//# sourceMappingURL=simulate-ig-webhook.js.map

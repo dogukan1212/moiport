@@ -1,0 +1,16 @@
+{
+  "appId": "com.kolayentegrasyon.app",
+  "productName": "Kolayentegrasyon Paneli",
+  "directories": {
+    "buildResources": "assets"
+  },
+  "files": [
+    "electron/**/*",
+    "package.json",
+    "node_modules/**/*"
+  ],
+  "mac": {
+    "target": ["dmg", "zip"],
+    "category": "public.app-category.business"
+  }
+}

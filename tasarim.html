@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One Click Works | Agency OS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0c0c0c; /* Görseldeki o derin, sıcak siyah tonu */
+            --text: #ffffff;
+            --font-main: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        
+        body { 
+            background-color: var(--bg); 
+            color: var(--text); 
+            font-family: var(--font-main);
+            overflow-x: hidden;
+        }
+
+        /* Hero Background - Görseldeki derinlik hissi için */
+        .hero-wrapper {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #0c0c0c 100%); /* Hafif bir ışık hüzmesi */
+        }
+
+        /* Header Navigation */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 50px;
+            position: absolute;
+            top: 0; width: 100%;
+            z-index: 10;
+        }
+
+        .logo { 
+            font-size: 1.1rem; 
+            font-weight: 600; 
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        nav { display: flex; gap: 30px; }
+        nav a { 
+            text-decoration: none; 
+            color: rgba(255,255,255,0.8); 
+            font-size: 0.8rem; 
+            font-weight: 500; 
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .auth-links { display: flex; align-items: center; gap: 30px; }
+        .get-started-btn {
+            background: white;
+            color: black;
+            padding: 12px 24px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: opacity 0.3s;
+        }
+
+        /* Hero Content */
+        .hero-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding-top: 60px;
+        }
+
+        .hero-label {
+            font-size: 1.2rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .hero-title {
+            font-size: clamp(3.5rem, 8vw, 7rem); /* Devasa Squarespace fontu */
+            font-weight: 400;
+            line-height: 1;
+            letter-spacing: -0.04em;
+            max-width: 1000px;
+            margin-bottom: 50px;
+        }
+
+        /* Hero Image/Object Area */
+        .hero-object {
+            width: 100%;
+            height: 400px;
+            background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop') center bottom / cover;
+            /* Bu kısma senin o minimalist dashboard görselini veya soyut bir 3D objeyi koyabiliriz */
+            mask-image: linear-gradient(to top, black 50%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to top, black 50%, transparent 100%);
+        }
+
+        .hero-action-btn {
+            background: white;
+            color: black;
+            padding: 18px 45px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 20px; }
+            nav { display: none; }
+            .hero-title { font-size: 3rem; padding: 0 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hero-wrapper">
+        <header>
+            <div class="logo">One Click Works</div>
+            <nav>
+                <a href="#">Ürünler</a>
+                <a href="#">Çözümler</a>
+                <a href="#">Kaynaklar</a>
+            </nav>
+            <div class="auth-links">
+                <a href="#" style="text-transform: uppercase; font-size: 0.8rem;">Giriş Yap</a>
+                <a href="#" class="get-started-btn">Başlayın</a>
+            </div>
+        </header>
+
+        <section class="hero-content">
+            <span class="hero-label">Agency OS</span>
+            <h1 class="hero-title">Ajansınızı geleceğe <br>göre tasarladık</h1>
+            <a href="#" class="hero-action-btn">Şimdi Deneyin</a>
+            <div class="hero-object"></div>
+        </section>
+    </div>
+
+<style>
+    /* Tasarımın Devamı İçin Eklenen Stiller */
+    .section-spacing {
+        padding: 160px 50px;
+        background-color: var(--bg);
+    }
+
+    .content-split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        align-items: flex-start;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        padding-top: 80px;
+        margin-bottom: 120px;
+    }
+
+    .content-split h2 {
+        font-size: 3.5rem;
+        font-weight: 400;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+    }
+
+    .content-split .description {
+        font-size: 1.25rem;
+        color: rgba(255,255,255,0.6);
+        font-weight: 300;
+        max-width: 450px;
+        line-height: 1.6;
+    }
+
+    /* Grid Alanı */
+    .bento-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 160px;
+    }
+
+    .bento-item {
+        background: #141414;
+        aspect-ratio: 16/10;
+        padding: 60px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        transition: transform 0.4s ease;
+    }
+
+    .bento-item:hover { background: #1a1a1a; }
+    
+    .bento-item h3 { font-size: 2rem; font-weight: 400; margin-bottom: 15px; }
+    .bento-item p { color: rgba(255,255,255,0.5); font-weight: 300; }
+
+    /* Fiyatlandırma Tablosu */
+    .pricing-table {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-top: 1px solid rgba(255,255,255,0.1);
+        margin-top: 80px;
+    }
+
+    .price-col {
+        padding: 80px 40px;
+        border-right: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .price-col:last-child { border-right: none; }
+    .price-col .tier { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.4); margin-bottom: 25px; display: block; }
+    .price-col .amount { font-size: 3rem; margin-bottom: 40px; font-weight: 400; }
+    
+    .price-list { list-style: none; }
+    .price-list li { 
+        font-size: 0.95rem; 
+        color: rgba(255,255,255,0.7); 
+        padding: 15px 0; 
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        font-weight: 300;
+    }
+
+    footer {
+        padding: 120px 50px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+
+    .footer-logo { font-size: 2rem; font-weight: 600; letter-spacing: -1px; }
+
+    @media (max-width: 900px) {
+        .content-split, .bento-grid, .pricing-table { grid-template-columns: 1fr; }
+        .price-col { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    }
+</style>
+
+<main class="section-spacing">
+    
+    <div class="content-split">
+        <h2>Operasyonu <br>sanata dönüştürün.</h2>
+        <div class="description">
+            WhatsApp karmaşasına son verin. Müşterileriniz için özel bir alan yaratarak onay ve revizyon süreçlerini tek bir "One Click" akışına sığdırın.
+        </div>
+    </div>
+
+    <div class="bento-grid">
+        <div class="bento-item">
+            <h3>Müşteri Portalı</h3>
+            <p>Müşterilerinizin projelerini canlı takip edebileceği şeffaf ve prestijli bir panel.</p>
+        </div>
+        <div class="bento-item">
+            <h3>AI Teklif Motoru</h3>
+            <p>Saniyeler içinde veriye dayalı, profesyonel reklam ve proje teklifleri kurgulayın.</p>
+        </div>
+    </div>
+
+    <div class="content-split">
+        <h2>Basitlik, <br>her ölçekte.</h2>
+        <div class="description">
+            10 kişiden büyük ekipler için optimize edilmiş, Limited şirket yapısına uygun finansal ve idari modüller.
+        </div>
+    </div>
+
+    <div class="pricing-table">
+        <div class="price-col">
+            <span class="tier">Başlangıç</span>
+            <div class="amount">₺1.495</div>
+            <ul class="price-list">
+                <li>5 Kullanıcı Hesabı</li>
+                <li>Proje & Görev Yönetimi</li>
+                <li>1GB Güvenli Depolama</li>
+                <li>E-posta Desteği</li>
+            </ul>
+            <a href="#" class="get-started-btn" style="display:block; text-align:center; margin-top:40px;">Seç</a>
+        </div>
+
+        <div class="price-col" style="background: rgba(255,255,255,0.02);">
+            <span class="tier" style="color:#fff;">Profesyonel</span>
+            <div class="amount">₺2.495</div>
+            <ul class="price-list">
+                <li>20 Kullanıcı Hesabı</li>
+                <li><b>Gelişmiş Müşteri Paneli</b></li>
+                <li>Onay & Revizyon Akışı</li>
+                <li>CRM Modülü</li>
+            </ul>
+            <a href="#" class="get-started-btn" style="display:block; text-align:center; margin-top:40px;">Başla</a>
+        </div>
+
+        <div class="price-col">
+            <span class="tier">Kurumsal</span>
+            <div class="amount">₺7.495</div>
+            <ul class="price-list">
+                <li>Sınırsız Kullanıcı</li>
+                <li>White-Label Özelleştirme</li>
+                <li>Gelişmiş Finans Raporları</li>
+                <li>7/24 Öncelikli Destek</li>
+            </ul>
+            <a href="#" class="get-started-btn" style="display:block; text-align:center; margin-top:40px;">İletişim</a>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <div>
+        <div class="footer-logo">One Click Works.</div>
+        <p style="opacity: 0.4; font-size: 0.8rem; margin-top: 15px;">© 2026 ISTANBUL. DESIGNED FOR PERFORMANCE.</p>
+    </div>
+    <div style="text-align: right;">
+        <p style="font-size: 0.8rem; opacity: 0.5; margin-bottom: 5px;">MÜHENDİSLİK</p>
+        <p style="font-size: 0.85rem; font-weight: 500;">DOĞUKAN — FOUNDER</p>
+    </div>
+</footer>
+
+</body>
+</html>

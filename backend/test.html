@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oneclickworks • Agency OS</title>
+    
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* --- CORE VARIABLES --- */
+        :root {
+            --bg: #ffffff;
+            --fg: #111111;
+            --gray-light: #f4f4f4;
+            --gray-med: #949494;
+            --border: #e6e6e6;
+            --sidebar-w: 260px;
+            --header-h: 65px;
+            --font-stack: 'Inter', sans-serif;
+            --ease: cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--fg);
+            font-family: var(--font-stack);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- 1. GLOBAL HEADER --- */
+        .sqs-header {
+            height: var(--header-h);
+            border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 30px; background: #fff; flex-shrink: 0; z-index: 20;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .site-context { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; color: var(--fg); }
+        .context-divider { color: var(--border); font-size: 18px; transform: rotate(15deg); }
+        
+        .header-right { display: flex; align-items: center; gap: 20px; }
+        .user-circle { width: 32px; height: 32px; background: #111; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
+
+        /* --- 2. LAYOUT --- */
+        .layout-wrapper { display: flex; height: calc(100vh - var(--header-h)); }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: var(--sidebar-w); padding: 40px 25px; display: flex; flex-direction: column;
+            border-right: 1px solid transparent; overflow-y: auto; flex-shrink: 0;
+        }
+
+        .nav-group { margin-bottom: 30px; }
+        .nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gray-med); margin-bottom: 12px; font-weight: 600; padding-left: 8px; }
+        
+        .nav-item {
+            display: flex; align-items: center; gap: 10px;
+            text-decoration: none; color: #666; font-size: 13px; font-weight: 500;
+            margin-bottom: 4px; padding: 8px; border-radius: 6px; cursor: pointer; transition: all 0.2s;
+        }
+        .nav-item:hover { background: var(--gray-light); color: var(--fg); }
+        .nav-item.active { background: var(--gray-light); color: var(--fg); font-weight: 600; }
+        .nav-item i { font-size: 16px; }
+
+        /* MAIN CANVAS */
+        .main { flex: 1; padding: 0 50px; overflow-y: auto; position: relative; background: #fff; }
+        .main-container { max-width: 1400px; padding-top: 50px; padding-bottom: 100px; height: 100%; display: flex; flex-direction: column; }
+
+        /* PAGE HEADER */
+        .page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; flex-shrink: 0; }
+        h1.page-title { font-size: 28px; font-weight: 500; letter-spacing: -0.02em; color: var(--fg); }
+
+        .create-pill {
+            background: #111; color: #fff; border: none; padding: 8px 18px; border-radius: 99px;
+            font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px;
+            transition: transform 0.2s;
+        }
+        .create-pill:hover { transform: scale(1.03); }
+
+        /* --- 3. VIEWS & COMPONENTS --- */
+        
+        /* A. DASHBOARD (Overview) */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { border: 1px solid var(--border); padding: 20px; border-radius: 8px; }
+        .stat-label { font-size: 12px; color: var(--gray-med); text-transform: uppercase; margin-bottom: 5px; }
+        .stat-val { font-size: 24px; font-weight: 600; }
+        .chart-container { border: 1px solid var(--border); padding: 25px; border-radius: 8px; height: 350px; }
+
+        /* B. TABLE VIEW (Clients, Reports, Finance) */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th { text-align: left; padding: 15px 10px; color: var(--gray-med); font-weight: 500; border-bottom: 1px solid var(--border); }
+        .data-table td { padding: 15px 10px; border-bottom: 1px solid var(--border); color: var(--fg); }
+        .data-table tr:hover td { background: #fafafa; }
+        
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .status-green { background: #eafff0; color: #029a46; }
+        .status-yellow { background: #fffbe6; color: #b48508; }
+        .status-red { background: #fff0f0; color: #c02020; }
+
+        /* C. KANBAN (Tasks) */
+        .kanban-board { display: flex; gap: 30px; height: 100%; overflow-x: auto; padding-bottom: 20px; }
+        .kanban-col { flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 15px; }
+        .kanban-head { font-size: 11px; font-weight: 600; color: var(--gray-med); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 5px; display: flex; justify-content: space-between; }
+        
+        .task-card {
+            background: #fff; border: 1px solid var(--border); padding: 18px; border-radius: 4px;
+            cursor: grab; transition: all 0.2s; display: flex; flex-direction: column; gap: 8px;
+        }
+        .task-card:hover { border-color: #999; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .task-tag { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 3px; width: fit-content; }
+        .task-title { font-size: 14px; font-weight: 500; line-height: 1.4; }
+        .task-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; font-size: 11px; color: var(--gray-med); }
+
+        /* D. GRID VIEW (Projects, Proposals) */
+        .grid-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 40px; }
+        .grid-card { cursor: pointer; group; }
+        .grid-visual {
+            aspect-ratio: 4/3; background: var(--gray-light); margin-bottom: 15px; border-radius: 4px;
+            display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 24px;
+            transition: opacity 0.2s; position: relative; overflow: hidden;
+        }
+        .grid-card:hover .grid-visual { opacity: 0.8; }
+        .grid-title { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+        .grid-sub { font-size: 13px; color: var(--gray-med); }
+
+        /* E. AI TOOL (Split View) */
+        .split-view { display: flex; gap: 40px; height: 100%; }
+        .split-sidebar { width: 300px; border-right: 1px solid var(--border); padding-right: 40px; display: flex; flex-direction: column; gap: 20px; }
+        .split-content { flex: 1; background: #fafafa; border-radius: 8px; padding: 40px; overflow-y: auto; font-family: 'Georgia', serif; line-height: 1.6; color: #333; }
+        
+        .ai-input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-family: inherit; font-size: 13px; margin-top: 5px; }
+        .ai-label { font-size: 12px; font-weight: 600; color: var(--fg); }
+
+        /* F. SETTINGS */
+        .settings-list { max-width: 600px; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--border); }
+        .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e0e0e0; transition: .3s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: #111; }
+        input:checked + .slider:before { transform: translateX(16px); }
+
+        /* Utility */
+        .hidden { display: none !important; }
+
+    </style>
+</head>
+<body>
+
+    <header class="sqs-header">
+        <div class="header-left">
+            <i class="ph ph-squares-four" style="font-size: 22px;"></i>
+            <div class="site-context">
+                <span style="font-weight: 500;">Oneclickworks</span>
+                <span class="context-divider">/</span>
+                <span id="headerContext">Genel Bakış</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <i class="ph ph-bell" style="font-size:18px; color:#666;"></i>
+            <div class="user-circle">MA</div>
+        </div>
+    </header>
+
+    <div class="layout-wrapper">
+        
+        <aside class="sidebar">
+            <div class="nav-group">
+                <div class="nav-label">Yönetim</div>
+                <div class="nav-item active" onclick="switchView('overview', this)">
+                    <i class="ph ph-chart-pie-slice"></i> Genel Bakış
+                </div>
+                <div class="nav-item" onclick="switchView('clients', this)">
+                    <i class="ph ph-users"></i> Müşteriler
+                </div>
+                <div class="nav-item" onclick="switchView('finance', this)">
+                    <i class="ph ph-currency-dollar"></i> Finans
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-label">İş Akışı</div>
+                <div class="nav-item" onclick="switchView('tasks', this)">
+                    <i class="ph ph-kanban"></i> Görevler
+                </div>
+                <div class="nav-item" onclick="switchView('task-report', this)">
+                    <i class="ph ph-list-checks"></i> Görevler Rapor
+                </div>
+                <div class="nav-item" onclick="switchView('projects', this)">
+                    <i class="ph ph-briefcase"></i> Projeler
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-label">Oneclick AI</div>
+                <div class="nav-item" onclick="switchView('ai-proposals', this)">
+                    <i class="ph ph-file-text"></i> AI Teklifler
+                </div>
+                <div class="nav-item" onclick="switchView('ai-content', this)">
+                    <i class="ph ph-magic-wand"></i> AI İçerik Aracı
+                </div>
+            </div>
+
+            <div class="nav-group" style="margin-top: auto;">
+                <div class="nav-label">Sistem</div>
+                <div class="nav-item" onclick="switchView('settings', this)">
+                    <i class="ph ph-gear"></i> Ayarlar
+                </div>
+            </div>
+        </aside>
+
+        <main class="main">
+            <div class="main-container">
+                
+                <div class="page-header">
+                    <h1 class="page-title" id="pageTitle">Genel Bakış</h1>
+                    <button class="create-pill" id="actionBtn" onclick="alert('Action!')">
+                        <i class="ph ph-plus"></i> Yeni Ekle
+                    </button>
+                </div>
+
+                <div id="view-overview" class="view-section">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Toplam Gelir (Aylık)</div>
+                            <div class="stat-val">₺142,000</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Aktif Projeler</div>
+                            <div class="stat-val">8</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Bekleyen Görevler</div>
+                            <div class="stat-val">12</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Yeni Talepler</div>
+                            <div class="stat-val">3</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+
+                <div id="view-clients" class="view-section hidden">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Müşteri</th>
+                                <th>Şirket</th>
+                                <th>Durum</th>
+                                <th>Son İletişim</th>
+                                <th>Bakiye</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Ahmet Yılmaz</td>
+                                <td>DentGroup</td>
+                                <td><span class="status-badge status-green">Aktif</span></td>
+                                <td>Bugün</td>
+                                <td>₺0</td>
+                            </tr>
+                            <tr>
+                                <td>Elif Demir</td>
+                                <td>Estetik Line</td>
+                                <td><span class="status-badge status-yellow">Beklemede</span></td>
+                                <td>3 Gün Önce</td>
+                                <td>₺15,000</td>
+                            </tr>
+                            <tr>
+                                <td>Mehmet Kaya</td>
+                                <td>Kaya Lojistik</td>
+                                <td><span class="status-badge status-green">Aktif</span></td>
+                                <td>1 Hafta Önce</td>
+                                <td>₺0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="view-tasks" class="view-section hidden" style="height: 100%;">
+                    <div class="kanban-board">
+                        <div class="kanban-col" ondragover="allowDrop(event)" ondrop="drop(event)" id="col-todo">
+                            <div class="kanban-head">Yapılacaklar <span>2</span></div>
+                            <div class="task-card" draggable="true" ondragstart="drag(event)" id="t1">
+                                <span class="task-tag" style="background:#fff0f6; color:#c02058;">Tasarım</span>
+                                <div class="task-title">Diş Kliniği Logo Revizesi</div>
+                                <div class="task-meta"><span>Yarın</span><i class="ph ph-user-circle"></i></div>
+                            </div>
+                            <div class="task-card" draggable="true" ondragstart="drag(event)" id="t2">
+                                <span class="task-tag" style="background:#e6f7ff; color:#0050b3;">Backend</span>
+                                <div class="task-title">Form API Entegrasyonu</div>
+                                <div class="task-meta"><span>3 Oca</span><i class="ph ph-user-circle"></i></div>
+                            </div>
+                        </div>
+                        <div class="kanban-col" ondragover="allowDrop(event)" ondrop="drop(event)" id="col-prog">
+                            <div class="kanban-head">Sürüyor <span>1</span></div>
+                            <div class="task-card" draggable="true" ondragstart="drag(event)" id="t3">
+                                <span class="task-tag" style="background:#f6ffed; color:#389e0d;">SEO</span>
+                                <div class="task-title">Rakip Analizi Raporu</div>
+                                <div class="task-meta"><span>Bugün</span><i class="ph ph-user-circle"></i></div>
+                            </div>
+                        </div>
+                        <div class="kanban-col" ondragover="allowDrop(event)" ondrop="drop(event)" id="col-done">
+                            <div class="kanban-head">Tamamlandı <span>0</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-task-report" class="view-section hidden">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Görev Adı</th>
+                                <th>Atanan</th>
+                                <th>Proje</th>
+                                <th>Teslim Tarihi</th>
+                                <th>Durum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Logo Revizesi</td>
+                                <td>Elif Yılmaz</td>
+                                <td>DentGroup</td>
+                                <td>24 Ocak</td>
+                                <td><span class="status-badge status-yellow">Yapılacak</span></td>
+                            </tr>
+                            <tr>
+                                <td>Rakip Analizi</td>
+                                <td>Murat Adak</td>
+                                <td>Estetik Line</td>
+                                <td>22 Ocak</td>
+                                <td><span class="status-badge status-green">Sürüyor</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="view-projects" class="view-section hidden">
+                    <div class="grid-view">
+                        <div class="grid-card">
+                            <div class="grid-visual">Case 01</div>
+                            <div class="grid-title">DentGroup Branding</div>
+                            <div class="grid-sub">Sağlık Turizmi</div>
+                        </div>
+                        <div class="grid-card">
+                            <div class="grid-visual" style="background:#000; color:#fff;">SEO</div>
+                            <div class="grid-title">Estetik Line SEO</div>
+                            <div class="grid-sub">Pazarlama</div>
+                        </div>
+                        <div class="grid-card">
+                            <div class="grid-visual">Ads</div>
+                            <div class="grid-title">Almanya Kampanyası</div>
+                            <div class="grid-sub">Google Ads</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-finance" class="view-section hidden">
+                    <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="stat-card" style="background:#f6ffed; border-color:#b7eb8f;">
+                            <div class="stat-label" style="color:#389e0d;">Gelir</div>
+                            <div class="stat-val" style="color:#389e0d;">+₺142,000</div>
+                        </div>
+                        <div class="stat-card" style="background:#fff1f0; border-color:#ffa39e;">
+                            <div class="stat-label" style="color:#cf1322;">Gider</div>
+                            <div class="stat-val" style="color:#cf1322;">-₺34,500</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Net Kâr</div>
+                            <div class="stat-val">₺107,500</div>
+                        </div>
+                    </div>
+                    <h3 style="font-size:16px; margin-bottom:20px; font-weight:500;">Son İşlemler</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Açıklama</th>
+                                <th>Kategori</th>
+                                <th>Tarih</th>
+                                <th>Tutar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>DentGroup Web Sitesi Ödemesi</td>
+                                <td>Hizmet Geliri</td>
+                                <td>Bugün</td>
+                                <td style="color:#389e0d; font-weight:600;">+₺45,000</td>
+                            </tr>
+                            <tr>
+                                <td>Sunucu Giderleri (Vercel/AWS)</td>
+                                <td>Altyapı</td>
+                                <td>Dün</td>
+                                <td style="color:#cf1322;">-₺2,500</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="view-ai-proposals" class="view-section hidden">
+                    <div class="grid-view">
+                        <div class="grid-card">
+                            <div class="grid-visual" style="aspect-ratio: 1/1.4; font-size: 14px; background:#fff; border:1px solid #eee;">
+                                <div style="width:60%; height:10px; background:#eee; margin-bottom:10px;"></div>
+                                <div style="width:80%; height:6px; background:#f4f4f4; margin-bottom:5px;"></div>
+                                <div style="width:80%; height:6px; background:#f4f4f4; margin-bottom:5px;"></div>
+                            </div>
+                            <div class="grid-title">Web Tasarım Teklifi (DentGroup)</div>
+                            <div class="grid-sub">Oluşturuldu: Dün</div>
+                        </div>
+                         <div class="grid-card">
+                            <div class="grid-visual" style="aspect-ratio: 1/1.4; font-size: 14px; background:#fff; border:1px solid #eee;">
+                                <div style="width:60%; height:10px; background:#eee; margin-bottom:10px;"></div>
+                                <div style="width:80%; height:6px; background:#f4f4f4; margin-bottom:5px;"></div>
+                            </div>
+                            <div class="grid-title">SEO Stratejisi v2</div>
+                            <div class="grid-sub">Oluşturuldu: 15 Oca</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-ai-content" class="view-section hidden" style="height:100%;">
+                    <div class="split-view">
+                        <div class="split-sidebar">
+                            <h3 style="font-size:14px; font-weight:600; text-transform:uppercase; color:#999; margin-bottom:10px;">Parametreler</h3>
+                            <div>
+                                <label class="ai-label">Konu</label>
+                                <input type="text" class="ai-input" placeholder="Örn: Sağlık Turizminde SEO">
+                            </div>
+                            <div>
+                                <label class="ai-label">Ton</label>
+                                <select class="ai-input"><option>Profesyonel</option><option>Samimi</option><option>Satış Odaklı</option></select>
+                            </div>
+                            <div>
+                                <label class="ai-label">Uzunluk</label>
+                                <select class="ai-input"><option>Blog Yazısı (1000 kelime)</option><option>Instagram Caption</option></select>
+                            </div>
+                            <button class="create-pill" style="justify-content:center; margin-top:10px;">
+                                <i class="ph ph-sparkle"></i> Oluştur
+                            </button>
+                        </div>
+                        <div class="split-content">
+                            <h1 style="font-size:24px; margin-bottom:20px;">Sağlık Turizminde SEO'nun Gücü</h1>
+                            <p>Sağlık turizmi, dijital dünyada rekabetin en yoğun olduğu sektörlerden biridir. Hasta kazanım maliyetlerini düşürmek ve organik trafik elde etmek için doğru SEO stratejileri hayati önem taşır...</p>
+                            <p style="color:#999; margin-top:20px;">[AI tarafından oluşturulan içerik buraya gelecek...]</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-settings" class="view-section hidden">
+                    <div class="settings-list">
+                        <div class="setting-row">
+                            <div>
+                                <div style="font-size:14px; font-weight:600;">Bakım Modu</div>
+                                <div style="font-size:12px; color:#999;">Siteyi ziyaretçilere kapat.</div>
+                            </div>
+                            <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <div style="font-size:14px; font-weight:600;">Karanlık Mod (Admin)</div>
+                                <div style="font-size:12px; color:#999;">Yönetim paneli temasını değiştir.</div>
+                            </div>
+                            <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <div style="font-size:14px; font-weight:600;">Bildirimler</div>
+                                <div style="font-size:12px; color:#999;">Yeni görev atamalarında e-posta al.</div>
+                            </div>
+                            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- ROUTER / VIEW SWITCHER ---
+        function switchView(viewName, el) {
+            // 1. Sidebar Active State
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+
+            // 2. Header Context
+            const title = el.innerText.trim();
+            document.getElementById('pageTitle').innerText = title;
+            document.getElementById('headerContext').innerText = title;
+
+            // 3. Toggle Sections
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById('view-' + viewName).classList.remove('hidden');
+
+            // 4. Button Logic (Optional: Hide button on specific pages)
+            const btn = document.getElementById('actionBtn');
+            if(viewName === 'settings' || viewName === 'ai-content' || viewName === 'overview') {
+                btn.classList.add('hidden');
+            } else {
+                btn.classList.remove('hidden');
+            }
+        }
+
+        // --- KANBAN DRAG & DROP ---
+        function allowDrop(ev) { ev.preventDefault(); }
+        function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+        function drop(ev) {
+            ev.preventDefault();
+            var data = ev.dataTransfer.getData("text");
+            var el = document.getElementById(data);
+            if(ev.target.classList.contains('kanban-col')) ev.target.appendChild(el);
+            else ev.target.closest('.kanban-col').appendChild(el);
+            
+            // Update Counts logic here...
+        }
+
+        // --- CHART.JS INIT ---
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz'],
+                datasets: [{
+                    label: 'Aylık Gelir (₺)',
+                    data: [85000, 92000, 105000, 98000, 120000, 142000],
+                    borderColor: '#111',
+                    tension: 0.3,
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true, grid: { borderDash: [5,5] } }
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
