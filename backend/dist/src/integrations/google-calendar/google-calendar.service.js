@@ -48,11 +48,13 @@ let GoogleCalendarService = class GoogleCalendarService {
         };
     }
     async getConfig(tenantId) {
+        console.log('--- GET CONFIG START ---', { tenantId });
         let db = null;
         try {
             db = await this.prisma.googleCalendarConfig.findFirst({
                 where: { tenantId },
             });
+            console.log('--- GET CONFIG DB RES ---', db);
         }
         catch (error) {
             const msg = String(error?.message || '');
@@ -145,8 +147,10 @@ let GoogleCalendarService = class GoogleCalendarService {
                 },
             });
             email = String(me.data?.email || '').trim() || null;
+            console.log('--- GOOGLE USER INFO ---', { email, data: me.data });
         }
-        catch {
+        catch (error) {
+            console.error('--- GOOGLE USER INFO ERROR ---', error);
             email = null;
         }
         const expiresAt = typeof tokenData.expires_in === 'number'

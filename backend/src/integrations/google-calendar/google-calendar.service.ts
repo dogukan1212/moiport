@@ -68,11 +68,13 @@ export class GoogleCalendarService {
   }
 
   async getConfig(tenantId: string) {
+    console.log('--- GET CONFIG START ---', { tenantId });
     let db: any = null;
     try {
       db = await this.prisma.googleCalendarConfig.findFirst({
         where: { tenantId },
       });
+      console.log('--- GET CONFIG DB RES ---', db);
     } catch (error: any) {
       const msg = String(error?.message || '');
       if (msg.toLowerCase().includes('no such table')) {
@@ -193,7 +195,9 @@ export class GoogleCalendarService {
         },
       );
       email = String(me.data?.email || '').trim() || null;
-    } catch {
+      console.log('--- GOOGLE USER INFO ---', { email, data: me.data });
+    } catch (error) {
+      console.error('--- GOOGLE USER INFO ERROR ---', error);
       email = null;
     }
 
