@@ -5,17 +5,6 @@ import { toast } from 'sonner';
 // import api from '@/lib/api';
 
 export const useMobilePush = (userId?: string) => {
-  useEffect(() => {
-    // Sadece mobil uygulamada (iOS/Android) ve kullanıcı giriş yapmışsa çalışır
-    if (Capacitor.isNativePlatform() && userId) {
-      const initPush = async () => {
-        await addListeners();
-        await registerNotifications();
-      };
-      initPush();
-    }
-  }, [userId]);
-
   const addListeners = async () => {
     await PushNotifications.removeAllListeners();
 
@@ -53,4 +42,15 @@ export const useMobilePush = (userId?: string) => {
       await PushNotifications.register();
     }
   };
+
+  useEffect(() => {
+    // Sadece mobil uygulamada (iOS/Android) ve kullanıcı giriş yapmışsa çalışır
+    if (Capacitor.isNativePlatform() && userId) {
+      const initPush = async () => {
+        await addListeners();
+        await registerNotifications();
+      };
+      initPush();
+    }
+  }, [userId]);
 };
