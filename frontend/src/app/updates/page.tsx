@@ -5,7 +5,7 @@ import { LandingHeader, LandingFooter } from "@/components/landing-layout";
 
 const updates = [
   {
-    version: "v2.4",
+    version: "v2.5",
     date: "Ocak 2026",
     label: "Yeni",
     color: "text-[#00e676]",
@@ -139,7 +139,7 @@ export default function UpdatesPage() {
                 Son Sürüm
               </div>
               <div className="text-sm font-bold text-white mb-1">
-                v2.4 • Ocak 2026
+                v2.5 • Ocak 2026
               </div>
               <p className="text-[12px] text-zinc-100 leading-relaxed">
                 Mobil uyumluluk, görev ve finans panelleri için büyük bir
@@ -193,4 +193,3 @@ export default function UpdatesPage() {
     </div>
   );
 }
-
