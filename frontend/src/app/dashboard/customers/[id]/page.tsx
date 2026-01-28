@@ -95,6 +95,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
     { id: 'PROJECTS', label: 'Projeler' },
     { id: 'TASKS', label: 'Görevler' },
     { id: 'CHAT', label: 'Sohbet' },
+    { id: 'STORAGE', label: 'Dosyalar (Drive)' },
     { id: 'SOCIAL_MEDIA_PLANS', label: 'Sosyal Medya Planları' },
   ];
 

@@ -375,6 +375,28 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Integrations Section */}
+      <section id="integrations" className="py-20 bg-zinc-900/30 border-y border-white/5">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 text-center">
+           <div className="mb-12">
+            <h2 className="text-base font-bold tracking-wider uppercase text-[#00e676] mb-4">Entegrasyonlar</h2>
+            <p className="text-3xl font-extrabold text-white sm:text-4xl">Favori Araçlarınızla Tam Uyum</p>
+            <p className="mt-4 text-zinc-400 max-w-2xl mx-auto">
+              İş akışınızı bozmadan, kullandığınız popüler servisleri MOI Port ile entegre edin ve gücünüze güç katın.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
+             <IntegrationItem name="Paraşüt" icon={<CreditCard size={32}/>} desc="Finans & Fatura" />
+             <IntegrationItem name="Google Calendar" icon={<Clock size={32}/>} desc="Toplantı & Etkinlik" />
+             <IntegrationItem name="PayTR" icon={<Wallet size={32}/>} desc="Online Tahsilat" />
+             <IntegrationItem name="Trello" icon={<Layers size={32}/>} desc="Proje Aktarımı" />
+             <IntegrationItem name="Netgsm" icon={<MessageSquare size={32}/>} desc="SMS Bildirimleri" />
+             <IntegrationItem name="VatanSMS" icon={<MessageCircle size={32}/>} desc="Toplu SMS" />
+          </div>
+        </div>
+      </section>
+
       {/* CRM Showcase Section */}
       <section id="crm-showcase" className="py-20 lg:py-32 overflow-hidden">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -684,6 +706,7 @@ export default function Home() {
                 "AI Teklifler ve AI İçerik (sınırlı)",
                 "Finans: Genel Bakış ve Faturalar",
                 "İK: Ekip Yönetimi",
+                "Temel Entegrasyonlar (Trello, Calendar)",
                 "Rol bazlı erişim",
                 "5 Kullanıcı",
                 "1GB Depolama",
@@ -702,6 +725,7 @@ export default function Home() {
                 "Sosyal Medya Planları",
                 "AI Teklifler ve AI İçerik",
                 "Finans: Gelir/Gider, Düzenli İşlemler, Faturalar",
+                "Paraşüt & Google Calendar Entegrasyonu",
                 "İK: Ekip, Bordro & Maaşlar, Sözleşme & Evrak, İzinler",
                 "Gelişmiş raporlama",
                 "Rol bazlı erişim",
@@ -717,6 +741,7 @@ export default function Home() {
               price="7.495" 
               features={[
                 "Sınırsız modül ve özellikler",
+                "Tüm Entegrasyonlar (PayTR, Netgsm, VatanSMS vb.)",
                 "Özel entegrasyonlar ve API erişimi",
                 "Yapay Zeka Asistanı",
                 "Gelişmiş güvenlik ve denetim",
@@ -735,6 +760,20 @@ export default function Home() {
       </section>
 
       <LandingFooter />
+    </div>
+  );
+}
+
+function IntegrationItem({ name, icon, desc }: { name: string, icon: React.ReactNode, desc: string }) {
+  return (
+    <div className="flex flex-col items-center text-center gap-3 p-4 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/5 hover:border-[#00e676]/30 transition-all group">
+      <div className="size-16 rounded-2xl bg-white/5 flex items-center justify-center text-zinc-400 group-hover:text-[#00e676] group-hover:scale-110 transition-all">
+        {icon}
+      </div>
+      <div>
+        <h4 className="font-bold text-white text-sm">{name}</h4>
+        <p className="text-xs text-zinc-500 mt-1">{desc}</p>
+      </div>
     </div>
   );
 }

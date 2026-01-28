@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { LayoutDashboard, LogOut, UserCog, Settings as SettingsIcon, HelpCircle } from "lucide-react";
+import { LayoutDashboard, LogOut, UserCog, Settings as SettingsIcon, HelpCircle, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { Sidebar } from "@/components/sidebar";
 import { useAuth } from "@/hooks/use-auth";
@@ -23,6 +23,7 @@ export default function DashboardLayout({
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [tenantData, setTenantData] = useState<any>(null);
   const [isCheckingStatus, setIsCheckingStatus] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -278,13 +279,19 @@ export default function DashboardLayout({
           </Link>
         </div>
       )}
-      <header className="h-[65px] border-b border-border bg-card flex items-center justify-between px-6 relative z-40">
-        <div className="flex items-center gap-5">
-          <LayoutDashboard className="h-6 w-6 text-primary" />
-          <div className="flex items-center gap-3 text-sm font-semibold">
-            <span className="text-foreground">{tenantData?.name || "Ajansınız"}</span>
-            <span className="text-muted-foreground text-lg">/</span>
-            <span className="text-muted-foreground">{headerContext}</span>
+      <header className="h-[65px] border-b border-border bg-card flex items-center justify-between px-4 md:px-6 relative z-40">
+        <div className="flex items-center gap-3 md:gap-5">
+          <button 
+            className="md:hidden p-1 -ml-1 text-muted-foreground hover:text-foreground"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+          <LayoutDashboard className="h-6 w-6 text-primary hidden md:block" />
+          <div className="flex items-center gap-2 md:gap-3 text-sm font-semibold truncate max-w-[200px] md:max-w-none">
+            <span className="text-foreground truncate">{tenantData?.name || "Ajansınız"}</span>
+            <span className="text-muted-foreground text-lg hidden md:inline">/</span>
+            <span className="text-muted-foreground truncate">{headerContext}</span>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -359,8 +366,28 @@ export default function DashboardLayout({
         </div>
       </header>
       <div className="flex flex-1 overflow-hidden relative">
-        <Sidebar tenantData={tenantData} />
-        <main className={`flex-1 ${pathname.startsWith('/dashboard/chat') ? 'overflow-hidden' : 'overflow-y-auto px-[60px]'}`}>
+        <Sidebar tenantData={tenantData} className="hidden md:flex" />
+
+        {mobileMenuOpen && (
+            <div className="absolute inset-0 z-50 md:hidden flex">
+                <div className="fixed inset-0 bg-black/50" onClick={() => setMobileMenuOpen(false)} />
+                <div className="relative z-50 h-full w-64 bg-sidebar border-r border-sidebar-border shadow-2xl animate-in slide-in-from-left duration-200 flex flex-col">
+                     <div className="flex items-center justify-between p-4 border-b border-sidebar-border shrink-0">
+                        <span className="font-semibold text-lg">Menu</span>
+                        <button onClick={() => setMobileMenuOpen(false)} className="p-1 hover:bg-muted rounded-md">
+                            <X className="h-5 w-5" />
+                        </button>
+                     </div>
+                     <Sidebar 
+                        tenantData={tenantData} 
+                        className="border-none w-full flex-1 py-4" 
+                        onLinkClick={() => setMobileMenuOpen(false)} 
+                     />
+                </div>
+            </div>
+        )}
+
+        <main className={`flex-1 ${pathname.startsWith('/dashboard/chat') ? 'overflow-hidden' : 'overflow-y-auto px-4 md:px-[60px]'}`}>
           {pathname.startsWith('/dashboard/chat') ? (
              children
           ) : (

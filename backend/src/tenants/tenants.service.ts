@@ -31,15 +31,16 @@ export class TenantsService {
   ): Promise<boolean> {
     const tenant = await this.prisma.tenant.findUnique({
       where: { id: tenantId },
-      select: { maxStorage: true },
+      select: { maxStorage: true, storageUsed: true },
     });
 
     if (!tenant || !tenant.maxStorage) return true;
 
-    const currentUsage = this.getStorageUsage(tenantId);
-    const maxBytes = tenant.maxStorage * 1024 * 1024;
+    // Use DB usage if available, else fallback to FS calculation (deprecated)
+    const currentUsage = tenant.storageUsed ? BigInt(tenant.storageUsed) : BigInt(this.getStorageUsage(tenantId));
+    const maxBytes = BigInt(tenant.maxStorage); // Now stored as bytes
 
-    return currentUsage + additionalBytes <= maxBytes;
+    return currentUsage + BigInt(additionalBytes) <= maxBytes;
   }
 
   async getAllTenants() {

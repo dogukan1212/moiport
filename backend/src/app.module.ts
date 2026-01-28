@@ -26,6 +26,7 @@ import { IntegrationsModule } from './integrations/integrations.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { WordpressModule } from './wordpress/wordpress.module';
 import { SmsModule } from './sms/sms.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { SmsModule } from './sms/sms.module';
     WebhooksModule,
     IntegrationsModule,
     SmsModule,
+    StorageModule,
     SubscriptionsModule,
     WordpressModule,
   ],

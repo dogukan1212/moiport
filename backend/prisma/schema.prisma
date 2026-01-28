@@ -30,7 +30,12 @@ model Tenant {
   subscriptionStatus     String?   @default("ACTIVE")
   subscriptionEndsAt     DateTime?
   maxUsers               Int?      @default(5)
-  maxStorage             Int?      @default(1024) // MB
+  maxStorage             BigInt?   @default(536870912000) // Bytes
+  storageUsed            BigInt    @default(0) // Bytes
+  
+  // Storage
+  storageFolders        StorageFolder[]
+  storageFiles          StorageFile[]
   autoRenew              Boolean   @default(true)
 
   users                 User[]
@@ -199,6 +204,7 @@ model User {
   managedSocialMediaPlans SocialMediaPlan[] @relation("PlanManager")
   designedSocialMediaPlans SocialMediaPlan[] @relation("PlanDesigner")
   crmActivities   CrmActivity[]
+  uploadedFiles StorageFile[]
 
   verifications UserVerification[]
   twoFactorAuths TwoFactorAuth[]
@@ -240,6 +246,7 @@ model Customer {
   transactions Transaction[]
   
   // Client Portal & CRM
+  storageFolders  StorageFolder[]
   users           User[]           @relation("UserCustomer")
   whatsappConfigs WhatsappConfig[]
   facebookConfigs FacebookConfig[]
@@ -1012,4 +1019,55 @@ model AuthOtp {
   @@index([tenantId, userId])
   @@index([email])
   @@index([phone])
+}
+
+
+// --- Storage ---
+
+model StorageFolder {
+  id        String   @id @default(uuid())
+  name      String
+  parentId  String?
+  parent    StorageFolder? @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children  StorageFolder[] @relation("FolderHierarchy")
+  files     StorageFile[]
+
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  isSystem  Boolean  @default(false) // e.g. Customer Root Folder
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId, parentId])
+  @@index([tenantId, customerId])
+}
+
+model StorageFile {
+  id           String   @id @default(uuid())
+  name         String
+  originalName String
+  mimeType     String
+  size         BigInt   // Bytes
+  path         String   // Local path or S3 key
+  provider     String   @default("LOCAL") // LOCAL, S3
+
+  folderId     String?
+  folder       StorageFolder? @relation(fields: [folderId], references: [id], onDelete: Cascade)
+
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+
+  uploaderId   String?
+  uploader     User?    @relation(fields: [uploaderId], references: [id])
+
+  isPublic     Boolean  @default(false)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([tenantId, folderId])
 }

@@ -1,17 +1,58 @@
+// ... existing code ...
 
-model Notification {
+model StorageFolder {
   id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  name      String
+  parentId  String?
+  parent    StorageFolder? @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children  StorageFolder[] @relation("FolderHierarchy")
+  files     StorageFile[]
+
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
-  
-  title     String
-  message   String
-  type      String   // TASK_ASSIGNMENT, TASK_MENTION, TASK_DUE, SYSTEM
-  referenceId String? // ID of the task or related entity
-  referenceType String? // TASK, PROJECT, etc.
-  
-  isRead    Boolean  @default(false)
+
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  isSystem  Boolean  @default(false) // e.g. Customer Root Folder
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId, parentId])
+  @@index([tenantId, customerId])
+}
+
+model StorageFile {
+  id           String   @id @default(uuid())
+  name         String
+  originalName String
+  mimeType     String
+  size         BigInt   // Bytes
+  path         String   // Local path or S3 key
+  provider     String   @default("LOCAL") // LOCAL, S3
+
+  folderId     String?
+  folder       StorageFolder? @relation(fields: [folderId], references: [id], onDelete: Cascade)
+
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+
+  uploaderId   String?
+  uploader     User?    @relation(fields: [uploaderId], references: [id])
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([tenantId, folderId])
+}
+
+model AuthOtp {
+  id         String   @id @default(uuid())
+  purpose    String
+  identifier String
+  code       String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([identifier, purpose])
 }

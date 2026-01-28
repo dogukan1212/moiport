@@ -24,12 +24,16 @@ import {
   Clock,
   PenTool,
   FileJson,
+  Receipt,
+  CreditCard,
+  Calendar,
+  LayoutTemplate,
   Activity
 } from "lucide-react";
 import Link from "next/link";
 
 export default function Features() {
-  const [activeTab, setActiveTab] = useState<'agency' | 'team' | 'customer'>('agency');
+  const [activeTab, setActiveTab] = useState<'agency' | 'team' | 'customer' | 'integrations'>('agency');
 
   const allFeatures = {
     agency: [
@@ -121,6 +125,83 @@ export default function Features() {
           "Sektör ve rakip analizi",
           "PDF Teklif oluşturucu (Sürükle-bırak)",
           "Teklif durum takibi (Görüldü/Onay)"
+        ]
+      }
+    ],
+    integrations: [
+      {
+        id: "parasut",
+        title: "Paraşüt Entegrasyonu",
+        description: "Finansal süreçlerinizi Paraşüt ile senkronize edin. Faturalarınız ve cari hesaplarınız otomatik olarak güncellenir.",
+        icon: <Receipt size={32} />,
+        color: "text-orange-400",
+        bg: "bg-orange-400/10",
+        border: "border-orange-400/20",
+        items: [
+          "Otomatik fatura oluşturma",
+          "Cari hesap eşitleme",
+          "Tahsilat takibi",
+          "Gider yönetimi"
+        ]
+      },
+      {
+        id: "google-calendar",
+        title: "Google Calendar",
+        description: "Toplantılarınızı ve etkinliklerinizi Google Takvim ile senkronize edin. Çakışmaları önleyin, her zaman organize kalın.",
+        icon: <Calendar size={32} />,
+        color: "text-blue-400",
+        bg: "bg-blue-400/10",
+        border: "border-blue-400/20",
+        items: [
+          "İki yönlü senkronizasyon",
+          "Otomatik toplantı linki (Meet)",
+          "Etkinlik hatırlatmaları",
+          "Müsaitlik durumu paylaşımı"
+        ]
+      },
+      {
+        id: "paytr",
+        title: "PayTR Sanal POS",
+        description: "Müşterilerinizden kredi kartı ile güvenli online ödeme alın. Tahsilat süreçlerinizi hızlandırın.",
+        icon: <CreditCard size={32} />,
+        color: "text-green-400",
+        bg: "bg-green-400/10",
+        border: "border-green-400/20",
+        items: [
+          "Güvenli ödeme altyapısı",
+          "Tekrarlı ödeme (Abonelik)",
+          "Taksitli satış imkanı",
+          "Anlık işlem raporları"
+        ]
+      },
+      {
+        id: "trello",
+        title: "Trello Entegrasyonu",
+        description: "Mevcut Trello panolarınızı içe aktarın veya projelerinizi Trello ile senkronize çalıştırın.",
+        icon: <LayoutTemplate size={32} />,
+        color: "text-blue-500",
+        bg: "bg-blue-500/10",
+        border: "border-blue-500/20",
+        items: [
+          "Pano ve kart eşitleme",
+          "Listeler arası taşıma",
+          "Etiket ve üye senkronizasyonu",
+          "Ek dosya ve yorumlar"
+        ]
+      },
+      {
+        id: "netgsm-vatansms",
+        title: "Netgsm & VatanSMS",
+        description: "SMS bildirimleri ile müşterilerinizi ve ekibinizi bilgilendirin. Otomatik hatırlatmalar kurun.",
+        icon: <MessageCircle size={32} />,
+        color: "text-purple-400",
+        bg: "bg-purple-400/10",
+        border: "border-purple-400/20",
+        items: [
+          "Başlıklı SMS gönderimi",
+          "Otomatik randevu hatırlatma",
+          "Ödeme günü bildirimleri",
+          "Toplu SMS kampanyaları"
         ]
       }
     ],
@@ -295,18 +376,21 @@ export default function Features() {
           
           {/* Tabs */}
           <div className="flex justify-center mb-16 mt-12">
-            <div className="bg-white/5 p-1 rounded-full inline-flex border border-white/10">
-              {(['agency', 'team', 'customer'] as const).map((tab) => (
+            <div className="bg-white/5 p-1 rounded-full inline-flex border border-white/10 flex-wrap justify-center">
+              {(['agency', 'team', 'customer', 'integrations'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-8 py-3 rounded-full text-sm font-bold transition-all relative ${
+                  className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${
                     activeTab === tab 
-                      ? 'bg-[#00e676] text-black shadow-lg shadow-[#00e676]/20' 
-                      : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                      ? 'bg-zinc-800 text-white shadow-sm' 
+                      : 'text-zinc-400 hover:text-white'
                   }`}
                 >
-                  {tab === 'agency' ? 'Ajans' : tab === 'team' ? 'Ekip' : 'Müşteri'}
+                  {tab === 'agency' && 'Ajans Yönetimi'}
+                  {tab === 'team' && 'Ekip İş Birliği'}
+                  {tab === 'customer' && 'Müşteri Paneli'}
+                  {tab === 'integrations' && 'Entegrasyonlar'}
                 </button>
               ))}
             </div>

@@ -679,31 +679,32 @@ export default function CrmPage() {
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex gap-6 overflow-x-auto pb-6 min-h-[700px] scrollbar-hide">
+          <div className="flex gap-4 md:gap-6 overflow-x-auto pb-6 min-h-[calc(100vh-250px)] scrollbar-hide snap-x snap-mandatory px-4 md:px-0 -mx-4 md:mx-0">
             {filteredPipeline?.stages.map((stage) => (
-              <BoardColumn 
-                key={stage.id} 
-                stage={stage} 
-                onLeadClick={(lead) => fetchLeadDetails(lead.id)}
-                onEditStage={(s) => {
-                  setSelectedStage(s);
-                  setEditingStage({ name: s.name, color: s.color });
-                  setIsEditStageOpen(true);
-                }}
-                onDeleteStage={(id) => {
-                  const s = currentPipeline?.stages.find(st => st.id === id);
-                  if (s) {
+              <div key={stage.id} className="snap-center first:pl-4 last:pr-4 md:first:pl-0 md:last:pr-0">
+                <BoardColumn 
+                  stage={stage} 
+                  onLeadClick={(lead) => fetchLeadDetails(lead.id)}
+                  onEditStage={(s) => {
                     setSelectedStage(s);
-                    setIsDeleteStageOpen(true);
-                  }
-                }}
-                onAssign={handleAssignLead}
-                users={users}
-              />
+                    setEditingStage({ name: s.name, color: s.color });
+                    setIsEditStageOpen(true);
+                  }}
+                  onDeleteStage={(id) => {
+                    const s = currentPipeline?.stages.find(st => st.id === id);
+                    if (s) {
+                      setSelectedStage(s);
+                      setIsDeleteStageOpen(true);
+                    }
+                  }}
+                  onAssign={handleAssignLead}
+                  users={users}
+                />
+              </div>
             ))}
             
             {/* Add New Stage Column */}
-            <div className="flex-shrink-0 w-80">
+            <div className="flex-shrink-0 w-[85vw] md:w-80 snap-center pr-4 md:pr-0">
               <Button 
                 variant="outline" 
                 className="w-full h-[100px] border-2 border-dashed border-slate-200 bg-slate-50/50 hover:bg-slate-100/50 hover:border-slate-300 text-slate-400 rounded-2xl flex flex-col gap-2 dark:bg-slate-900/40 dark:border-slate-800 dark:hover:bg-slate-900/60 dark:hover:border-slate-700 dark:text-slate-500"

@@ -1,0 +1,14 @@
+import { IsString, IsOptional, IsUUID } from 'class-validator';
+
+export class CreateFolderDto {
+  @IsString()
+  name: string;
+
+  @IsOptional()
+  @IsUUID()
+  parentId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  customerId?: string;
+}

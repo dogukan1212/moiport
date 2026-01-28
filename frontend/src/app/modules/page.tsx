@@ -100,6 +100,39 @@ export default function ModulesPage() {
       ]
     },
     {
+      title: "Entegrasyonlar",
+      description: "Favori araçlarınızı bağlayın ve akışı bozmayın.",
+      icon: <Layers className="text-orange-400" size={24} />,
+      color: "orange",
+      modules: [
+        {
+          name: "Paraşüt",
+          desc: "Fatura ve cari takibi entegrasyonu.",
+          icon: <Receipt size={20} />
+        },
+        {
+          name: "Google Calendar",
+          desc: "Toplantı ve etkinlik senkronizasyonu.",
+          icon: <Calendar size={20} />
+        },
+        {
+          name: "PayTR",
+          desc: "Online ödeme alma ve sanal pos.",
+          icon: <CreditCard size={20} />
+        },
+        {
+          name: "Trello",
+          desc: "Kart ve pano tabanlı proje aktarımı.",
+          icon: <LayoutTemplate size={20} />
+        },
+        {
+          name: "Netgsm & VatanSMS",
+          desc: "Otomatik SMS bildirimleri ve doğrulama.",
+          icon: <MessageCircle size={20} />
+        }
+      ]
+    },
+    {
       title: "İletişim & Etkileşim",
       description: "Tüm kanallardan kesintisiz iletişim kurun.",
       icon: <MessageSquare className="text-green-400" size={24} />,

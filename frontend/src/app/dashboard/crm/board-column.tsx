@@ -67,7 +67,7 @@ export function BoardColumn({
   const leadIds = stage.leads?.map(l => l.id) || [];
 
   return (
-    <div className="flex-shrink-0 w-80 flex flex-col gap-3">
+    <div className="flex-shrink-0 w-[85vw] md:w-80 flex flex-col gap-3">
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-2">
           <h3 className="font-bold text-slate-900 dark:text-slate-50 text-sm">

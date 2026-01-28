@@ -1,6 +1,7 @@
 import { Injectable, Optional, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { StorageService } from '../storage/storage.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -8,6 +9,7 @@ export class CustomersService {
   constructor(
     private prisma: PrismaService,
     @Optional() private notificationsService?: NotificationsService,
+    @Optional() private storageService?: StorageService,
   ) {}
 
   private getCustomerPolicy(planCode?: string) {
@@ -55,6 +57,11 @@ export class CustomersService {
         tenantId,
       },
     });
+
+    // Auto-create storage folder
+    if (this.storageService) {
+      await this.storageService.ensureCustomerFolder(customer.id, tenantId);
+    }
 
     // Notify admins
     if (this.notificationsService) {

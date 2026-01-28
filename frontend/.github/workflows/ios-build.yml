@@ -1,0 +1,40 @@
+name: Build iOS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Next.js
+        run: npm run build
+
+      - name: Sync Capacitor
+        run: npx cap sync ios
+
+      - name: Build iOS App (Unsigned)
+        run: |
+          cd ios
+          xcodebuild -workspace App.xcworkspace -scheme App -destination generic/platform=iOS -configuration Release CODE_SIGNING_ALLOWED=NO
+
+      # Not: İmzalı bir .ipa üretmek için Apple Developer Sertifikaları gereklidir.
+      # Bu aşama sadece kodun derlenebildiğini doğrular.
+      # Gerçek bir App Store dağıtımı için sertifikaların GitHub Secrets'a eklenmesi gerekir.

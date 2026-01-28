@@ -101,54 +101,66 @@ export default function PricingPage() {
               annualPrice={1245}
               isAnnual={isAnnual}
               features={[
-                "5 Kullanıcıya kadar",
                 "Görevler ve Projeler",
-                "Ekip İçi Sohbet",
-                "AI Teklifler ve İçerik (Sınırlı)",
+                "Sohbet (Chat)",
+                "AI Teklifler ve AI İçerik (sınırlı)",
                 "Finans: Genel Bakış ve Faturalar",
                 "İK: Ekip Yönetimi",
-                "1GB Depolama Alanı",
-                "E-posta Desteği"
+                "Temel Entegrasyonlar (Trello, Calendar)",
+                "Rol bazlı erişim",
+                "5 Kullanıcı",
+                "1GB Depolama",
+                "E-posta destek"
               ]} 
               buttonText="Ücretsiz Deneyin"
               href="/register?plan=starter"
             />
             <PricingCard 
               title="Profesyonel" 
-              description="Büyüyen ajanslar için tam kapsamlı çözüm." 
+              description="Büyüyen ajanslar ve profesyoneller için kapsamlı paket." 
               monthlyPrice={2495}
               annualPrice={2079}
               isAnnual={isAnnual}
               popular={true}
               features={[
-                "20 Kullanıcıya kadar",
-                "CRM, WhatsApp, Instagram Yönetimi",
+                "CRM, WhatsApp, Instagram ve Müşteri Yönetimi",
+                "Görevler ve Görev Raporları",
+                "Projeler",
+                "Sohbet (Chat)",
                 "Sosyal Medya Planları",
-                "AI Teklifler ve İçerik (Tam Erişim)",
-                "Finans: Gelir/Gider, Düzenli İşlemler",
-                "İK: Bordro, İzinler, Sözleşmeler",
-                "Gelişmiş Raporlama",
-                "100GB Depolama Alanı",
-                "Öncelikli Destek"
+                "AI Teklifler ve AI İçerik",
+                "Finans: Gelir/Gider, Düzenli İşlemler, Faturalar",
+                "Paraşüt & Google Calendar Entegrasyonu",
+                "İK: Ekip, Bordro & Maaşlar, Sözleşme & Evrak, İzinler",
+                "Gelişmiş raporlama",
+                "Rol bazlı erişim",
+                "20 Kullanıcı",
+                "100GB Depolama",
+                "Öncelikli destek"
               ]} 
               buttonText="Hemen Başlayın"
               href="/register?plan=pro"
             />
             <PricingCard 
               title="Kurumsal" 
-              description="Büyük organizasyonlar için sınırsız güç." 
+              description="Büyük ölçekli organizasyonlar için tam kontrol." 
               monthlyPrice={7495}
               annualPrice={6245}
               isAnnual={isAnnual}
               features={[
-                "100+ Kullanıcı",
-                "Tüm Modüller ve Özellikler",
-                "Özel Entegrasyonlar ve API Erişimi",
+                "Sınırsız modül ve özellikler",
+                "Tüm Entegrasyonlar (PayTR, Netgsm, VatanSMS vb.)",
+                "Özel entegrasyonlar ve API erişimi",
                 "Yapay Zeka Asistanı",
-                "Gelişmiş Güvenlik ve Denetim",
-                "500GB Depolama Alanı",
-                "7/24 Canlı Destek",
-                "On-Premise Kurulum Opsiyonu"
+                "Gelişmiş güvenlik ve denetim",
+                "CRM, WhatsApp, Instagram, Müşteri Yönetimi",
+                "Görevler, Raporlar ve Projeler",
+                "Sohbet (Chat), Sosyal Medya Planları",
+                "Finans: Tüm modüller",
+                "İK: Tüm modüller",
+                "100+ Kullanıcı",
+                "500GB Depolama",
+                "7/24 Canlı Destek"
               ]} 
               buttonText="Satışla Görüşün"
               href="/contact"

@@ -10,6 +10,22 @@ const manrope = Manrope({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Ajans Yönetim Sistemi",
   description: "Modern ajanslar için SaaS yönetim platformu",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Kolayentegrasyon",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport = {
+  themeColor: "#ffffff",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({

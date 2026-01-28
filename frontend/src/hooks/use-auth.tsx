@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
+import { useMobilePush } from "./use-mobile-push";
 
 interface User {
   id: string;
@@ -28,6 +29,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  // Mobil bildirim sistemini başlat
+  useMobilePush(user?.id);
 
   useEffect(() => {
     const initAuth = async () => {

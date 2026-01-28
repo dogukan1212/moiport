@@ -25,6 +25,7 @@ import {
   Instagram,
   Globe,
   Video,
+  Folder,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -45,6 +46,7 @@ const sections = [
   {
     label: "İş Akışı",
     items: [
+      { icon: Folder, label: "Dosyalar", href: "/dashboard/storage" },
       { icon: LayoutGrid, label: "Görevler", href: "/dashboard/tasks" },
       { icon: Calendar, label: "Takvim", href: "/dashboard/calendar" },
       { icon: Video, label: "Toplantılar", href: "/dashboard/meetings" },
@@ -80,7 +82,7 @@ const systemSection = {
   ],
 };
 
-export function Sidebar({ tenantData }: { tenantData?: any }) {
+export function Sidebar({ tenantData, className, onLinkClick }: { tenantData?: any; className?: string; onLinkClick?: () => void }) {
   const pathname = usePathname();
   const { logout, user } = useAuth();
   const isAdmin = user?.role === "ADMIN";
@@ -101,6 +103,7 @@ export function Sidebar({ tenantData }: { tenantData?: any }) {
   } else {
     // Base features (STARTER)
     planAllowedHrefs.add("/dashboard");
+    planAllowedHrefs.add("/dashboard/storage");
     if (isWordpressEnabled) {
       planAllowedHrefs.add("/dashboard/websites");
     }
@@ -134,6 +137,7 @@ export function Sidebar({ tenantData }: { tenantData?: any }) {
   const staffAllowedHrefs = new Set([
     "/dashboard",
     ...(isWordpressEnabled ? ["/dashboard/websites"] : []),
+    "/dashboard/storage",
     "/dashboard/crm",
     "/dashboard/crm/leads",
     "/dashboard/whatsapp",
@@ -170,8 +174,10 @@ export function Sidebar({ tenantData }: { tenantData?: any }) {
     if (modules.includes('INSTAGRAM')) clientAllowedHrefs.add("/dashboard/instagram");
     if (modules.includes('SOCIAL_MEDIA_PLANS')) clientAllowedHrefs.add("/dashboard/social-media-plans");
     if (modules.includes('CHAT')) clientAllowedHrefs.add("/dashboard/chat");
+    if (modules.includes('STORAGE')) clientAllowedHrefs.add("/dashboard/storage");
   } else if (isClient) {
     clientAllowedHrefs.add("/dashboard/tasks");
+    clientAllowedHrefs.add("/dashboard/storage");
     clientAllowedHrefs.add("/dashboard/chat");
     clientAllowedHrefs.add("/dashboard/projects");
   }
@@ -192,7 +198,7 @@ export function Sidebar({ tenantData }: { tenantData?: any }) {
     pathname === href || pathname.startsWith(href + "/");
 
   return (
-    <aside className="sidebar flex flex-col h-full w-64 px-7 py-10 border-r border-sidebar-border bg-sidebar text-sidebar-foreground overflow-y-auto">
+    <aside className={cn("sidebar flex flex-col h-full w-64 px-7 py-10 border-r border-sidebar-border bg-sidebar text-sidebar-foreground overflow-y-auto", className)}>
       <nav className="flex-1 flex flex-col">
         <div className="space-y-8">
           {sections.map((section) => {
@@ -244,6 +250,7 @@ export function Sidebar({ tenantData }: { tenantData?: any }) {
               {isSuperAdmin && (
                  <Link
                     href="/admin"
+                    onClick={onLinkClick}
                     className="nav-item flex items-center gap-2.5 text-[13px] px-2 py-1.5 rounded-md cursor-pointer transition-colors text-primary hover:bg-muted font-semibold"
                   >
                     <ShieldAlert className="h-4 w-4 text-primary" />
@@ -256,6 +263,7 @@ export function Sidebar({ tenantData }: { tenantData?: any }) {
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={onLinkClick}
                     className={cn(
                       "nav-item group flex items-center gap-2.5 text-[13px] px-2 py-1.5 rounded-md cursor-pointer transition-colors",
                       active
