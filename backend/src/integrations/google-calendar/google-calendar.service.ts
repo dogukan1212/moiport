@@ -212,7 +212,7 @@ export class GoogleCalendarService {
     }
 
     const nextRefreshToken = refreshToken || existing?.refreshToken || null;
-    const isActive = !!nextRefreshToken;
+    const isActive = !!(nextRefreshToken || accessToken);
 
     if (existing) {
       await this.prisma.googleCalendarConfig.update({
@@ -279,18 +279,11 @@ export class GoogleCalendarService {
       ? new Date(config.tokenExpiresAt).getTime()
       : 0;
 
-    if (!accessToken) {
-      throw new BadRequestException(
-        'Google Calendar entegrasyonu için önce yetki vermelisiniz.',
-      );
-    }
+    const shouldRefresh =
+      !!refreshToken &&
+      (!accessToken || !expiresAt || expiresAt - now < 60_000);
 
-    if (!expiresAt || expiresAt - now < 60_000) {
-      if (!refreshToken) {
-        throw new BadRequestException(
-          'Google erişim anahtarı süresi dolmuş. Lütfen Google ile bağlantıyı yeniden verin.',
-        );
-      }
+    if (shouldRefresh) {
       try {
         const body = new URLSearchParams({
           client_id: clientId,
@@ -334,7 +327,7 @@ export class GoogleCalendarService {
 
     if (!accessToken) {
       throw new BadRequestException(
-        'Geçerli bir Google erişim anahtarı bulunamadı.',
+        'Google Calendar entegrasyonu için önce yetki vermelisiniz.',
       );
     }
 

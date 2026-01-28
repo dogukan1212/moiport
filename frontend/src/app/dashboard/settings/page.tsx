@@ -627,7 +627,7 @@ export default function SettingsPage() {
       setSaving(true);
       await api.post('/integrations/google-calendar/config', {
         primaryCalendar: googleCalendarPrimary || null,
-        isActive: googleCalendarConfig?.isActive ?? true,
+        isActive: googleCalendarConfig?.isActive ?? false,
       });
       await fetchGoogleCalendarConfig();
       toast.success('Google Calendar ayarları kaydedildi.');
