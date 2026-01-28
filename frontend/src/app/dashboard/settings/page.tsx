@@ -612,6 +612,12 @@ export default function SettingsPage() {
     }
   };
 
+  useEffect(() => {
+    if (googleCalendarConfig?.email) {
+      console.log('Google Calendar Active Email:', googleCalendarConfig.email);
+    }
+  }, [googleCalendarConfig]);
+
   const handleGoogleCalendarConnect = async () => {
     try {
       setSaving(true);
@@ -2484,19 +2490,29 @@ export default function SettingsPage() {
                 </p>
 
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between p-4 border rounded-lg bg-white dark:bg-slate-900 dark:border-slate-800">
                     <div className="text-sm text-slate-700 dark:text-slate-200">
-                      <div className="font-medium">
-                        {googleCalendarConfig?.email
-                          ? googleCalendarConfig.email
-                          : 'Herhangi bir Google hesabı bağlı değil'}
+                      <div className="font-medium flex items-center gap-2">
+                        {googleCalendarConfig?.email ? (
+                          <>
+                            <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                            {googleCalendarConfig.email}
+                            <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full border border-green-100 ml-2">Bağlı</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="w-2 h-2 rounded-full bg-slate-300"></span>
+                            Herhangi bir Google hesabı bağlı değil
+                          </>
+                        )}
                       </div>
                       <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                         En iyi deneyim için ajansınızın ortak takvimini veya sahibinin hesabını bağlayabilirsiniz.
                       </div>
                     </div>
                     <Button
-                      variant="outline"
+                      variant={googleCalendarConfig?.email ? "outline" : "default"}
+                      className={!googleCalendarConfig?.email ? "bg-black text-white hover:bg-neutral-900" : ""}
                       onClick={handleGoogleCalendarConnect}
                       disabled={saving}
                     >
