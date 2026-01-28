@@ -228,8 +228,9 @@ export default function SettingsPage() {
         newUrl.searchParams.delete('success');
         window.history.replaceState({}, '', newUrl.toString());
         
-        // Config'i hemen çek
-        fetchGoogleCalendarConfig();
+        // Config'i biraz gecikmeli çek ki backend yazma işlemini bitirsin
+        setTimeout(() => fetchGoogleCalendarConfig(), 500);
+        setTimeout(() => fetchGoogleCalendarConfig(), 2000);
       } else {
         toast.success('Facebook hesabı başarıyla bağlandı.');
         router.replace('/dashboard/settings?tab=facebook');
