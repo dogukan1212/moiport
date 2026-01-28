@@ -236,7 +236,7 @@ export class GoogleCalendarService {
       throw error;
     }
 
-    if (!config || !config.refreshToken) {
+    if (!config) {
       throw new BadRequestException(
         'Google Calendar entegrasyonu için önce yetki vermelisiniz.',
       );
@@ -256,7 +256,18 @@ export class GoogleCalendarService {
       ? new Date(config.tokenExpiresAt).getTime()
       : 0;
 
-    if (!accessToken || !expiresAt || expiresAt - now < 60_000) {
+    if (!accessToken) {
+      throw new BadRequestException(
+        'Google Calendar entegrasyonu için önce yetki vermelisiniz.',
+      );
+    }
+
+    if (!expiresAt || expiresAt - now < 60_000) {
+      if (!refreshToken) {
+        throw new BadRequestException(
+          'Google erişim anahtarı süresi dolmuş. Lütfen Google ile bağlantıyı yeniden verin.',
+        );
+      }
       try {
         const body = new URLSearchParams({
           client_id: clientId,
@@ -407,7 +418,7 @@ export class GoogleCalendarService {
     const nextIsActive =
       typeof data.isActive === 'boolean' ? data.isActive : existing.isActive;
 
-    if (nextIsActive && !existing.refreshToken) {
+    if (nextIsActive && !existing.refreshToken && !existing.accessToken) {
       throw new BadRequestException(
         'Entegrasyonu aktif etmek için önce Google ile yetki vermelisiniz.',
       );
