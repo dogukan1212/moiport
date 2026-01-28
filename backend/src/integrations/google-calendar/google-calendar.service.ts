@@ -250,12 +250,20 @@ export class GoogleCalendarService {
   }
 
   private async getActiveCredentials(tenantId: string) {
+    console.log('--- GET ACTIVE CREDENTIALS ---', { tenantId });
     const { clientId, clientSecret } = await this.getClientConfig();
 
     let config: any = null;
     try {
       config = await this.prisma.googleCalendarConfig.findFirst({
         where: { tenantId },
+      });
+      console.log('--- DB CONFIG ---', { 
+        id: config?.id, 
+        isActive: config?.isActive, 
+        hasAccess: !!config?.accessToken, 
+        hasRefresh: !!config?.refreshToken,
+        expiresAt: config?.tokenExpiresAt 
       });
     } catch (error: any) {
       const msg = String(error?.message || '');

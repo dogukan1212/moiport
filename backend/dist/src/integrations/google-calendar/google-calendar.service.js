@@ -195,11 +195,19 @@ let GoogleCalendarService = class GoogleCalendarService {
         return this.getConfig(tenantId);
     }
     async getActiveCredentials(tenantId) {
+        console.log('--- GET ACTIVE CREDENTIALS ---', { tenantId });
         const { clientId, clientSecret } = await this.getClientConfig();
         let config = null;
         try {
             config = await this.prisma.googleCalendarConfig.findFirst({
                 where: { tenantId },
+            });
+            console.log('--- DB CONFIG ---', {
+                id: config?.id,
+                isActive: config?.isActive,
+                hasAccess: !!config?.accessToken,
+                hasRefresh: !!config?.refreshToken,
+                expiresAt: config?.tokenExpiresAt
             });
         }
         catch (error) {
