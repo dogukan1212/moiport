@@ -215,7 +215,8 @@ export class GoogleCalendarService {
     }
 
     const nextRefreshToken = refreshToken || existing?.refreshToken || null;
-    const isActive = !!(nextRefreshToken || accessToken);
+    // Token alındıysa kesinlikle aktif et
+    const isActive = true; 
 
     if (existing) {
       await this.prisma.googleCalendarConfig.update({
