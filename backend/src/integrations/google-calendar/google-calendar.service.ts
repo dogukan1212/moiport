@@ -20,17 +20,15 @@ export class GoogleCalendarService {
     const config = await this.prisma.systemConfig.findFirst();
 
     const clientId = String(config?.googleOAuthClientId || '').trim();
-    const clientSecret = String(
-      config?.googleOAuthClientSecret || '',
-    ).trim();
-    const redirectFromDb = String(
-      config?.googleOAuthRedirectUri || '',
-    ).trim();
+    const clientSecret = String(config?.googleOAuthClientSecret || '').trim();
+    const redirectFromDb = String(config?.googleOAuthRedirectUri || '').trim();
     const redirectFromEnv = String(
       process.env.GOOGLE_OAUTH_REDIRECT_URI || '',
     ).trim();
     const redirectUri =
-      redirectFromDb || redirectFromEnv || 'https://api.kolayentegrasyon.com/integrations/google-calendar/callback';
+      redirectFromDb ||
+      redirectFromEnv ||
+      'https://api.kolayentegrasyon.com/integrations/google-calendar/callback';
 
     if (!clientId || !clientSecret || !redirectUri) {
       throw new BadRequestException(
@@ -136,6 +134,10 @@ export class GoogleCalendarService {
       );
       tokenData = res.data;
     } catch (error: any) {
+      console.error(
+        'Google OAuth token exchange error:',
+        error?.response?.data || error?.message || error,
+      );
       const msg =
         error?.response?.data?.error_description ||
         error?.response?.data?.error ||
@@ -356,7 +358,8 @@ export class GoogleCalendarService {
     return this.prisma.systemConfig.update({
       where: { id: config.id },
       data: {
-        googleOAuthClientId: data.googleOAuthClientId ?? config.googleOAuthClientId,
+        googleOAuthClientId:
+          data.googleOAuthClientId ?? config.googleOAuthClientId,
         googleOAuthClientSecret:
           data.googleOAuthClientSecret ?? config.googleOAuthClientSecret,
         googleOAuthRedirectUri:
