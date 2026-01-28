@@ -2602,6 +2602,11 @@ export default function SettingsPage() {
                       </li>
                     </ul>
                   </div>
+                  
+                  {/* DEBUG INFO - Bunu canlıda görüp görmediğimizi kontrol edeceğiz */}
+                  <div className="p-2 bg-red-100 text-red-600 text-xs rounded border border-red-200 mt-4">
+                    DEBUG: v2.1 - AutoActive:ON - EnvPriority:ON
+                  </div>
                 </div>
               </Card>
             </div>
