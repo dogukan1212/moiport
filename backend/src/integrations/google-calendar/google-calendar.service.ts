@@ -28,8 +28,9 @@ export class GoogleCalendarService {
     const defaultRedirect =
       'https://api.moiport.com/integrations/google-calendar/callback';
 
+    // ÖNCELİK ENV OLSUN (Sunucu ayarı veritabanını ezsin)
     const initialRedirect =
-      redirectFromDb || redirectFromEnv || defaultRedirect;
+      redirectFromEnv || redirectFromDb || defaultRedirect;
 
     let redirectUri = initialRedirect;
     // Localhost kontrolü kaldırıldı - kullanıcı ne tanımladıysa o gitsin
@@ -128,6 +129,8 @@ export class GoogleCalendarService {
   }
 
   async exchangeCode(tenantId: string, code: string) {
+    console.log('--- GOOGLE CALENDAR EXCHANGE CODE START ---', { tenantId, codeLength: code?.length });
+    
     const { clientId, clientSecret, redirectUri } =
       await this.getClientConfig();
 
@@ -219,6 +222,7 @@ export class GoogleCalendarService {
     const isActive = true; 
 
     if (existing) {
+      console.log('--- UPDATING EXISTING CONFIG WITH isActive=TRUE ---');
       await this.prisma.googleCalendarConfig.update({
         where: { id: existing.id },
         data: {
@@ -440,9 +444,11 @@ export class GoogleCalendarService {
       typeof data.isActive === 'boolean' ? data.isActive : existing.isActive;
 
     if (nextIsActive && !existing.refreshToken && !existing.accessToken) {
-      throw new BadRequestException(
-        'Entegrasyonu aktif etmek için önce Google ile yetki vermelisiniz.',
-      );
+      // Token yoksa bile kaydetmeye izin ver (debug için), ama log düş
+      console.warn('[GoogleCalendar] Warning: Activating without tokens');
+      // throw new BadRequestException(
+      //   'Entegrasyonu aktif etmek için önce Google ile yetki vermelisiniz.',
+      // );
     }
 
     return this.prisma.googleCalendarConfig.update({

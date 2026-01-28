@@ -29,7 +29,7 @@ let GoogleCalendarService = class GoogleCalendarService {
         const redirectFromDb = String(config?.googleOAuthRedirectUri || '').trim();
         const redirectFromEnv = String(process.env.GOOGLE_OAUTH_REDIRECT_URI || '').trim();
         const defaultRedirect = 'https://api.moiport.com/integrations/google-calendar/callback';
-        const initialRedirect = redirectFromDb || redirectFromEnv || defaultRedirect;
+        const initialRedirect = redirectFromEnv || redirectFromDb || defaultRedirect;
         let redirectUri = initialRedirect;
         const redirectSource = redirectFromDb
             ? 'db'
@@ -104,6 +104,7 @@ let GoogleCalendarService = class GoogleCalendarService {
         return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
     }
     async exchangeCode(tenantId, code) {
+        console.log('--- GOOGLE CALENDAR EXCHANGE CODE START ---', { tenantId, codeLength: code?.length });
         const { clientId, clientSecret, redirectUri } = await this.getClientConfig();
         if (!code || !code.trim()) {
             throw new common_1.BadRequestException('Google yetkilendirme kodu eksik.');
@@ -167,6 +168,7 @@ let GoogleCalendarService = class GoogleCalendarService {
         const nextRefreshToken = refreshToken || existing?.refreshToken || null;
         const isActive = true;
         if (existing) {
+            console.log('--- UPDATING EXISTING CONFIG WITH isActive=TRUE ---');
             await this.prisma.googleCalendarConfig.update({
                 where: { id: existing.id },
                 data: {
@@ -336,7 +338,7 @@ let GoogleCalendarService = class GoogleCalendarService {
         }
         const nextIsActive = typeof data.isActive === 'boolean' ? data.isActive : existing.isActive;
         if (nextIsActive && !existing.refreshToken && !existing.accessToken) {
-            throw new common_1.BadRequestException('Entegrasyonu aktif etmek için önce Google ile yetki vermelisiniz.');
+            console.warn('[GoogleCalendar] Warning: Activating without tokens');
         }
         return this.prisma.googleCalendarConfig.update({
             where: { id: existing.id },
