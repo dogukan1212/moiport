@@ -1,6 +1,12 @@
 import axios from "axios";
+import { Capacitor } from "@capacitor/core";
 
 const resolveBase = () => {
+  // Mobil uygulamada (Native) her zaman canlı API'yi kullan (veya özel bir ENV varsa onu)
+  if (Capacitor.isNativePlatform()) {
+    return "https://api.moiport.com";
+  }
+
   if (typeof window !== "undefined") {
     const host = window.location.host || "";
     const hostname = window.location.hostname || "";

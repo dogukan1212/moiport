@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'export',
+  images: {
+    unoptimized: true,
+  },
+  // Not: Mobil uygulama (Static Export) modunda rewrites çalışmaz.
+  // API çağrılarının tam URL'ye (https://api...) gitmesi gerekir.
+  /*
   async rewrites() {
     return [
       {
@@ -12,7 +19,7 @@ const nextConfig = {
       },
     ];
   },
+  */
 };
 
 export default nextConfig;
-
