@@ -105,6 +105,30 @@ export class GoogleCalendarController {
     return this.googleService.testConnection(tenantId);
   }
 
+  @Get('events')
+  listEvents(
+    @GetTenantId() tenantId: string,
+    @Query('calendarId') calendarId?: string,
+    @Query('timeMin') timeMin?: string,
+    @Query('timeMax') timeMax?: string,
+    @Query('maxResults') maxResults?: string,
+    @Query('q') q?: string,
+  ) {
+    const parsedMax =
+      typeof maxResults === 'string' && maxResults.trim()
+        ? Number(maxResults)
+        : undefined;
+    return this.googleService.listEvents(tenantId, {
+      calendarId: calendarId || null,
+      timeMin: timeMin || null,
+      timeMax: timeMax || null,
+      maxResults: Number.isFinite(parsedMax as number)
+        ? (parsedMax as number)
+        : null,
+      q: q || null,
+    });
+  }
+
   @Post('events')
   createEvent(
     @GetTenantId() tenantId: string,

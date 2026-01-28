@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import api from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Calendar, Clock, Mail, Loader2, Video } from 'lucide-react';
+import { Calendar, Clock, Mail, Loader2, Video, ExternalLink } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -18,10 +18,29 @@ type GoogleCalendarConfig = {
   primaryCalendar: string | null;
 };
 
+type GoogleCalendarEvent = {
+  id: string | null;
+  status: string | null;
+  summary: string | null;
+  description: string | null;
+  htmlLink: string | null;
+  hangoutLink: string | null;
+  start: { dateTime?: string; date?: string } | null;
+  end: { dateTime?: string; date?: string } | null;
+  attendees: Array<{
+    email: string | null;
+    responseStatus: string | null;
+    organizer: boolean;
+    self: boolean;
+  }>;
+};
+
 export default function MeetingsPage() {
   const [config, setConfig] = useState<GoogleCalendarConfig | null>(null);
   const [loadingConfig, setLoadingConfig] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [events, setEvents] = useState<GoogleCalendarEvent[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(false);
 
   const [title, setTitle] = useState('Müşteri Toplantısı');
   const [description, setDescription] = useState('');
@@ -32,6 +51,7 @@ export default function MeetingsPage() {
   const [attendeesRaw, setAttendeesRaw] = useState('');
 
   const router = useRouter();
+  const isReady = !!config && config.isActive && config.hasRefreshToken;
 
   useEffect(() => {
     const fetchConfig = async () => {
@@ -48,12 +68,62 @@ export default function MeetingsPage() {
     fetchConfig();
   }, []);
 
+  const fetchEvents = useCallback(async () => {
+    if (!isReady) return;
+    setLoadingEvents(true);
+    try {
+      const timeMin = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString();
+      const timeMax = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
+      const res = await api.get('/integrations/google-calendar/events', {
+        params: { timeMin, timeMax, maxResults: 100 },
+      });
+      const items = Array.isArray(res.data?.items) ? res.data.items : [];
+      setEvents(items);
+    } catch (error: any) {
+      const msg =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        'Toplantılar alınamadı.';
+      toast.error(msg);
+      setEvents([]);
+    } finally {
+      setLoadingEvents(false);
+    }
+  }, [isReady]);
+
+  useEffect(() => {
+    if (isReady) fetchEvents();
+    else setEvents([]);
+  }, [isReady, fetchEvents]);
+
   const buildDateTime = (d: string, t: string) => {
     if (!d || !t) return null;
     const normalized = `${d}T${t}:00`;
     const dt = new Date(normalized);
     if (Number.isNaN(dt.getTime())) return null;
     return dt.toISOString();
+  };
+
+  const formatEventTime = (evt: GoogleCalendarEvent) => {
+    const startRaw = evt.start?.dateTime || evt.start?.date || '';
+    const endRaw = evt.end?.dateTime || evt.end?.date || '';
+    const startDate = startRaw ? new Date(startRaw) : null;
+    const endDate = endRaw ? new Date(endRaw) : null;
+    if (!startDate || Number.isNaN(startDate.getTime())) return '';
+    const startText = startDate.toLocaleString('tr-TR', {
+      weekday: 'short',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: evt.start?.dateTime ? '2-digit' : undefined,
+      minute: evt.start?.dateTime ? '2-digit' : undefined,
+    });
+    if (!endDate || Number.isNaN(endDate.getTime())) return startText;
+    const endText = endDate.toLocaleTimeString('tr-TR', {
+      hour: evt.end?.dateTime ? '2-digit' : undefined,
+      minute: evt.end?.dateTime ? '2-digit' : undefined,
+    });
+    return evt.start?.dateTime ? `${startText} - ${endText}` : startText;
   };
 
   const handleCreateMeeting = async () => {
@@ -100,6 +170,7 @@ export default function MeetingsPage() {
       toast.success('Google Meet toplantısı oluşturuldu.', {
         description: link || undefined,
       });
+      fetchEvents();
     } catch (error: any) {
       const msg =
         error?.response?.data?.message ||
@@ -110,8 +181,6 @@ export default function MeetingsPage() {
       setCreating(false);
     }
   };
-
-  const isReady = !!config && config.isActive && config.hasRefreshToken;
 
   return (
     <div className="h-full flex flex-col gap-8">
@@ -273,6 +342,79 @@ export default function MeetingsPage() {
               </Button>
             </div>
           </div>
+
+          <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <div className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                Mevcut Toplantılar
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={fetchEvents}
+                disabled={!isReady || loadingEvents}
+              >
+                Yenile
+              </Button>
+            </div>
+
+            {!isReady ? (
+              <div className="text-sm text-slate-500">
+                Toplantıları görmek için Google Calendar entegrasyonunu aktif edin.
+              </div>
+            ) : loadingEvents ? (
+              <div className="flex items-center justify-center min-h-[120px]">
+                <Loader2 className="h-5 w-5 animate-spin text-slate-500" />
+              </div>
+            ) : events.length === 0 ? (
+              <div className="text-sm text-slate-500">
+                Bu aralıkta toplantı bulunamadı.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {events.map((evt) => (
+                  <div
+                    key={evt.id || `${evt.summary || 'event'}-${evt.start?.dateTime || evt.start?.date || ''}`}
+                    className="rounded-lg border border-slate-200 dark:border-slate-800 p-3 bg-white dark:bg-slate-900"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">
+                          {evt.summary || 'Başlıksız toplantı'}
+                        </div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                          {formatEventTime(evt)}
+                        </div>
+                        {evt.attendees.length > 0 && (
+                          <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 truncate">
+                            Katılımcılar: {evt.attendees.map((a) => a.email).filter(Boolean).join(', ')}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        {evt.hangoutLink && (
+                          <Button variant="outline" size="sm" asChild>
+                            <a href={evt.hangoutLink} target="_blank" rel="noreferrer">
+                              <Video className="h-4 w-4 mr-1" />
+                              Meet
+                            </a>
+                          </Button>
+                        )}
+                        {evt.htmlLink && (
+                          <Button variant="outline" size="sm" asChild>
+                            <a href={evt.htmlLink} target="_blank" rel="noreferrer">
+                              Aç
+                              <ExternalLink className="h-4 w-4 ml-1" />
+                            </a>
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </Card>
 
         <Card className="p-6 space-y-4">
@@ -332,4 +474,3 @@ export default function MeetingsPage() {
     </div>
   );
 }
-

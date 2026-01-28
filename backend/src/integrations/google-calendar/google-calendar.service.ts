@@ -112,6 +112,7 @@ export class GoogleCalendarService {
     const { clientId, redirectUri } = await this.getClientConfig();
     const scope = [
       'https://www.googleapis.com/auth/calendar.events',
+      'https://www.googleapis.com/auth/calendar.readonly',
       'openid',
       'email',
       'profile',
@@ -532,6 +533,99 @@ export class GoogleCalendarService {
     }
   }
 
+  async listEvents(
+    tenantId: string,
+    query?: {
+      calendarId?: string | null;
+      timeMin?: string | null;
+      timeMax?: string | null;
+      maxResults?: number | null;
+      q?: string | null;
+    },
+  ) {
+    const { accessToken, primaryCalendar } =
+      await this.getActiveCredentials(tenantId);
+
+    const calendarId =
+      String(query?.calendarId || '').trim() ||
+      String(primaryCalendar || '').trim() ||
+      'primary';
+
+    const timeMin =
+      query?.timeMin && String(query.timeMin).trim()
+        ? String(query.timeMin).trim()
+        : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+    const timeMax =
+      query?.timeMax && String(query.timeMax).trim()
+        ? String(query.timeMax).trim()
+        : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    const maxResultsRaw =
+      typeof query?.maxResults === 'number' ? query.maxResults : 50;
+    const maxResults =
+      Number.isFinite(maxResultsRaw) && maxResultsRaw > 0
+        ? Math.min(250, Math.floor(maxResultsRaw))
+        : 50;
+
+    const q = query?.q ? String(query.q).trim() : '';
+
+    try {
+      const res = await axios.get(
+        `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
+          calendarId,
+        )}/events`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          params: {
+            timeMin,
+            timeMax,
+            singleEvents: true,
+            orderBy: 'startTime',
+            maxResults,
+            ...(q ? { q } : {}),
+          },
+        },
+      );
+
+      const items = Array.isArray(res.data?.items) ? res.data.items : [];
+      return {
+        ok: true,
+        calendarId,
+        timeMin,
+        timeMax,
+        items: items.map((e: any) => ({
+          id: e?.id || null,
+          status: e?.status || null,
+          summary: e?.summary || null,
+          description: e?.description || null,
+          htmlLink: e?.htmlLink || null,
+          hangoutLink: e?.hangoutLink || null,
+          start: e?.start || null,
+          end: e?.end || null,
+          attendees: Array.isArray(e?.attendees)
+            ? e.attendees.map((a: any) => ({
+                email: a?.email || null,
+                responseStatus: a?.responseStatus || null,
+                organizer: !!a?.organizer,
+                self: !!a?.self,
+              }))
+            : [],
+        })),
+      };
+    } catch (error: any) {
+      const msg =
+        error?.response?.data?.error?.message ||
+        error?.response?.data?.error ||
+        error?.message;
+      throw new BadRequestException(
+        msg || 'Google Calendar etkinlikleri alınamadı.',
+      );
+    }
+  }
+
   async createEvent(
     tenantId: string,
     body: {
@@ -600,6 +694,7 @@ export class GoogleCalendarService {
     };
 
     try {
+      const hasAttendees = Array.isArray(attendees) && attendees.length > 0;
       const res = await axios.post(
         `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
           calendarId,
@@ -611,6 +706,9 @@ export class GoogleCalendarService {
           },
           params: {
             conferenceDataVersion: 1,
+            ...(hasAttendees
+              ? { sendUpdates: 'all', sendNotifications: true }
+              : {}),
           },
         },
       );
