@@ -1,12 +1,21 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import api from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar as CalendarIcon, Loader2, ExternalLink, Video } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  addDays,
+  endOfMonth,
+  endOfWeek,
+  format,
+  startOfMonth,
+  startOfWeek,
+} from 'date-fns';
 
 type GoogleCalendarConfig = {
   tenantId: string;
@@ -39,6 +48,8 @@ export default function CalendarPage() {
   const [testing, setTesting] = useState(false);
   const [events, setEvents] = useState<GoogleCalendarEvent[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(false);
+  const [month, setMonth] = useState<Date>(() => new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(() => new Date());
   const router = useRouter();
   const isReady = !!config && config.isActive && config.hasRefreshToken;
 
@@ -57,13 +68,22 @@ export default function CalendarPage() {
     fetchConfig();
   }, []);
 
+  const range = useMemo(() => {
+    const rangeStart = startOfWeek(startOfMonth(month), { weekStartsOn: 1 });
+    const rangeEnd = endOfWeek(endOfMonth(month), { weekStartsOn: 1 });
+    return { rangeStart, rangeEnd };
+  }, [month]);
+
   const fetchEvents = useCallback(async () => {
     if (!isReady) return;
     setLoadingEvents(true);
     try {
-      const now = new Date().toISOString();
       const res = await api.get('/integrations/google-calendar/events', {
-        params: { timeMin: now, maxResults: 25 },
+        params: {
+          timeMin: range.rangeStart.toISOString(),
+          timeMax: range.rangeEnd.toISOString(),
+          maxResults: 250,
+        },
       });
       const items = Array.isArray(res.data?.items) ? res.data.items : [];
       setEvents(items);
@@ -77,7 +97,7 @@ export default function CalendarPage() {
     } finally {
       setLoadingEvents(false);
     }
-  }, [isReady]);
+  }, [isReady, range.rangeEnd, range.rangeStart]);
 
   const handleTestConnection = async () => {
     setTesting(true);
@@ -106,6 +126,50 @@ export default function CalendarPage() {
     if (isReady) fetchEvents();
     else setEvents([]);
   }, [isReady, fetchEvents]);
+
+  const getEventStartMs = (evt: GoogleCalendarEvent) => {
+    const raw = evt.start?.dateTime || evt.start?.date || '';
+    const d = raw ? new Date(raw) : null;
+    if (!d || Number.isNaN(d.getTime())) return null;
+    return d.getTime();
+  };
+
+  const eventsByDay = useMemo(() => {
+    const map = new Map<string, GoogleCalendarEvent[]>();
+    for (const evt of events) {
+      const startRaw = evt.start?.dateTime || evt.start?.date || '';
+      const d = startRaw ? new Date(startRaw) : null;
+      if (!d || Number.isNaN(d.getTime())) continue;
+      const key = format(d, 'yyyy-MM-dd');
+      const arr = map.get(key) || [];
+      arr.push(evt);
+      map.set(key, arr);
+    }
+    for (const [key, arr] of map.entries()) {
+      arr.sort((a, b) => {
+        const aMs = getEventStartMs(a) ?? 0;
+        const bMs = getEventStartMs(b) ?? 0;
+        return aMs - bMs;
+      });
+      map.set(key, arr);
+    }
+    return map;
+  }, [events]);
+
+  const selectedKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : '';
+  const selectedEvents = selectedKey ? eventsByDay.get(selectedKey) || [] : [];
+
+  const kpis = useMemo(() => {
+    const now = Date.now();
+    const next7 = now + 7 * 24 * 60 * 60 * 1000;
+    const total = events.length;
+    const upcoming7 = events.filter((e) => {
+      const ms = getEventStartMs(e);
+      return typeof ms === 'number' && ms >= now && ms < next7;
+    }).length;
+    const withMeet = events.filter((e) => !!e.hangoutLink).length;
+    return { total, upcoming7, withMeet };
+  }, [events]);
 
   const formatEventTime = (evt: GoogleCalendarEvent) => {
     const startRaw = evt.start?.dateTime || evt.start?.date || '';
@@ -142,15 +206,36 @@ export default function CalendarPage() {
         </p>
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="p-4">
+          <div className="text-xs text-slate-500">Bu ayki etkinlik</div>
+          <div className="text-2xl font-semibold text-slate-900 dark:text-slate-50">
+            {isReady ? kpis.total : '—'}
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="text-xs text-slate-500">7 günde yaklaşan</div>
+          <div className="text-2xl font-semibold text-slate-900 dark:text-slate-50">
+            {isReady ? kpis.upcoming7 : '—'}
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="text-xs text-slate-500">Meet toplantısı</div>
+          <div className="text-2xl font-semibold text-slate-900 dark:text-slate-50">
+            {isReady ? kpis.withMeet : '—'}
+          </div>
+        </Card>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-8">
         <Card className="p-6 space-y-4">
           <CardHeader className="p-0 mb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <CalendarIcon className="h-5 w-5 text-indigo-500" />
-              Google Calendar Etkinlikleri
+              Takvim
             </CardTitle>
             <CardDescription>
-              Takviminizdeki yaklaşan etkinlikler ve Google Meet toplantıları.
+              Etkinlikleri Google Calendar API üzerinden uygulama içinde görüntüleyin.
             </CardDescription>
           </CardHeader>
 
@@ -172,80 +257,106 @@ export default function CalendarPage() {
                 </Button>
               </div>
             </div>
-          ) : loadingEvents ? (
-            <div className="flex items-center justify-center min-h-[160px]">
-              <Loader2 className="h-6 w-6 animate-spin text-slate-500" />
-            </div>
-          ) : events.length === 0 ? (
-            <div className="text-sm text-slate-500">
-              Yaklaşan etkinlik bulunamadı.
-            </div>
           ) : (
-            <div className="space-y-3">
-              {events.map((evt) => (
-                <div
-                  key={evt.id || Math.random()}
-                  className="rounded-lg border border-slate-200 dark:border-slate-800 p-3 bg-white dark:bg-slate-900"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">
-                        {evt.summary || 'Başlıksız etkinlik'}
-                      </div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                        {formatEventTime(evt)}
-                      </div>
-                    </div>
-                    <div className="flex gap-2 shrink-0">
-                      {evt.hangoutLink && (
-                        <Button variant="outline" size="sm" asChild>
-                          <a href={evt.hangoutLink} target="_blank" rel="noreferrer">
-                            <Video className="h-4 w-4 mr-1" />
-                            Meet
-                          </a>
-                        </Button>
-                      )}
-                      {evt.htmlLink && (
-                        <Button variant="outline" size="sm" asChild>
-                          <a href={evt.htmlLink} target="_blank" rel="noreferrer">
-                            Aç
-                            <ExternalLink className="h-4 w-4 ml-1" />
-                          </a>
-                        </Button>
-                      )}
-                    </div>
+            <div className="grid grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)] gap-6">
+              <div className="rounded-lg border border-slate-200 dark:border-slate-800">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  month={month}
+                  onMonthChange={setMonth}
+                  modifiers={{
+                    hasEvents: (date) => {
+                      const key = format(date, 'yyyy-MM-dd');
+                      return (eventsByDay.get(key)?.length || 0) > 0;
+                    },
+                    today: new Date(),
+                  }}
+                  modifiersClassNames={{
+                    hasEvents:
+                      'bg-indigo-50 dark:bg-indigo-500/15 text-slate-900 dark:text-slate-50',
+                  }}
+                />
+              </div>
+
+              <div className="min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                    {selectedDate ? selectedDate.toLocaleDateString('tr-TR') : 'Seçili gün'}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={fetchEvents}
+                      disabled={!isReady || loadingEvents}
+                    >
+                      {loadingEvents && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                      Yenile
+                    </Button>
+                    <Button type="button" variant="outline" size="sm" asChild>
+                      <a
+                        href="https://calendar.google.com/calendar/u/0/r/week"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center"
+                      >
+                        Google Calendar&apos;ı Aç
+                        <ExternalLink className="h-4 w-4 ml-1" />
+                      </a>
+                    </Button>
                   </div>
                 </div>
-              ))}
+
+                {loadingEvents ? (
+                  <div className="flex items-center justify-center min-h-[160px]">
+                    <Loader2 className="h-6 w-6 animate-spin text-slate-500" />
+                  </div>
+                ) : selectedEvents.length === 0 ? (
+                  <div className="text-sm text-slate-500 mt-3">Seçili günde etkinlik yok.</div>
+                ) : (
+                  <div className="space-y-3 mt-3">
+                    {selectedEvents.map((evt) => (
+                      <div
+                        key={evt.id || `${evt.summary || 'event'}-${evt.start?.dateTime || evt.start?.date || ''}`}
+                        className="rounded-lg border border-slate-200 dark:border-slate-800 p-3 bg-white dark:bg-slate-900"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">
+                              {evt.summary || 'Başlıksız etkinlik'}
+                            </div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                              {formatEventTime(evt)}
+                            </div>
+                          </div>
+                          <div className="flex gap-2 shrink-0">
+                            {evt.hangoutLink && (
+                              <Button variant="outline" size="sm" asChild>
+                                <a href={evt.hangoutLink} target="_blank" rel="noreferrer">
+                                  <Video className="h-4 w-4 mr-1" />
+                                  Meet
+                                </a>
+                              </Button>
+                            )}
+                            {evt.htmlLink && (
+                              <Button variant="outline" size="sm" asChild>
+                                <a href={evt.htmlLink} target="_blank" rel="noreferrer">
+                                  Aç
+                                  <ExternalLink className="h-4 w-4 ml-1" />
+                                </a>
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
-
-          <div className="flex gap-2 pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={fetchEvents}
-              disabled={!isReady || loadingEvents}
-            >
-              Yenile
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              asChild
-            >
-              <a
-                href="https://calendar.google.com/calendar/u/0/r/week"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center"
-              >
-                Google Calendar&apos;ı Aç
-                <ExternalLink className="h-4 w-4 ml-1" />
-              </a>
-            </Button>
-          </div>
         </Card>
 
         <Card className="p-6 space-y-4">

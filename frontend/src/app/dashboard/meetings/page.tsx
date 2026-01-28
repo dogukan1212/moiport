@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import api from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,6 +41,7 @@ export default function MeetingsPage() {
   const [creating, setCreating] = useState(false);
   const [events, setEvents] = useState<GoogleCalendarEvent[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(false);
+  const [listMode, setListMode] = useState<'all' | 'upcoming' | 'past'>('all');
 
   const [title, setTitle] = useState('Müşteri Toplantısı');
   const [description, setDescription] = useState('');
@@ -125,6 +126,48 @@ export default function MeetingsPage() {
     });
     return evt.start?.dateTime ? `${startText} - ${endText}` : startText;
   };
+
+  const getEventStartMs = (evt: GoogleCalendarEvent) => {
+    const startRaw = evt.start?.dateTime || evt.start?.date || '';
+    const d = startRaw ? new Date(startRaw) : null;
+    if (!d || Number.isNaN(d.getTime())) return null;
+    return d.getTime();
+  };
+
+  const filteredEvents = useMemo(() => {
+    const now = Date.now();
+    const base = events.filter((e) => {
+      const ms = getEventStartMs(e);
+      return typeof ms === 'number';
+    });
+
+    const filtered =
+      listMode === 'upcoming'
+        ? base.filter((e) => (getEventStartMs(e) as number) >= now)
+        : listMode === 'past'
+          ? base.filter((e) => (getEventStartMs(e) as number) < now)
+          : base;
+
+    const sorted = [...filtered].sort((a, b) => {
+      const aMs = getEventStartMs(a) as number;
+      const bMs = getEventStartMs(b) as number;
+      if (listMode === 'past') return bMs - aMs;
+      return aMs - bMs;
+    });
+    return sorted;
+  }, [events, listMode]);
+
+  const kpis = useMemo(() => {
+    const now = Date.now();
+    const total = events.length;
+    const upcoming = events.filter((e) => {
+      const ms = getEventStartMs(e);
+      return typeof ms === 'number' && ms >= now;
+    }).length;
+    const past = total - upcoming;
+    const withMeet = events.filter((e) => !!e.hangoutLink).length;
+    return { total, upcoming, past, withMeet };
+  }, [events]);
 
   const handleCreateMeeting = async () => {
     if (!config || !config.isActive) {
@@ -348,15 +391,56 @@ export default function MeetingsPage() {
               <div className="text-sm font-semibold text-slate-900 dark:text-slate-50">
                 Mevcut Toplantılar
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={fetchEvents}
-                disabled={!isReady || loadingEvents}
-              >
-                Yenile
-              </Button>
+              <div className="flex items-center gap-2">
+                <select
+                  className="px-3 py-2 rounded-md border border-slate-200 bg-white text-sm dark:bg-slate-900 dark:border-slate-700"
+                  value={listMode}
+                  onChange={(e) => setListMode(e.target.value as 'all' | 'upcoming' | 'past')}
+                  disabled={!isReady}
+                >
+                  <option value="all">Hepsi</option>
+                  <option value="upcoming">Yaklaşan</option>
+                  <option value="past">Geçmiş</option>
+                </select>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={fetchEvents}
+                  disabled={!isReady || loadingEvents}
+                >
+                  Yenile
+                </Button>
+              </div>
             </div>
+
+            {isReady && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                <div className="rounded-lg border border-slate-200 dark:border-slate-800 p-3 bg-white dark:bg-slate-900">
+                  <div className="text-[11px] text-slate-500">Toplam</div>
+                  <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                    {kpis.total}
+                  </div>
+                </div>
+                <div className="rounded-lg border border-slate-200 dark:border-slate-800 p-3 bg-white dark:bg-slate-900">
+                  <div className="text-[11px] text-slate-500">Yaklaşan</div>
+                  <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                    {kpis.upcoming}
+                  </div>
+                </div>
+                <div className="rounded-lg border border-slate-200 dark:border-slate-800 p-3 bg-white dark:bg-slate-900">
+                  <div className="text-[11px] text-slate-500">Geçmiş</div>
+                  <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                    {kpis.past}
+                  </div>
+                </div>
+                <div className="rounded-lg border border-slate-200 dark:border-slate-800 p-3 bg-white dark:bg-slate-900">
+                  <div className="text-[11px] text-slate-500">Meet</div>
+                  <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                    {kpis.withMeet}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {!isReady ? (
               <div className="text-sm text-slate-500">
@@ -372,7 +456,7 @@ export default function MeetingsPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {events.map((evt) => (
+                {filteredEvents.map((evt) => (
                   <div
                     key={evt.id || `${evt.summary || 'event'}-${evt.start?.dateTime || evt.start?.date || ''}`}
                     className="rounded-lg border border-slate-200 dark:border-slate-800 p-3 bg-white dark:bg-slate-900"

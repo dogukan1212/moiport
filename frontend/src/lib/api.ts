@@ -2,15 +2,12 @@ import axios from "axios";
 
 const resolveBase = () => {
   if (typeof window !== "undefined") {
-    // Önce .env'deki API URL'ine bak (Örn: /api)
-    if (process.env.NEXT_PUBLIC_API_URL) {
-      return process.env.NEXT_PUBLIC_API_URL;
-    }
-
     const host = window.location.host || "";
     const hostname = window.location.hostname || "";
     const lowerHost = host.toLowerCase();
     const lowerHostname = hostname.toLowerCase();
+
+    const envApiUrl = String(process.env.NEXT_PUBLIC_API_URL || "").trim();
     
     // Yerel geliştirme ortamları için
     if (
@@ -19,7 +16,14 @@ const resolveBase = () => {
       lowerHostname.startsWith("192.168.") || 
       lowerHostname.endsWith(".local")
     ) {
+      if (envApiUrl === "/api") {
+        return `http://${hostname}:3001`;
+      }
       return `http://${hostname}:3001`;
+    }
+
+    if (envApiUrl) {
+      return envApiUrl;
     }
 
     if (lowerHost.endsWith("moiport.com") || lowerHostname.endsWith("moiport.com")) {
