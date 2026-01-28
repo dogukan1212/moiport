@@ -223,8 +223,13 @@ export default function SettingsPage() {
         fetchParasutConfig();
       } else if (tab === 'google-calendar') {
         toast.success('Google Calendar hesabı başarıyla bağlandı.');
-        router.replace('/dashboard/settings?tab=google-calendar');
-        fetchGoogleCalendarConfig();
+        // URL'i temizle ama tab'da kal
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.delete('success');
+        window.history.replaceState({}, '', newUrl.toString());
+        
+        // Config'i hemen çek
+        await fetchGoogleCalendarConfig();
       } else {
         toast.success('Facebook hesabı başarıyla bağlandı.');
         router.replace('/dashboard/settings?tab=facebook');
@@ -599,6 +604,7 @@ export default function SettingsPage() {
   const fetchGoogleCalendarConfig = async () => {
     try {
       const response = await api.get('/integrations/google-calendar/config');
+      console.log('Google Calendar Config:', response.data);
       setGoogleCalendarConfig(response.data);
       setGoogleCalendarPrimary(response.data?.primaryCalendar || '');
     } catch (error) {
