@@ -17,7 +17,7 @@ export class SubscriptionsService {
   }
 
   private getFrontendUrl() {
-    return process.env.FRONTEND_URL || 'https://kolayentegrasyon.com';
+    return process.env.FRONTEND_URL || 'https://moiport.com';
   }
 
   private async getPaytrSystemConfig() {

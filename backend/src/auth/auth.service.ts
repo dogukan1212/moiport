@@ -35,7 +35,7 @@ export class AuthService {
   }
 
   private getFrontendUrl() {
-    return process.env.FRONTEND_URL || 'https://kolayentegrasyon.com';
+    return process.env.FRONTEND_URL || 'https://moiport.com';
   }
 
   private normalizeUrlBase(url: string) {

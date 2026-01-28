@@ -52,8 +52,7 @@ export class ParasutController {
     @Query('state') state: string,
     @Res() res: any,
   ) {
-    const frontendUrl =
-      process.env.FRONTEND_URL || 'https://kolayentegrasyon.com';
+    const frontendUrl = process.env.FRONTEND_URL || 'https://moiport.com';
     try {
       await this.parasutService.handleCallback(code, state);
       return res.redirect(

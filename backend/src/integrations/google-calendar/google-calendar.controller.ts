@@ -69,8 +69,7 @@ export class GoogleCalendarController {
     @Res() res: any,
   ) {
     const tenantId = state;
-    const frontendUrl =
-      process.env.FRONTEND_URL || 'https://kolayentegrasyon.com';
+    const frontendUrl = process.env.FRONTEND_URL || 'https://moiport.com';
     try {
       await this.googleService.exchangeCode(tenantId, code);
       return res.redirect(

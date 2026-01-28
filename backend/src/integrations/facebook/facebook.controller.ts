@@ -58,15 +58,13 @@ export class FacebookController {
     const tenantId = state;
     try {
       await this.facebookService.handleCallback(code, tenantId);
-      const frontendUrl =
-        process.env.FRONTEND_URL || 'https://kolayentegrasyon.com';
+      const frontendUrl = process.env.FRONTEND_URL || 'https://moiport.com';
       return res.redirect(
         `${frontendUrl}/dashboard/settings?tab=facebook&success=true`,
       );
     } catch (error) {
       console.error('Facebook Callback Error:', error);
-      const frontendUrl =
-        process.env.FRONTEND_URL || 'https://kolayentegrasyon.com';
+      const frontendUrl = process.env.FRONTEND_URL || 'https://moiport.com';
       return res.redirect(
         `${frontendUrl}/dashboard/settings?tab=facebook&error=auth_failed`,
       );
