@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import api, { getBaseURL, SOCKET_URL } from "@/lib/api";
-import { Send, X, MoreHorizontal, Hash, Check, CheckCheck, Instagram, MessageCircle, MessageSquare, Smile, Heart, RefreshCw } from "lucide-react";
+import { Send, X, MoreHorizontal, Hash, Check, CheckCheck, Instagram, MessageCircle, MessageSquare, Smile, Heart, RefreshCw, ArrowLeft } from "lucide-react";
 import { format, isToday, isYesterday, isSameDay } from "date-fns";
 import { tr } from "date-fns/locale";
 import { io, Socket } from "socket.io-client";
