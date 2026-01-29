@@ -4,12 +4,12 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Building2, Mail, Phone, MoreVertical, User as UserIcon } from 'lucide-react';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 interface Lead {
   id: string;
@@ -96,40 +96,56 @@ export function LeadCard({ lead, onClick, onAssign, users = [] }: LeadCardProps)
               onMouseDown={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
             >
-              <Select
-                defaultValue={lead.assigneeId || 'unassigned'}
-                onValueChange={(val) => onAssign(lead.id, val)}
-              >
-                <SelectTrigger className="h-7 w-auto min-w-[32px] border border-slate-200 bg-slate-50/50 px-2 hover:bg-slate-100 rounded-full focus:ring-0 shadow-none transition-all gap-2 dark:border-slate-700 dark:bg-slate-900/60 dark:hover:bg-slate-900">
-                  {lead.assignee ? (
-                    <div className="flex items-center gap-1.5 max-w-[120px]">
-                      <div className="w-5 h-5 rounded-full bg-slate-900 flex items-center justify-center text-[8px] text-white font-bold overflow-hidden border border-white shadow-sm shrink-0">
-                        {lead.assignee.avatar ? (
-                          <img src={lead.assignee.avatar} alt={lead.assignee.name} className="w-full h-full object-cover" />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="h-7 w-auto min-w-[32px] border border-slate-200 bg-slate-50/50 px-2 hover:bg-slate-100 rounded-full focus:ring-0 shadow-none transition-all gap-2 dark:border-slate-700 dark:bg-slate-900/60 dark:hover:bg-slate-900 p-0"
+                  >
+                    {lead.assignee ? (
+                      <div className="flex items-center gap-1.5 max-w-[120px] px-2">
+                        <div className="w-5 h-5 rounded-full bg-slate-900 flex items-center justify-center text-[8px] text-white font-bold overflow-hidden border border-white shadow-sm shrink-0">
+                          {lead.assignee.avatar ? (
+                            <img src={lead.assignee.avatar} alt={lead.assignee.name} className="w-full h-full object-cover" />
+                          ) : (
+                            lead.assignee.name.charAt(0).toUpperCase()
+                          )}
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-700 dark:text-slate-200 truncate">{lead.assignee.name}</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5 px-2">
+                        <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center text-slate-400 border border-slate-200 border-dashed shrink-0 dark:bg-transparent dark:border-slate-700">
+                          <UserIcon className="h-3 w-3" />
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight dark:text-slate-400">Atama Yap</span>
+                      </div>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" onClick={(e) => e.stopPropagation()}>
+                  <DropdownMenuItem onClick={() => onAssign(lead.id, 'unassigned')} className="text-xs font-medium cursor-pointer">
+                    Atanmamış
+                  </DropdownMenuItem>
+                  {users.map((user) => (
+                    <DropdownMenuItem 
+                      key={user.id} 
+                      onClick={() => onAssign(lead.id, user.id)}
+                      className="text-xs font-medium cursor-pointer flex items-center gap-2"
+                    >
+                      <div className="w-4 h-4 rounded-full bg-slate-100 flex items-center justify-center text-[8px] overflow-hidden border border-slate-200">
+                        {user.avatar ? (
+                          <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                         ) : (
-                          lead.assignee.name.charAt(0).toUpperCase()
+                          user.name.charAt(0).toUpperCase()
                         )}
                       </div>
-                      <span className="text-[10px] font-bold text-slate-700 dark:text-slate-200 truncate">{lead.assignee.name}</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center text-slate-400 border border-slate-200 border-dashed shrink-0 dark:bg-transparent dark:border-slate-700">
-                        <UserIcon className="h-3 w-3" />
-                      </div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight dark:text-slate-400">Atama Yap</span>
-                    </div>
-                  )}
-                </SelectTrigger>
-                <SelectContent onClick={(e) => e.stopPropagation()}>
-                  <SelectItem value="unassigned" className="text-xs font-medium">Atanmamış</SelectItem>
-                  {users.map((user) => (
-                    <SelectItem key={user.id} value={user.id} className="text-xs font-medium">
                       {user.name}
-                    </SelectItem>
+                    </DropdownMenuItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           ) : lead.assignee ? (
             <div className="flex items-center gap-1.5" title={`Atanan: ${lead.assignee.name}`}>
