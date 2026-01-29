@@ -39,4 +39,10 @@ jobs:
         working-directory: frontend
         run: |
           cd ios
-          xcodebuild -workspace App.xcworkspace -scheme App -destination generic/platform=iOS -configuration Release CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+          xcodebuild -workspace App.xcworkspace -scheme App -destination generic/platform=iOS -configuration Release CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO -derivedDataPath build
+
+      - name: Upload iOS App
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-app
+          path: frontend/ios/build/Build/Products/Release-iphoneos/App.app
