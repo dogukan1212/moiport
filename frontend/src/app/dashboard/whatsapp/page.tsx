@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import api, { SOCKET_URL } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mail, Phone, MessageCircle, Clock, X, Pencil, Check, CheckCheck, Paperclip, Smile, Search, Trash, Archive, Undo, Dot, ListFilter } from "lucide-react";
+import { Mail, Phone, MessageCircle, Clock, X, Pencil, Check, CheckCheck, Paperclip, Smile, Search, Trash, Archive, Undo, Dot, ListFilter, ArrowLeft } from "lucide-react";
 import {
   Select,
   SelectContent,

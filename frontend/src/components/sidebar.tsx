@@ -104,6 +104,7 @@ export function Sidebar({ tenantData, className, onLinkClick }: { tenantData?: a
   } else {
     // Base features (STARTER)
     planAllowedHrefs.add("/dashboard");
+    planAllowedHrefs.add("/dashboard/tutorials");
     planAllowedHrefs.add("/dashboard/storage");
     if (isWordpressEnabled) {
       planAllowedHrefs.add("/dashboard/websites");
