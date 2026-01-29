@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import api, { SOCKET_URL } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mail, Phone, MessageCircle, Clock, X, Pencil, Check, CheckCheck, Paperclip, Smile, Search, Trash, Archive, Undo, Dot } from "lucide-react";
+import { Mail, Phone, MessageCircle, Clock, X, Pencil, Check, CheckCheck, Paperclip, Smile, Search, Trash, Archive, Undo, Dot, ListFilter } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -12,6 +12,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { formatDistanceToNow } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -955,151 +961,145 @@ export default function WhatsappPage() {
 
       <div className="flex gap-4 h-[650px]">
         <div className="w-[320px] flex-shrink-0 bg-card border border-border rounded-2xl overflow-hidden shadow-sm flex flex-col">
-          <div className="border-b border-border/60 bg-muted/70 px-4 py-3 space-y-2">
+          <div className="border-b border-border/60 bg-muted/30 px-3 py-3 space-y-3">
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="İsim, telefon veya mesajlarda arayın..."
+                  placeholder="Ara..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="h-9 pl-3 pr-3 rounded-lg border-border bg-background text-xs text-foreground placeholder:text-muted-foreground"
+                  className="h-9 pl-9 rounded-full border-border/50 bg-background/50 focus:bg-background transition-colors text-xs placeholder:text-muted-foreground"
                 />
               </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className={`h-9 w-9 rounded-full ${
+                      stageFilter !== "Tümü" || typeFilter !== "all" || dateRange !== "anytime" 
+                        ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400" 
+                        : "text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    <ListFilter className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-80 p-4">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium leading-none text-sm">Filtreler</h4>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-auto p-0 text-xs text-muted-foreground hover:text-foreground"
+                        onClick={() => {
+                          setStageFilter("Tümü");
+                          setTypeFilter("all");
+                          setDateRange("anytime");
+                        }}
+                      >
+                        Sıfırla
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Aşama</Label>
+                      <Select value={stageFilter} onValueChange={setStageFilter}>
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue placeholder="Tümü" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Tümü">Tümü</SelectItem>
+                          {stageOptions.map((s) => (
+                            <SelectItem key={s} value={s}>{s}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Mesaj Türü</Label>
+                      <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-lg">
+                        {["all", "in", "out"].map((value) => (
+                          <button
+                            key={value}
+                            onClick={() => setTypeFilter(value)}
+                            className={`flex-1 text-[10px] font-medium py-1.5 rounded-md transition-all ${
+                              typeFilter === value
+                                ? "bg-background text-foreground shadow-sm"
+                                : "text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            {value === "all" ? "Hepsi" : value === "in" ? "Gelen" : "Giden"}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Tarih</Label>
+                      <Select value={dateRange} onValueChange={setDateRange}>
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue placeholder="Her zaman" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="anytime">Her zaman</SelectItem>
+                          <SelectItem value="today">Bugün</SelectItem>
+                          <SelectItem value="week">Son 7 gün</SelectItem>
+                          <SelectItem value="month">Son 30 gün</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
-            <div className="flex flex-wrap items-center gap-3 text-[11px] mt-1">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
-                  Durum
-                </span>
-                <div className="flex items-center gap-1">
-                  {["active", "archived", "all"].map((value) => {
-                    const label =
-                      value === "active"
-                        ? "Aktif"
-                        : value === "archived"
-                        ? "Arşivli"
-                        : "Hepsi";
-                    const active = conversationStatus === value;
-                    return (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() =>
-                          setConversationStatus(value as "active" | "archived" | "all")
-                        }
-                        className={`px-2 py-0.5 rounded-full transition-colors ${
-                          active
-                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-300"
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
-                  Aşama
-                </span>
-                <Select value={stageFilter} onValueChange={setStageFilter}>
-                  <SelectTrigger className="h-6 border-none bg-transparent px-0 py-0 text-[11px] font-medium text-emerald-600 hover:underline dark:text-emerald-300">
-                    <SelectValue placeholder="Tümü" />
-                  </SelectTrigger>
-                  <SelectContent align="start">
-                    <SelectItem value="Tümü">Tümü</SelectItem>
-                    {stageOptions.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {s}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
-                  Tür
-                </span>
-                <div className="flex items-center gap-1">
-                  {["all", "in", "out"].map((value) => {
-                    const label =
-                      value === "all" ? "Hepsi" : value === "in" ? "Gelen" : "Giden";
-                    const active = typeFilter === value;
-                    return (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => setTypeFilter(value)}
-                        className={`px-2 py-0.5 rounded-full transition-colors ${
-                          active
-                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-300"
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">
-                  Tarih
-                </span>
-                <div className="flex items-center gap-1">
-                  {["anytime", "today", "week", "month"].map((value) => {
-                    const label =
-                      value === "anytime"
-                        ? "Her zaman"
-                        : value === "today"
-                        ? "Bugün"
-                        : value === "week"
-                        ? "Son 7 gün"
-                        : "Son 30 gün";
-                    const active = dateRange === value;
-                    return (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => setDateRange(value)}
-                        className={`px-2 py-0.5 rounded-full transition-colors ${
-                          active
-                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-300"
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              <div className="flex items-center gap-3 ml-auto">
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={unreadOnly}
-                    onCheckedChange={(v) => setUnreadOnly(Boolean(v))}
-                    className="h-[18px] w-[34px]"
-                  />
-                  <span className="text-[11px] text-muted-foreground">
-                    Sadece yeni
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setConversationStatus("active");
-                    setStageFilter("Tümü");
-                    setTypeFilter("all");
-                    setDateRange("anytime");
-                    setUnreadOnly(false);
-                  }}
-                  className="text-[10px] text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
-                >
-                  Sıfırla
-                </button>
-              </div>
+
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-0.5">
+              <button
+                onClick={() => {
+                  setUnreadOnly(false);
+                  setConversationStatus("active");
+                  setShowArchived(false);
+                }}
+                className={`px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-colors border ${
+                  !unreadOnly && conversationStatus === "active"
+                    ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30"
+                    : "bg-background border-border text-muted-foreground hover:bg-muted/50"
+                }`}
+              >
+                Hepsi
+              </button>
+              <button
+                onClick={() => {
+                  setUnreadOnly(true);
+                  setConversationStatus("active");
+                  setShowArchived(false);
+                }}
+                className={`px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-colors border ${
+                  unreadOnly
+                    ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30"
+                    : "bg-background border-border text-muted-foreground hover:bg-muted/50"
+                }`}
+              >
+                Okunmamış
+              </button>
+              <button
+                onClick={() => {
+                  setUnreadOnly(false);
+                  setConversationStatus("archived");
+                  setShowArchived(true);
+                }}
+                className={`px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-colors border ${
+                  conversationStatus === "archived"
+                    ? "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30"
+                    : "bg-background border-border text-muted-foreground hover:bg-muted/50"
+                }`}
+              >
+                Arşivli
+              </button>
             </div>
           </div>
           <div className="flex-1 overflow-y-auto">
