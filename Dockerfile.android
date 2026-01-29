@@ -34,7 +34,7 @@ RUN yes | sdkmanager --licenses \
 WORKDIR /app
 
 # Package.json dosyalarını kopyala (önbellekleme için)
-COPY package.json package-lock.json ./
+# Kök dizinde package.json olmadığı için sadece frontend klasöründekileri alıyoruz
 COPY frontend/package.json frontend/package-lock.json ./frontend/
 
 # Bağımlılıkları yükle
