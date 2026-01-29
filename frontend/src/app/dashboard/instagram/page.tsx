@@ -232,7 +232,7 @@ export default function InstagramPage() {
   const isCommentRoom = selectedRoom?.type === 'CHANNEL';
 
   return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-background">
+    <div className="flex h-[calc(100vh-4rem)] overflow-hidden bg-background -m-6 rounded-none md:rounded-tl-2xl">
       {/* Sidebar List */}
       <div className="w-[360px] bg-card border-r border-border flex flex-col shrink-0">
         <div className="p-4 border-b border-border space-y-4">
