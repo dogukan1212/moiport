@@ -91,7 +91,11 @@ export function LeadCard({ lead, onClick, onAssign, users = [] }: LeadCardProps)
             Yeni
           </span>
           {onAssign && users.length > 0 ? (
-            <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+            <div 
+              onClick={(e) => e.stopPropagation()} 
+              onMouseDown={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+            >
               <Select
                 defaultValue={lead.assigneeId || 'unassigned'}
                 onValueChange={(val) => onAssign(lead.id, val)}
