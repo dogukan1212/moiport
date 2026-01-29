@@ -51,6 +51,7 @@ const sections = [
       { icon: LayoutGrid, label: "Görevler", href: "/dashboard/tasks" },
       { icon: Calendar, label: "Takvim", href: "/dashboard/calendar" },
       { icon: Video, label: "Toplantılar", href: "/dashboard/meetings" },
+      { icon: GraduationCap, label: "Eğitimler", href: "/dashboard/tutorials" },
       { icon: BarChart3, label: "Görevler Rapor", href: "/dashboard/task-reports" },
       { icon: Briefcase, label: "Projeler", href: "/dashboard/projects" },
       { icon: MessageSquare, label: "Sohbet", href: "/dashboard/chat" },
@@ -140,6 +141,7 @@ export function Sidebar({ tenantData, className, onLinkClick }: { tenantData?: a
     "/dashboard",
     ...(isWordpressEnabled ? ["/dashboard/websites"] : []),
     "/dashboard/storage",
+    "/dashboard/tutorials",
     "/dashboard/crm",
     "/dashboard/crm/leads",
     "/dashboard/whatsapp",
@@ -161,6 +163,7 @@ export function Sidebar({ tenantData, className, onLinkClick }: { tenantData?: a
   ]);
   const clientAllowedHrefs = new Set([
     "/dashboard/settings", // Always allow settings
+    "/dashboard/tutorials",
   ]);
 
   if (isClient && typeof user?.allowedModules === 'string') {
