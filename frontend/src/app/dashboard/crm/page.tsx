@@ -456,32 +456,63 @@ export default function CrmPage() {
 
     const isActiveALead = active.data.current?.type === 'Lead';
     const isOverAStage = over.data.current?.type === 'Stage';
+    const isOverALead = over.data.current?.type === 'Lead';
 
     if (!isActiveALead) return;
 
     // Lead'i başka bir stage'e sürükleme
-    if (isActiveALead && isOverAStage) {
+    if (isActiveALead && (isOverAStage || isOverALead)) {
       setPipelines((prev) => {
         const newPipelines = [...prev];
         const pipelineIndex = newPipelines.findIndex(p => p.id === selectedPipelineId);
-        const pipeline = newPipelines[pipelineIndex];
+        if (pipelineIndex === -1) return prev;
+
+        const pipeline = { ...newPipelines[pipelineIndex] };
         
-        const activeLead = pipeline.stages
-          .flatMap(s => s.leads || [])
-          .find(l => l.id === activeId);
+        // Find active lead and source stage
+        let activeLead: Lead | undefined;
+        let sourceStage: Stage | undefined;
+        
+        // Create shallow copies of stages to avoid mutation issues
+        pipeline.stages = pipeline.stages.map(s => ({...s, leads: [...(s.leads || [])]}));
+
+        for (const stage of pipeline.stages) {
+          const foundIndex = stage.leads.findIndex(l => l.id === activeId);
+          if (foundIndex !== -1) {
+            activeLead = stage.leads[foundIndex];
+            sourceStage = stage;
+            break;
+          }
+        }
           
-        if (!activeLead) return prev;
+        if (!activeLead || !sourceStage) return prev;
 
-        const sourceStage = pipeline.stages.find(s => (s.leads || []).some(l => l.id === activeId));
-        const destStage = pipeline.stages.find(s => s.id === overId);
+        // Find destination stage
+        let destStage: Stage | undefined;
+        if (isOverAStage) {
+          destStage = pipeline.stages.find(s => s.id === overId);
+        } else if (isOverALead) {
+          destStage = pipeline.stages.find(s => s.leads.some(l => l.id === overId));
+        }
 
-        if (sourceStage && destStage && sourceStage.id !== destStage.id) {
-          sourceStage.leads = (sourceStage.leads || []).filter(l => l.id !== activeId);
-          activeLead.stageId = destStage.id;
-          if (!destStage.leads) destStage.leads = [];
-          destStage.leads.push(activeLead);
+        if (!destStage || sourceStage.id === destStage.id) return prev;
+
+        // Move logic
+        sourceStage.leads = sourceStage.leads.filter(l => l.id !== activeId);
+        activeLead.stageId = destStage.id;
+        
+        if (isOverALead) {
+            const overLeadIndex = destStage.leads.findIndex(l => l.id === overId);
+            if (overLeadIndex >= 0) {
+                destStage.leads.splice(overLeadIndex, 0, activeLead);
+            } else {
+                destStage.leads.push(activeLead);
+            }
+        } else {
+            destStage.leads.push(activeLead);
         }
         
+        newPipelines[pipelineIndex] = pipeline;
         return newPipelines;
       });
     }
@@ -500,13 +531,14 @@ export default function CrmPage() {
     let destStageId = overId;
     if (over.data.current?.type === 'Lead') {
       destStageId = over.data.current.lead.stageId;
+    } else if (over.data.current?.type === 'Stage') {
+        destStageId = over.data.current.stage.id;
     }
 
-    const lead = currentPipeline?.stages
-      .flatMap(s => s.leads || [])
-      .find(l => l.id === leadId);
+    // Use original lead data from drag start to check for changes
+    const originalStageId = active.data.current?.lead?.stageId;
 
-    if (lead && lead.stageId !== destStageId) {
+    if (originalStageId && originalStageId !== destStageId) {
       try {
         await api.patch(`/crm/leads/${leadId}/move`, { stageId: destStageId });
         toast.success('Aday taşındı.');
