@@ -970,7 +970,7 @@ export default function ChatPage() {
       {/* Main Chat Area */}
       <div className={`flex-1 flex-col bg-white min-w-0 dark:bg-slate-900 ${!selectedRoomId ? 'hidden md:flex' : 'flex'}`}>
         {selectedRoomId ? (
-          <>
+          <div className="flex flex-col h-full overflow-hidden">
             {/* Header */}
             <div className="px-6 py-3 border-b border-gray-100 flex items-center justify-between shrink-0 dark:border-slate-800 dark:bg-slate-900">
               <div className="flex items-center gap-3">
@@ -1312,7 +1312,7 @@ export default function ChatPage() {
                  </button>
               </div>
             </div>
-          </>
+          </div>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-gray-400 dark:text-slate-500">
             <MessageSquare className="w-12 h-12 mb-4 opacity-20" />
