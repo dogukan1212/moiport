@@ -21,13 +21,16 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
+
+      - name: Create Dummy google-services.json
+        run: echo '{}' > frontend/android/app/google-services.json
 
       - name: Install Dependencies
         working-directory: frontend

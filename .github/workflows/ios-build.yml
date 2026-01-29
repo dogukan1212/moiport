@@ -39,4 +39,4 @@ jobs:
         working-directory: frontend
         run: |
           cd ios
-          xcodebuild -workspace App.xcworkspace -scheme App -destination generic/platform=iOS -configuration Release CODE_SIGNING_ALLOWED=NO
+          xcodebuild -workspace App.xcworkspace -scheme App -destination generic/platform=iOS -configuration Release CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
