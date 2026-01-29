@@ -26,6 +26,7 @@ import {
   Globe,
   Video,
   Folder,
+  GraduationCap,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 

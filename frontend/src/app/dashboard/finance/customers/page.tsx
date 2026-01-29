@@ -102,10 +102,10 @@ export default function FinanceCustomersPage() {
     <div className="h-full flex flex-col">
       <div className="flex justify-between items-end mb-8">
         <div>
-          <h1 className="text-[28px] font-normal tracking-[-0.03em] text-slate-900">
+          <h1 className="text-[28px] font-normal tracking-[-0.03em] text-slate-900 dark:text-slate-50">
             Müşteri Finansalları
           </h1>
-          <p className="text-slate-500 text-sm mt-2">
+          <p className="text-slate-500 text-sm mt-2 dark:text-slate-400">
             Marka bazlı gelir ve karlılık analizi.
           </p>
         </div>
@@ -113,16 +113,16 @@ export default function FinanceCustomersPage() {
 
       {!loading && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="p-5 bg-emerald-50 border-emerald-100">
+          <Card className="p-5 bg-emerald-50 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-900/30">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-emerald-100 text-emerald-700 rounded-lg">
+              <div className="p-3 bg-emerald-100 text-emerald-700 rounded-lg dark:bg-emerald-900/50 dark:text-emerald-400">
                 <TrendingUp className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-emerald-800 uppercase tracking-wide">
+                <p className="text-xs font-semibold text-emerald-800 uppercase tracking-wide dark:text-emerald-300">
                   Toplam Aylık Düzenli Gelir
                 </p>
-                <h3 className="text-xl font-bold text-emerald-900 mt-1">
+                <h3 className="text-xl font-bold text-emerald-900 mt-1 dark:text-emerald-100">
                   {new Intl.NumberFormat('tr-TR', {
                     style: 'currency',
                     currency: 'TRY',
@@ -131,16 +131,16 @@ export default function FinanceCustomersPage() {
               </div>
             </div>
           </Card>
-          <Card className="p-5 bg-blue-50 border-blue-100">
+          <Card className="p-5 bg-blue-50 border-blue-100 dark:bg-blue-900/20 dark:border-blue-900/30">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-100 text-blue-700 rounded-lg">
+              <div className="p-3 bg-blue-100 text-blue-700 rounded-lg dark:bg-blue-900/50 dark:text-blue-400">
                 <ArrowUpRight className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-blue-800 uppercase tracking-wide">
+                <p className="text-xs font-semibold text-blue-800 uppercase tracking-wide dark:text-blue-300">
                   Toplam Ömür Boyu Ciro
                 </p>
-                <h3 className="text-xl font-bold text-blue-900 mt-1">
+                <h3 className="text-xl font-bold text-blue-900 mt-1 dark:text-blue-100">
                   {new Intl.NumberFormat('tr-TR', {
                     style: 'currency',
                     currency: 'TRY',
@@ -149,13 +149,13 @@ export default function FinanceCustomersPage() {
               </div>
             </div>
           </Card>
-          <Card className="p-5 bg-slate-900 border-slate-900">
+          <Card className="p-5 bg-slate-900 border-slate-900 dark:bg-slate-950 dark:border-slate-800">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-slate-800 text-slate-100 rounded-lg">
+              <div className="p-3 bg-slate-800 text-slate-100 rounded-lg dark:bg-slate-900">
                 <Users className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-slate-200 uppercase tracking-wide">
+                <p className="text-xs font-semibold text-slate-200 uppercase tracking-wide dark:text-slate-400">
                   Net Karlılık (Aylık)
                 </p>
                 <h3 className="text-xl font-bold text-white mt-1">
@@ -164,7 +164,7 @@ export default function FinanceCustomersPage() {
                     currency: 'TRY',
                   }).format(totalProfitability)}
                 </h3>
-                <p className="text-[11px] text-slate-300 mt-1">
+                <p className="text-[11px] text-slate-300 mt-1 dark:text-slate-500">
                   {customers.length} aktif müşteri
                 </p>
               </div>
@@ -182,15 +182,15 @@ export default function FinanceCustomersPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
           {customers.map((c) => (
-             <Card key={c.id} className="flex flex-col hover:shadow-lg transition-shadow border-slate-200 overflow-hidden">
-                <div className="p-5 border-b bg-slate-50/50">
+             <Card key={c.id} className="flex flex-col hover:shadow-lg transition-shadow border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+                <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800">
                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold shadow-sm">
+                      <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center font-bold shadow-sm">
                          {c.name.substring(0, 2).toUpperCase()}
                       </div>
                       <div>
-                         <h3 className="font-bold text-slate-900">{c.name}</h3>
-                         <p className="text-xs text-slate-500">{c.email || 'E-posta yok'}</p>
+                         <h3 className="font-bold text-slate-900 dark:text-slate-50">{c.name}</h3>
+                         <p className="text-xs text-slate-500 dark:text-slate-400">{c.email || 'E-posta yok'}</p>
                       </div>
                    </div>
                 </div>
@@ -198,14 +198,14 @@ export default function FinanceCustomersPage() {
                 <div className="p-5 space-y-6 flex-1">
                    <div className="grid grid-cols-2 gap-4">
                       <div>
-                         <span className="text-xs text-slate-500 block mb-1">Aylık Getiri</span>
-                         <span className="font-bold text-emerald-600 text-lg">
+                         <span className="text-xs text-slate-500 dark:text-slate-400 block mb-1">Aylık Getiri</span>
+                         <span className="font-bold text-emerald-600 dark:text-emerald-400 text-lg">
                             {new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(c.monthlyRevenue)}
                          </span>
                       </div>
                       <div>
-                         <span className="text-xs text-slate-500 block mb-1">Toplam Ciro</span>
-                         <span className="font-bold text-slate-900 text-lg">
+                         <span className="text-xs text-slate-500 dark:text-slate-400 block mb-1">Toplam Ciro</span>
+                         <span className="font-bold text-slate-900 dark:text-slate-50 text-lg">
                             {new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(c.totalRevenue)}
                          </span>
                       </div>
@@ -214,26 +214,26 @@ export default function FinanceCustomersPage() {
                    {/* Recurring Status */}
                    {c.recurringStatus && c.recurringStatus.length > 0 && (
                      <div>
-                        <h4 className="text-xs font-semibold text-slate-400 uppercase mb-3 flex items-center gap-1">
+                        <h4 className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase mb-3 flex items-center gap-1">
                            <CalendarDays className="h-3 w-3" /> Ödeme Takvimi
                         </h4>
                         <div className="space-y-2">
                            {c.recurringStatus.map((r: any) => (
-                              <div key={r.id} className="p-2 bg-slate-50 rounded border border-slate-100">
+                              <div key={r.id} className="p-2 bg-slate-50 dark:bg-slate-800 rounded border border-slate-100 dark:border-slate-700">
                                  <div className="flex justify-between items-center mb-1">
-                                    <span className="text-sm font-medium text-slate-700">{r.category}</span>
-                                    <span className="text-xs font-bold text-slate-600">
+                                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{r.category}</span>
+                                    <span className="text-xs font-bold text-slate-600 dark:text-slate-400">
                                        {new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(r.amount)}
                                     </span>
                                  </div>
                                  <div className="flex justify-between items-center text-xs">
-                                    <span className="text-slate-500">Her ayın <strong className="text-slate-700">{r.day}.</strong> günü</span>
+                                    <span className="text-slate-500 dark:text-slate-400">Her ayın <strong className="text-slate-700 dark:text-slate-300">{r.day}.</strong> günü</span>
                                     {r.isPaid ? (
-                                       <span className="flex items-center gap-1 text-emerald-600 font-medium bg-emerald-50 px-1.5 py-0.5 rounded">
+                                       <span className="flex items-center gap-1 text-emerald-600 font-medium bg-emerald-50 dark:bg-emerald-900/30 dark:text-emerald-400 px-1.5 py-0.5 rounded">
                                           <CheckCircle2 className="h-3 w-3" /> Ödendi
                                        </span>
                                     ) : (
-                                       <span className="flex items-center gap-1 text-amber-600 font-medium bg-amber-50 px-1.5 py-0.5 rounded">
+                                       <span className="flex items-center gap-1 text-amber-600 font-medium bg-amber-50 dark:bg-amber-900/30 dark:text-amber-400 px-1.5 py-0.5 rounded">
                                           <Clock className="h-3 w-3" /> Bekliyor ({format(new Date(r.nextDate), 'd MMM', { locale: tr })})
                                        </span>
                                     )}
@@ -245,7 +245,7 @@ export default function FinanceCustomersPage() {
                    )}
 
                    <div>
-                      <h4 className="text-xs font-semibold text-slate-400 uppercase mb-3 flex items-center gap-1">
+                      <h4 className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase mb-3 flex items-center gap-1">
                          <Calendar className="h-3 w-3" /> Son Ödemeler
                       </h4>
                       <div className="space-y-2">
@@ -254,11 +254,11 @@ export default function FinanceCustomersPage() {
                                .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
                                .slice(0, 3)
                                .map((t: any) => (
-                                  <div key={t.id} className="flex justify-between items-center text-sm p-2 bg-slate-50 rounded hover:bg-slate-100 transition-colors">
-                                     <span className="text-slate-600">
+                                  <div key={t.id} className="flex justify-between items-center text-sm p-2 bg-slate-50 dark:bg-slate-800 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                                     <span className="text-slate-600 dark:text-slate-400">
                                         {format(new Date(t.date), 'd MMM yyyy', { locale: tr })}
                                      </span>
-                                     <span className="font-medium text-slate-900">
+                                     <span className="font-medium text-slate-900 dark:text-slate-50">
                                         {new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(t.amount)}
                                      </span>
                                   </div>
@@ -271,7 +271,7 @@ export default function FinanceCustomersPage() {
 
                    <button
                      type="button"
-                     className="mt-4 w-full text-sm font-medium text-blue-600 border border-blue-100 rounded-md py-2 hover:bg-blue-50 transition-colors"
+                     className="mt-4 w-full text-sm font-medium text-blue-600 border border-blue-100 rounded-md py-2 hover:bg-blue-50 transition-colors dark:border-slate-700 dark:text-blue-400 dark:hover:bg-slate-800"
                      onClick={() => openPreview(c)}
                    >
                      Müşteri Önizleme

@@ -606,9 +606,9 @@ export function StorageExplorer() {
         onMouseUp={handleMouseUp}
     >
       <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <h2 className="text-2xl font-bold tracking-tight">Dosya Yöneticisi</h2>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
             {selectedItems.length > 0 ? (
                 <>
                      <Button variant="outline" onClick={() => handleBulkTogglePublic(true)}>
@@ -947,7 +947,7 @@ export function StorageExplorer() {
                                     </div>
                                 </div>
 
-                                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 interactive">
+                                <div className="absolute top-2 right-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10 interactive">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button variant="ghost" size="icon" className="h-6 w-6 bg-white/50 backdrop-blur-sm" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>

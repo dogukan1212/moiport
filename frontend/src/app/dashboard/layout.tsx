@@ -297,10 +297,6 @@ export default function DashboardLayout({
         <div className="flex items-center gap-4">
           <NotificationsPopover />
           <ThemeToggle />
-          <button className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
-            <HelpCircle size={14} />
-            Yardım
-          </button>
           
           <div className="relative" ref={profileRef}>
             <button 

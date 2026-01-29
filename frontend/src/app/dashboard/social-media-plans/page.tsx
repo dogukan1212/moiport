@@ -290,11 +290,11 @@ export default function SocialMediaPlansPage() {
             />
           </div>
           
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 px-3 py-2 border rounded-md bg-white">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 px-3 py-2 border rounded-md bg-white flex-1 sm:flex-none">
                 <Filter className="h-4 w-4 text-slate-400" />
                 <select 
-                    className="text-sm bg-transparent outline-none cursor-pointer min-w-[120px]"
+                    className="text-sm bg-transparent outline-none cursor-pointer w-full sm:w-auto min-w-[100px]"
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(e.target.value)}
                 >

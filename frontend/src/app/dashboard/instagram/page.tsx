@@ -232,7 +232,7 @@ export default function InstagramPage() {
   const isCommentRoom = selectedRoom?.type === 'CHANNEL';
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] overflow-hidden bg-background -m-6 rounded-none md:rounded-tl-2xl">
+    <div className="flex h-[calc(100vh-10rem)] overflow-hidden bg-background -m-6 rounded-none md:rounded-tl-2xl">
       {/* Sidebar List */}
       <div className="w-[360px] bg-card border-r border-border flex flex-col shrink-0">
         <div className="p-4 border-b border-border space-y-4">
@@ -353,12 +353,18 @@ export default function InstagramPage() {
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 flex flex-col relative bg-muted/20">
+      <div className={`${!selectedRoomId ? 'hidden md:flex' : 'flex'} flex-1 flex-col relative bg-muted/20`}>
         {selectedRoomId ? (
           <>
             {/* Header */}
-            <div className="h-[73px] bg-card border-b border-border px-6 flex items-center justify-between shrink-0 z-10">
-                <div className="flex items-center gap-4">
+            <div className="h-[73px] bg-card border-b border-border px-4 md:px-6 flex items-center justify-between shrink-0 z-10">
+                <div className="flex items-center gap-3 md:gap-4">
+                    <button 
+                      onClick={() => setSelectedRoomId(null)}
+                      className="md:hidden p-2 -ml-2 text-muted-foreground hover:text-foreground"
+                    >
+                      <ArrowLeft size={20} />
+                    </button>
                     <div className="w-10 h-10 rounded-full bg-muted overflow-hidden shrink-0">
                          {(() => {
                             const room = rooms.find(r => r.id === selectedRoomId);

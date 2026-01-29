@@ -1302,17 +1302,17 @@ export default function TasksPage() {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex justify-between items-end mb-8">
+      <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-[28px] font-normal tracking-[-0.03em] text-foreground">
+          <h1 className="text-2xl md:text-[28px] font-normal tracking-[-0.03em] text-foreground">
             Görev Yönetimi
           </h1>
           <p className="text-muted-foreground text-sm mt-2">
             Proje süreçlerini kanban, tablo veya takvim görünümünde yönetin.
           </p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex bg-muted px-1 py-1 rounded-full border border-border/60">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 overflow-x-auto pb-2 sm:pb-0">
+          <div className="flex bg-muted px-1 py-1 rounded-full border border-border/60 shrink-0">
             <button
               onClick={() => setCurrentView('board')}
               className={`p-2 rounded-md transition-colors ${
@@ -1370,7 +1370,7 @@ export default function TasksPage() {
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <Button
               variant="outline"
               className="flex items-center gap-2"
@@ -1421,12 +1421,13 @@ export default function TasksPage() {
       </div>
 
       {isArchiveOpen && (
-        <div className="fixed inset-0 z-50">
+        <div className="fixed inset-0 z-50 overflow-y-auto">
           <div
-            className="absolute inset-0 bg-black/25"
+            className="absolute inset-0 bg-black/25 backdrop-blur-sm"
             onClick={() => setIsArchiveOpen(false)}
           />
-          <div className="absolute inset-x-0 top-10 mx-auto w-[800px] bg-card rounded-xl shadow-2xl border border-border">
+          <div className="relative mx-auto mt-10 w-full max-w-[800px] px-4 mb-10">
+            <div className="bg-card rounded-xl shadow-2xl border border-border">
             <div className="flex items-center justify-between px-4 py-3 border-b border-border">
               <div className="flex items-center gap-2">
                 <Archive className="h-5 w-5 text-muted-foreground" />
@@ -1496,6 +1497,7 @@ export default function TasksPage() {
                 )}
               </div>
             </div>
+          </div>
           </div>
         </div>
       )}

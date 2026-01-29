@@ -210,7 +210,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-10">
-      <div className="flex items-end justify-between">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -220,7 +220,7 @@ export default function DashboardPage() {
             <TrendingUp size={12} />
             <span>Genel Performans</span>
           </motion.div>
-          <h1 className="text-[36px] font-bold tracking-tight text-foreground">
+          <h1 className="text-3xl md:text-[36px] font-bold tracking-tight text-foreground">
             Genel Bakış
           </h1>
           <p className="text-sm text-muted-foreground mt-2">
@@ -229,16 +229,16 @@ export default function DashboardPage() {
               : "Ajansınızın operasyon ve performans özeti burada."}
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 w-full md:w-auto">
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-xl bg-card border border-border px-4 py-2 text-xs font-bold text-muted-foreground hover:bg-muted transition-colors"
+            className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 rounded-xl bg-card border border-border px-4 py-2 text-xs font-bold text-muted-foreground hover:bg-muted transition-colors"
           >
             Rapor Al
           </button>
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:opacity-90 transition-colors shadow-md shadow-primary/20"
+            className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:opacity-90 transition-colors shadow-md shadow-primary/20"
           >
             <Plus size={14} />
             Yeni Ekle

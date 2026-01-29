@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "@/hooks/use-auth";
 import api, { getBaseURL, SOCKET_URL } from "@/lib/api";
-import { MessageSquare, Send, X, MoreHorizontal, Users as UsersIcon, Hash, Check, CheckCheck, Plus, Instagram, RefreshCw } from "lucide-react";
+import { MessageSquare, Send, X, MoreHorizontal, Users as UsersIcon, Hash, Check, CheckCheck, Plus, Instagram, RefreshCw, ArrowLeft } from "lucide-react";
 import { format, isToday, isYesterday, isSameDay } from "date-fns";
 import { tr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -968,13 +968,20 @@ export default function ChatPage() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col bg-white min-w-0 dark:bg-slate-900">
+      <div className={`flex-1 flex-col bg-white min-w-0 dark:bg-slate-900 ${!selectedRoomId ? 'hidden md:flex' : 'flex'}`}>
         {selectedRoomId ? (
           <>
             {/* Header */}
             <div className="px-6 py-3 border-b border-gray-100 flex items-center justify-between shrink-0 dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex flex-col">
-                <div className="text-sm font-bold text-slate-900 dark:text-slate-50">
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => setSelectedRoomId(null)}
+                  className="md:hidden p-1 -ml-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+                >
+                  <ArrowLeft size={20} />
+                </button>
+                <div className="flex flex-col">
+                  <div className="text-sm font-bold text-slate-900 dark:text-slate-50">
                   {(() => {
                     const r = rooms.find(r => r.id === selectedRoomId);
                     return r ? getRoomLabel(r) : 'Sohbet';

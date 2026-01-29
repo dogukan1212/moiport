@@ -135,7 +135,7 @@ export function BoardColumn({
   };
 
   return (
-    <div className="kanban-col flex-shrink-0 w-80 min-w-[300px] flex flex-col gap-3">
+    <div className="kanban-col flex-shrink-0 w-[85vw] md:w-80 min-w-[300px] flex flex-col gap-3">
       <div
         ref={setNodeRef}
         className="flex-1 overflow-y-auto min-h-[160px] flex flex-col"

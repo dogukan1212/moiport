@@ -590,7 +590,7 @@ export function SortableTaskCard({
           </div>
         </div>
 
-        <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all bg-card pl-2">
+        <div className="absolute top-3 right-3 flex items-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all bg-card pl-2">
           {timeTrackingEnabled && (
             <div className="flex items-center gap-1">
               <div className="text-[11px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">

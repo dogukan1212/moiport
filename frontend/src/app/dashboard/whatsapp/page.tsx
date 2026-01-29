@@ -1206,14 +1206,24 @@ export default function WhatsappPage() {
           </div>
         </div>
 
-        <div className="flex-1 bg-card border border-border rounded-2xl overflow-hidden shadow-sm flex flex-col">
+        <div className={`${!selectedLeadId ? 'hidden md:flex' : 'flex'} flex-1 bg-card border border-border rounded-2xl overflow-hidden shadow-sm flex flex-col`}>
           {selectedLeadId ? (
             <>
               <div className="border-b border-border px-6 py-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-base font-semibold text-foreground">
-                    WhatsApp Sohbeti
-                  </h2>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="md:hidden h-8 w-8 -ml-2 text-muted-foreground"
+                      onClick={() => setSelectedLeadId(null)}
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                    </Button>
+                    <h2 className="text-base font-semibold text-foreground">
+                      WhatsApp Sohbeti
+                    </h2>
+                  </div>
                   <div className="flex items-center gap-1">
                     {leadDetail?.phone && (
                       <Button

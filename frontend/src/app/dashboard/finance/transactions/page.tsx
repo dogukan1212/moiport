@@ -468,7 +468,7 @@ export default function TransactionsPage() {
   const TransactionList = ({ items, type }: { items: any[], type: 'INCOME' | 'EXPENSE' }) => (
     <div className="space-y-3">
       {items.length === 0 ? (
-        <div className="text-center py-8 text-slate-500 bg-slate-50 rounded-lg border border-dashed">
+        <div className="text-center py-8 text-slate-500 bg-slate-50 rounded-lg border border-dashed dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700">
           Kayıt bulunamadı.
         </div>
       ) : (
@@ -477,13 +477,13 @@ export default function TransactionsPage() {
           const isOverdue = t.status === 'PENDING' && isPast(date) && !isToday(date);
           
           return (
-            <div key={t.id} className={`bg-white p-4 rounded-lg border hover:shadow-md transition-shadow flex items-center justify-between group ${isOverdue ? 'border-red-200 bg-red-50/30' : ''}`}>
+            <div key={t.id} className={`bg-white dark:bg-slate-900 p-4 rounded-lg border dark:border-slate-800 hover:shadow-md transition-shadow flex items-center justify-between group ${isOverdue ? 'border-red-200 bg-red-50/30 dark:bg-red-900/10 dark:border-red-900/30' : ''}`}>
               <div className="flex items-center gap-4">
                 <div 
                   className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors ${
                     t.status === 'PAID' 
-                      ? (type === 'INCOME' ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200' : 'bg-red-100 text-red-600 hover:bg-red-200')
-                      : (isOverdue ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-amber-100 text-amber-600 hover:bg-amber-200')
+                      ? (type === 'INCOME' ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50' : 'bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50')
+                      : (isOverdue ? 'bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400' : 'bg-amber-100 text-amber-600 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400')
                   }`}
                   onClick={() => handleStatusToggle(t)}
                   title={t.status === 'PAID' ? 'Bekliyor olarak işaretle' : 'Tahsil edildi/Ödendi olarak işaretle'}
@@ -496,12 +496,12 @@ export default function TransactionsPage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <div className="font-medium text-slate-900">{t.description || t.category}</div>
-                    {t.description && <div className="text-xs text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">{t.category}</div>}
+                    <div className="font-medium text-slate-900 dark:text-slate-50">{t.description || t.category}</div>
+                    {t.description && <div className="text-xs text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded dark:bg-slate-800 dark:text-slate-400">{t.category}</div>}
                     <span className={`text-[10px] px-1.5 py-0.5 rounded-full border flex items-center gap-1 ${
                       t.status === 'PENDING' 
-                        ? (isOverdue ? 'bg-red-100 text-red-700 border-red-200 font-medium' : 'bg-amber-50 text-amber-600 border-amber-200')
-                        : 'bg-slate-50 text-slate-600 border-slate-200'
+                        ? (isOverdue ? 'bg-red-100 text-red-700 border-red-200 font-medium dark:bg-red-900/30 dark:text-red-400 dark:border-red-900/50' : 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-900/50')
+                        : 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
                     }`}>
                       {t.status === 'PENDING' ? (
                         <>{isOverdue ? 'Gecikti' : 'Bekliyor'}</>
@@ -510,17 +510,17 @@ export default function TransactionsPage() {
                       )}
                     </span>
                   </div>
-                  <div className="text-sm text-slate-500 flex items-center gap-2">
-                    <span className={isOverdue ? 'text-red-600 font-medium' : ''}>
+                  <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                    <span className={isOverdue ? 'text-red-600 dark:text-red-400 font-medium' : ''}>
                       {format(date, 'd MMM yyyy', { locale: tr })}
                     </span>
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-slate-400 dark:text-slate-500">
                       ({formatDistanceToNow(date, { addSuffix: true, locale: tr })})
                     </span>
                     {t.customer && (
                       <button
                         type="button"
-                        className="bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded text-xs hover:bg-blue-100"
+                        className="bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded text-xs hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
                         onClick={(e) => {
                           e.stopPropagation();
                           openCustomerPreview(t.customerId);
@@ -533,17 +533,17 @@ export default function TransactionsPage() {
                 </div>
               </div>
               <div className="text-right">
-                <div className={`font-bold ${type === 'INCOME' ? 'text-emerald-600' : 'text-red-600'}`}>
+                <div className={`font-bold ${type === 'INCOME' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
                   {new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(t.amount)}
                 </div>
                 <div className="flex items-center justify-end gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => handlePreview(t)} className="p-1 text-slate-400 hover:text-blue-600" title="Önizle">
+                  <button onClick={() => handlePreview(t)} className="p-1 text-slate-400 hover:text-blue-600 dark:text-slate-500 dark:hover:text-blue-400" title="Önizle">
                     <Eye className="h-4 w-4" />
                   </button>
-                  <button onClick={() => handleEdit(t)} className="p-1 text-slate-400 hover:text-indigo-600" title="Düzenle">
+                  <button onClick={() => handleEdit(t)} className="p-1 text-slate-400 hover:text-indigo-600 dark:text-slate-500 dark:hover:text-indigo-400" title="Düzenle">
                     <Edit2 className="h-4 w-4" />
                   </button>
-                  <button onClick={() => handleDelete(t.id)} className="p-1 text-slate-400 hover:text-red-600" title="Sil">
+                  <button onClick={() => handleDelete(t.id)} className="p-1 text-slate-400 hover:text-red-600 dark:text-slate-500 dark:hover:text-red-400" title="Sil">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
@@ -560,38 +560,38 @@ export default function TransactionsPage() {
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl border border-slate-100"
+        className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-md shadow-2xl border border-slate-100 dark:border-slate-800"
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-black text-slate-900">{formData.id ? 'İşlemi Düzenle' : 'Yeni İşlem Ekle'}</h2>
-          <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
-            <X className="h-5 w-5 text-slate-500" />
+          <h2 className="text-xl font-black text-slate-900 dark:text-slate-50">{formData.id ? 'İşlemi Düzenle' : 'Yeni İşlem Ekle'}</h2>
+          <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+            <X className="h-5 w-5 text-slate-500 dark:text-slate-400" />
           </button>
         </div>
 
         <form onSubmit={handleCreateOrUpdate} className="space-y-4">
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-4">
+          <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 mb-4">
             <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">İşlem Türü</label>
             <div className="flex gap-4">
-              <label className="flex items-center gap-2 text-sm font-bold text-slate-700 cursor-pointer group">
+              <label className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 cursor-pointer group">
                 <input 
                   type="radio" 
                   name="transactionType" 
-                  className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-slate-300"
+                  className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-600 dark:bg-slate-700"
                   checked={formData.transactionType === 'STANDARD'}
                   onChange={() => setFormData({...formData, transactionType: 'STANDARD', type: 'INCOME', category: '', userId: '', customerId: ''})}
                 />
-                <span className="group-hover:text-slate-900 transition-colors">Standart</span>
+                <span className="group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors">Standart</span>
               </label>
-              <label className="flex items-center gap-2 text-sm font-bold text-slate-700 cursor-pointer group">
+              <label className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 cursor-pointer group">
                 <input 
                   type="radio" 
                   name="transactionType" 
-                  className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-slate-300"
+                  className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-600 dark:bg-slate-700"
                   checked={formData.transactionType === 'ADVANCE'}
                   onChange={() => setFormData({...formData, transactionType: 'ADVANCE', type: 'EXPENSE', category: 'Personel Avansı', status: 'PAID', customerId: ''})}
                 />
-                <span className="group-hover:text-slate-900 transition-colors">Personel Avansı</span>
+                <span className="group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors">Personel Avansı</span>
               </label>
             </div>
           </div>
@@ -601,7 +601,7 @@ export default function TransactionsPage() {
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tip</label>
                 <select
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-slate-100"
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                 >
@@ -612,7 +612,7 @@ export default function TransactionsPage() {
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Durum</label>
                 <select
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-slate-100"
                   value={formData.status}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 >
@@ -626,7 +626,7 @@ export default function TransactionsPage() {
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Personel Seçimi</label>
               <select
                 required
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-slate-100"
                 value={formData.userId}
                 onChange={(e) => setFormData({ ...formData, userId: e.target.value })}
               >
@@ -644,7 +644,7 @@ export default function TransactionsPage() {
               type="number"
               step="0.01"
               required
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-slate-100"
               value={formData.amount}
               onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
               placeholder="0.00"
@@ -656,7 +656,7 @@ export default function TransactionsPage() {
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kategori</label>
               <select
                 required
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-slate-100"
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
               >
@@ -671,7 +671,7 @@ export default function TransactionsPage() {
           <div className="space-y-1.5">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Müşteri (Opsiyonel)</label>
             <select
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-slate-100"
               value={formData.customerId}
               onChange={(e) => setFormData({ ...formData, customerId: e.target.value })}
             >
@@ -687,7 +687,7 @@ export default function TransactionsPage() {
             <input
               type="date"
               required
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-slate-100"
               value={formData.date}
               onChange={(e) => setFormData({ ...formData, date: e.target.value })}
             />
@@ -697,7 +697,7 @@ export default function TransactionsPage() {
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">İşlem Adı / Açıklama</label>
             <input
               type="text"
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-slate-100"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Örn: Ocak Ayı Ofis Kirası"
@@ -705,8 +705,8 @@ export default function TransactionsPage() {
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)} className="rounded-xl font-bold">İptal</Button>
-            <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold px-8">Kaydet</Button>
+            <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)} className="rounded-xl font-bold dark:text-slate-400 dark:hover:bg-slate-800">İptal</Button>
+            <Button type="submit" className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold px-8 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200">Kaydet</Button>
           </div>
         </form>
       </motion.div>
@@ -718,52 +718,52 @@ export default function TransactionsPage() {
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden border border-slate-100"
+        className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800"
       >
-        <div className={`p-6 flex justify-between items-center ${selectedTransaction.type === 'INCOME' ? 'bg-emerald-50' : 'bg-red-50'}`}>
-          <h3 className={`text-xl font-black ${selectedTransaction.type === 'INCOME' ? 'text-emerald-800' : 'text-red-800'}`}>
+        <div className={`p-6 flex justify-between items-center ${selectedTransaction.type === 'INCOME' ? 'bg-emerald-50 dark:bg-emerald-900/30' : 'bg-red-50 dark:bg-red-900/30'}`}>
+          <h3 className={`text-xl font-black ${selectedTransaction.type === 'INCOME' ? 'text-emerald-800 dark:text-emerald-300' : 'text-red-800 dark:text-red-300'}`}>
             İşlem Detayı
           </h3>
-          <button onClick={() => setIsDetailModalOpen(false)} className="p-2 hover:bg-white/50 rounded-full transition-colors">
-            <X className="h-5 w-5 text-slate-500" />
+          <button onClick={() => setIsDetailModalOpen(false)} className="p-2 hover:bg-white/50 dark:hover:bg-slate-800/50 rounded-full transition-colors">
+            <X className="h-5 w-5 text-slate-500 dark:text-slate-400" />
           </button>
         </div>
         
         <div className="p-8 space-y-6">
           <div className="flex flex-col items-center mb-4">
-            <div className={`text-4xl font-black mb-2 ${selectedTransaction.type === 'INCOME' ? 'text-emerald-600' : 'text-red-600'}`}>
+            <div className={`text-4xl font-black mb-2 ${selectedTransaction.type === 'INCOME' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
               {new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(selectedTransaction.amount)}
             </div>
             <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${
               selectedTransaction.status === 'PAID' 
-                ? 'bg-slate-50 text-slate-600 border-slate-200' 
-                : 'bg-amber-50 text-amber-600 border-amber-200'
+                ? 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700' 
+                : 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-900/50'
             }`}>
               {selectedTransaction.status === 'PAID' ? (selectedTransaction.type === 'INCOME' ? 'Tahsil Edildi' : 'Ödendi') : 'Bekliyor'}
             </span>
           </div>
 
           <div className="space-y-4">
-            <div className="flex justify-between items-center py-2 border-b border-slate-50">
+            <div className="flex justify-between items-center py-2 border-b border-slate-50 dark:border-slate-800">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tarih</span>
-              <span className="text-sm font-bold text-slate-900">{format(new Date(selectedTransaction.date), 'd MMMM yyyy', { locale: tr })}</span>
+              <span className="text-sm font-bold text-slate-900 dark:text-slate-50">{format(new Date(selectedTransaction.date), 'd MMMM yyyy', { locale: tr })}</span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-slate-50">
+            <div className="flex justify-between items-center py-2 border-b border-slate-50 dark:border-slate-800">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kategori</span>
-              <span className="text-sm font-bold text-slate-900">{selectedTransaction.category}</span>
+              <span className="text-sm font-bold text-slate-900 dark:text-slate-50">{selectedTransaction.category}</span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-slate-50">
+            <div className="flex justify-between items-center py-2 border-b border-slate-50 dark:border-slate-800">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tip</span>
-              <span className={`text-sm font-bold ${selectedTransaction.type === 'INCOME' ? 'text-emerald-600' : 'text-red-600'}`}>
+              <span className={`text-sm font-bold ${selectedTransaction.type === 'INCOME' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
                 {selectedTransaction.type === 'INCOME' ? 'Gelir' : 'Gider'}
               </span>
             </div>
             {selectedTransaction.customer && (
-              <div className="flex justify-between items-center py-2 border-b border-slate-50">
+              <div className="flex justify-between items-center py-2 border-b border-slate-50 dark:border-slate-800">
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Müşteri</span>
                 <button
                   type="button"
-                  className="text-sm font-bold text-blue-600 flex items-center gap-1 hover:underline"
+                  className="text-sm font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1 hover:underline"
                   onClick={() => openCustomerPreview(selectedTransaction.customerId)}
                 >
                   {selectedTransaction.customer.name}
@@ -774,17 +774,17 @@ export default function TransactionsPage() {
             
             <div className="pt-2">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Açıklama</span>
-              <p className="text-sm font-medium text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
                 {selectedTransaction.description || 'Açıklama belirtilmemiş.'}
               </p>
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-6 border-t border-slate-50">
-            <Button variant="outline" className="rounded-xl font-bold" onClick={() => { setIsDetailModalOpen(false); handleEdit(selectedTransaction); }}>
+          <div className="flex justify-end gap-3 pt-6 border-t border-slate-50 dark:border-slate-800">
+            <Button variant="outline" className="rounded-xl font-bold dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800" onClick={() => { setIsDetailModalOpen(false); handleEdit(selectedTransaction); }}>
               <Edit2 className="h-4 w-4 mr-2" /> Düzenle
             </Button>
-            <Button className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold px-8" onClick={() => setIsDetailModalOpen(false)}>
+            <Button className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold px-8 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200" onClick={() => setIsDetailModalOpen(false)}>
               Kapat
             </Button>
           </div>
@@ -798,12 +798,12 @@ export default function TransactionsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Gelir & Gider Hareketleri</h1>
-          <p className="text-slate-500 mt-1 font-medium">Tüm finansal işlemlerinizi detaylı olarak inceleyin ve yönetin.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50">Gelir & Gider Hareketleri</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium">Tüm finansal işlemlerinizi detaylı olarak inceleyin ve yönetin.</p>
         </div>
         <Button 
           onClick={() => { resetForm(); setIsModalOpen(true); }} 
-          className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs gap-2 h-11 px-6 shadow-lg shadow-slate-200"
+          className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs gap-2 h-11 px-6 shadow-lg shadow-slate-200 dark:shadow-slate-900/40 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200"
         >
           <Plus className="h-4 w-4" /> Yeni İşlem Ekle
         </Button>
@@ -839,22 +839,22 @@ export default function TransactionsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm"
+            className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm"
           >
-            <div className="flex items-center gap-3 text-slate-500 mb-4">
+            <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400 mb-4">
               <div className={cn(
                 "p-2 rounded-lg",
-                stat.color === "emerald" ? "bg-emerald-50 text-emerald-600" :
-                stat.color === "red" ? "bg-red-50 text-red-600" :
-                "bg-blue-50 text-blue-600"
+                stat.color === "emerald" ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400" :
+                stat.color === "red" ? "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400" :
+                "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
               )}>
                 {stat.icon}
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{stat.label}</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">{stat.label}</span>
             </div>
             <div className="flex items-end justify-between">
-              <div className="text-2xl font-black text-slate-900">{stat.value}</div>
-              <div className="text-[10px] font-bold text-slate-400 uppercase">{stat.subLabel}</div>
+              <div className="text-2xl font-black text-slate-900 dark:text-slate-50">{stat.value}</div>
+              <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">{stat.subLabel}</div>
             </div>
           </motion.div>
         ))}
@@ -862,14 +862,14 @@ export default function TransactionsPage() {
 
       {/* Filters & Content */}
       <div className="space-y-6">
-        <Card className="p-6 border-slate-200 shadow-sm">
+        <Card className="p-6 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
           <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
             <div className="relative w-full lg:max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 type="text"
                 placeholder="İşlem veya kategori ara..."
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-slate-100"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -889,8 +889,8 @@ export default function TransactionsPage() {
                   onClick={() => setDateFilter(filter.id as any)}
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                     dateFilter === filter.id 
-                      ? 'bg-slate-900 text-white shadow-md' 
-                      : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
+                      ? 'bg-slate-900 text-white shadow-md dark:bg-slate-50 dark:text-slate-900' 
+                      : 'bg-slate-50 text-slate-500 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
                   }`}
                 >
                   {filter.label}
@@ -903,13 +903,13 @@ export default function TransactionsPage() {
             <motion.div 
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
-              className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap gap-4 items-end"
+              className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-4 items-end"
             >
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Başlangıç</label>
                 <input
                   type="date"
-                  className="block w-full px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium"
+                  className="block w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-medium dark:text-slate-100"
                   value={customDateRange.start}
                   onChange={(e) => setCustomDateRange({ ...customDateRange, start: e.target.value })}
                 />
@@ -918,7 +918,7 @@ export default function TransactionsPage() {
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bitiş</label>
                 <input
                   type="date"
-                  className="block w-full px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium"
+                  className="block w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl text-sm font-medium dark:text-slate-100"
                   value={customDateRange.end}
                   onChange={(e) => setCustomDateRange({ ...customDateRange, end: e.target.value })}
                 />

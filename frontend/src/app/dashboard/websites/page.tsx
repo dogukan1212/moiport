@@ -125,18 +125,18 @@ export default function WebsitesPage() {
   };
 
   return (
-    <div className="h-full flex flex-col p-6">
-      <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
+    <div className="h-full flex flex-col p-4 md:p-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold tracking-tight">WordPress Siteleri</h1>
           <p className="text-muted-foreground">Müşterilerinizin WordPress sitelerini yönetin ve içerik üretin.</p>
         </div>
-        <div className="flex gap-2">
-           <Button variant="outline" onClick={handleDownloadPlugin} className="gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+           <Button variant="outline" onClick={handleDownloadPlugin} className="gap-2 w-full sm:w-auto justify-center">
             <Download className="h-4 w-4" />
             Eklentiyi İndir (MOI Port)
           </Button>
-          <Button onClick={() => setIsCreateOpen(true)} className="gap-2">
+          <Button onClick={() => setIsCreateOpen(true)} className="gap-2 w-full sm:w-auto justify-center">
             <Plus className="h-4 w-4" />
             Yeni Site Ekle
           </Button>
@@ -144,7 +144,7 @@ export default function WebsitesPage() {
       </div>
 
       <div className="flex items-center gap-4 mb-6">
-        <div className="relative flex-1 max-w-sm">
+        <div className="relative flex-1 w-full md:max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Site veya müşteri ara..."

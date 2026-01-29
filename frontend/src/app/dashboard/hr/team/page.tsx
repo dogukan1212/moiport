@@ -79,7 +79,7 @@ export default function HRTeamPage() {
 
   return (
     <div className="space-y-8 relative">
-      <div className="flex items-end justify-between">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-[28px] font-normal tracking-[-0.03em] text-slate-900 dark:text-slate-50 flex items-center gap-2">
             <Users className="h-6 w-6 text-slate-900 dark:text-slate-50" />
@@ -91,7 +91,7 @@ export default function HRTeamPage() {
         </div>
         <Button 
           onClick={() => setIsAddModalOpen(true)}
-          className="bg-slate-900 text-white hover:bg-slate-800"
+          className="bg-slate-900 text-white hover:bg-slate-800 w-full md:w-auto"
         >
           <Plus className="w-4 h-4 mr-2" />
           Yeni Personel Ekle

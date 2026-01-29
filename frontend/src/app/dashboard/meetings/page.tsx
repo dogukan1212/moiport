@@ -498,7 +498,7 @@ export default function MeetingsPage() {
                     key={evt.id || `${evt.summary || 'event'}-${evt.start?.dateTime || evt.start?.date || ''}`}
                     className="rounded-lg border border-slate-200 dark:border-slate-800 p-3 bg-white dark:bg-slate-900"
                   >
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                       <div className="min-w-0">
                         <div className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">
                           {evt.summary || 'Başlıksız toplantı'}
@@ -512,7 +512,7 @@ export default function MeetingsPage() {
                           </div>
                         )}
                       </div>
-                      <div className="flex gap-2 shrink-0">
+                      <div className="flex gap-2 shrink-0 w-full sm:w-auto mt-2 sm:mt-0">
                         {evt.hangoutLink && (
                           <Button variant="outline" size="sm" asChild>
                             <a href={evt.hangoutLink} target="_blank" rel="noreferrer">

@@ -75,7 +75,7 @@ export default function CustomersPage() {
 
   return (
     <div className="space-y-10">
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -85,7 +85,7 @@ export default function CustomersPage() {
             <Users size={12} />
             <span>MÜŞTERİ YÖNETİMİ</span>
           </motion.div>
-          <h1 className="text-[36px] font-bold tracking-tight text-slate-900 dark:text-slate-50">
+          <h1 className="text-3xl md:text-[36px] font-bold tracking-tight text-slate-900 dark:text-slate-50">
             Müşteriler
           </h1>
           <p className="text-slate-500 text-sm mt-2 dark:text-slate-400">
@@ -94,7 +94,7 @@ export default function CustomersPage() {
         </div>
         <Button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl px-6 h-11 text-sm font-bold transition-all shadow-lg shadow-slate-200 dark:shadow-slate-900/40"
+          className="w-full md:w-auto flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl px-6 h-11 text-sm font-bold transition-all shadow-lg shadow-slate-200 dark:shadow-slate-900/40"
         >
           <Plus className="h-4 w-4" />
           Yeni Müşteri

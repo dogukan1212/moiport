@@ -347,24 +347,25 @@ export default function CalendarPage() {
                     {selectedEvents.map((evt) => (
                       <div
                         key={evt.id || `${evt.summary || 'event'}-${evt.start?.dateTime || evt.start?.date || ''}`}
-                        className="group relative flex gap-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-sm hover:shadow-md"
+                        className="group relative flex flex-col sm:flex-row gap-4 sm:gap-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-4 sm:p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-sm hover:shadow-md"
                       >
-                        <div className="flex flex-col items-center shrink-0 w-16 pt-1">
+                        <div className="flex flex-row sm:flex-col items-center sm:items-center gap-3 sm:gap-0 shrink-0 sm:w-16 pt-0 sm:pt-1">
                           <span className="text-xs font-medium text-slate-500 uppercase">
                             {evt.start?.dateTime ? new Date(evt.start.dateTime).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : 'Tüm Gün'}
                           </span>
                           {evt.end?.dateTime && (
                             <>
-                              <div className="w-px h-full bg-slate-200 dark:bg-slate-800 my-2" />
-                              <span className="text-xs text-slate-400">
+                              <div className="hidden sm:block w-px h-full bg-slate-200 dark:bg-slate-800 my-2" />
+                              <span className="hidden sm:block text-xs text-slate-400">
                                 {new Date(evt.end.dateTime).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
                               </span>
+                              <span className="sm:hidden text-xs text-slate-400">- {new Date(evt.end.dateTime).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
                             </>
                           )}
                         </div>
                         
-                        <div className="flex-1 min-w-0 py-1">
-                          <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0 py-0 sm:py-1">
+                          <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                             <div>
                               <h4 className="text-base font-semibold text-slate-900 dark:text-slate-50 truncate pr-4">
                                 {evt.summary || 'Başlıksız Etkinlik'}

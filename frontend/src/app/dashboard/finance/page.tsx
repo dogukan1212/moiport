@@ -239,7 +239,7 @@ export default function FinanceDashboard() {
               <Database className="h-4 w-4" /> Demo Verileri Yükle
             </Button>
             <Link href="/dashboard/finance/transactions">
-              <Button className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs gap-2 h-11 px-6 shadow-lg shadow-slate-200 dark:shadow-slate-900/40">
+              <Button className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs gap-2 h-11 px-6 shadow-lg shadow-slate-200 dark:shadow-slate-900/40 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200">
                 <Plus className="h-4 w-4" /> Yeni İşlem
               </Button>
             </Link>
@@ -496,7 +496,7 @@ export default function FinanceDashboard() {
             <div className="grid grid-cols-1 gap-3">
               <div className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm text-emerald-600 dark:text-emerald-400">
+                  <div className="p-2 rounded-lg bg-white dark:bg-slate-900 shadow-sm text-emerald-600 dark:text-emerald-400">
                     <ArrowUpRight size={16} />
                   </div>
                   <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Gelir</span>
@@ -505,7 +505,7 @@ export default function FinanceDashboard() {
               </div>
               <div className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm text-red-600 dark:text-red-400">
+                  <div className="p-2 rounded-lg bg-white dark:bg-slate-900 shadow-sm text-red-600 dark:text-red-400">
                     <ArrowDownRight size={16} />
                   </div>
                   <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Gider</span>
@@ -528,7 +528,7 @@ export default function FinanceDashboard() {
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm text-blue-600 dark:text-blue-400">
+                  <div className="p-2 rounded-lg bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-blue-400">
                     <Clock size={16} />
                   </div>
                   <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Bekleyen Alacak</span>
@@ -537,7 +537,7 @@ export default function FinanceDashboard() {
               </div>
               <div className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400">
+                  <div className="p-2 rounded-lg bg-white dark:bg-slate-900 shadow-sm text-indigo-600 dark:text-indigo-400">
                     <TrendingUp size={16} />
                   </div>
                   <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Düzenli Gelir (MRR)</span>
@@ -589,7 +589,7 @@ export default function FinanceDashboard() {
                     <div className="flex items-center gap-3">
                       <div
                         className={cn(
-                          "p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm group-hover:bg-slate-900 group-hover:text-white transition-colors",
+                          "p-2 rounded-lg bg-white dark:bg-slate-900 shadow-sm group-hover:bg-slate-900 group-hover:text-white transition-colors",
                           `text-${action.color}-600 dark:text-${action.color}-400`
                         )}
                       >
@@ -617,7 +617,7 @@ export default function FinanceDashboard() {
                 className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 hover:border-slate-200 dark:hover:border-slate-600 hover:shadow-md transition-all group text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm group-hover:bg-slate-900 group-hover:text-white transition-colors text-emerald-600 dark:text-emerald-400">
+                  <div className="p-2 rounded-lg bg-white dark:bg-slate-900 shadow-sm group-hover:bg-slate-900 group-hover:text-white transition-colors text-emerald-600 dark:text-emerald-400">
                     <Wallet size={16} />
                   </div>
                   <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Nakit Akışı Özeti</span>
@@ -632,7 +632,7 @@ export default function FinanceDashboard() {
                 className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 hover:border-slate-200 dark:hover:border-slate-600 hover:shadow-md transition-all group text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm group-hover:bg-slate-900 group-hover:text-white transition-colors text-amber-600 dark:text-amber-400">
+                  <div className="p-2 rounded-lg bg-white dark:bg-slate-900 shadow-sm group-hover:bg-slate-900 group-hover:text-white transition-colors text-amber-600 dark:text-amber-400">
                     <Clock size={16} />
                   </div>
                   <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Gecikmiş Faturalar Analizi</span>
@@ -647,7 +647,7 @@ export default function FinanceDashboard() {
                 className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 hover:border-slate-200 dark:hover:border-slate-600 hover:shadow-md transition-all group text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm group-hover:bg-slate-900 group-hover:text-white transition-colors text-blue-600 dark:text-blue-400">
+                  <div className="p-2 rounded-lg bg-white dark:bg-slate-900 shadow-sm group-hover:bg-slate-900 group-hover:text-white transition-colors text-blue-600 dark:text-blue-400">
                     <FileText size={16} />
                   </div>
                   <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Bu Ay Bekleyen Alacak</span>
@@ -662,7 +662,7 @@ export default function FinanceDashboard() {
                 className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 hover:border-slate-200 dark:hover:border-slate-600 hover:shadow-md transition-all group text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm group-hover:bg-slate-900 group-hover:text-white transition-colors text-emerald-600 dark:text-emerald-400">
+                  <div className="p-2 rounded-lg bg-white dark:bg-slate-900 shadow-sm group-hover:bg-slate-900 group-hover:text-white transition-colors text-emerald-600 dark:text-emerald-400">
                     <ArrowLeftRight size={16} />
                   </div>
                   <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Bugün Gelir/Gider Özeti</span>
@@ -677,7 +677,7 @@ export default function FinanceDashboard() {
                 className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 hover:border-slate-200 dark:hover:border-slate-600 hover:shadow-md transition-all group text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm group-hover:bg-slate-900 group-hover:text-white transition-colors text-purple-600 dark:text-purple-400">
+                  <div className="p-2 rounded-lg bg-white dark:bg-slate-900 shadow-sm group-hover:bg-slate-900 group-hover:text-white transition-colors text-purple-600 dark:text-purple-400">
                     <Users size={16} />
                   </div>
                   <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Müşteri Sayısı ve Trend</span>
@@ -692,7 +692,7 @@ export default function FinanceDashboard() {
                 className="w-full flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 hover:border-slate-200 dark:hover:border-slate-600 hover:shadow-md transition-all group text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm group-hover:bg-slate-900 group-hover:text-white transition-colors text-indigo-600 dark:text-indigo-400">
+                  <div className="p-2 rounded-lg bg-white dark:bg-slate-900 shadow-sm group-hover:bg-slate-900 group-hover:text-white transition-colors text-indigo-600 dark:text-indigo-400">
                     <TrendingUp size={16} />
                   </div>
                   <span className="text-sm font-bold text-slate-700 dark:text-slate-200">MRR vs Sabit Gider</span>

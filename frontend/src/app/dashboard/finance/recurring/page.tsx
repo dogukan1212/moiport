@@ -181,35 +181,35 @@ export default function RecurringPage() {
   const RecurringList = ({ items, type }: { items: any[], type: 'INCOME' | 'EXPENSE' }) => (
     <div className="space-y-3">
       {items.length === 0 ? (
-        <div className="text-center py-8 text-slate-500 bg-slate-50 rounded-lg border border-dashed">
+        <div className="text-center py-8 text-muted-foreground bg-muted/50 rounded-lg border border-dashed border-border">
           Kayıt bulunamadı.
         </div>
       ) : (
         items.map((item) => (
-          <div key={item.id} className="group flex items-center justify-between p-3 bg-white border rounded-lg hover:shadow-md transition-all relative overflow-hidden">
-            <div className={`absolute left-0 top-0 bottom-0 w-1 ${item.isActive ? (type === 'INCOME' ? 'bg-emerald-500' : 'bg-red-500') : 'bg-slate-300'}`}></div>
+          <div key={item.id} className="group flex items-center justify-between p-3 bg-card border border-border rounded-lg hover:shadow-md transition-all relative overflow-hidden">
+            <div className={`absolute left-0 top-0 bottom-0 w-1 ${item.isActive ? (type === 'INCOME' ? 'bg-emerald-500' : 'bg-red-500') : 'bg-muted-foreground/30'}`}></div>
             
             <div className="flex items-center gap-3 pl-2">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${item.isActive ? (type === 'INCOME' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600') : 'bg-slate-100 text-slate-400'}`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${item.isActive ? (type === 'INCOME' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400') : 'bg-muted text-muted-foreground'}`}>
                  {type === 'INCOME' ? <ArrowUpRight className="h-5 w-5" /> : <ArrowDownRight className="h-5 w-5" />}
               </div>
               
               <div>
                 <div className="flex items-center gap-2">
-                  <span className={`font-medium text-slate-900 ${!item.isActive && 'text-slate-500'}`}>{item.description || item.category}</span>
-                  {item.description && <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">{item.category}</span>}
-                  {!item.isActive && <span className="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded font-medium">PASİF</span>}
+                  <span className={`font-medium text-foreground ${!item.isActive && 'text-muted-foreground'}`}>{item.description || item.category}</span>
+                  {item.description && <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">{item.category}</span>}
+                  {!item.isActive && <span className="text-[10px] px-1.5 py-0.5 bg-muted text-muted-foreground rounded font-medium">PASİF</span>}
                 </div>
-                <div className="text-xs text-slate-500 flex items-center gap-2 mt-0.5">
+                <div className="text-xs text-muted-foreground flex items-center gap-2 mt-0.5">
                    <span className="font-medium">{intervalLabels[item.interval]}</span>
-                   <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                   <span className="w-1 h-1 bg-muted-foreground/30 rounded-full"></span>
                    <span className="flex items-center gap-1" title="Sonraki İşlem Tarihi">
                       <Calendar className="h-3 w-3" /> {format(new Date(item.nextRunDate), 'd MMM', { locale: tr })}
                    </span>
                    {item.customer && (
                      <>
-                       <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
-                       <span className="text-blue-600 truncate max-w-[100px]">{item.customer.name}</span>
+                       <span className="w-1 h-1 bg-muted-foreground/30 rounded-full"></span>
+                       <span className="text-blue-600 dark:text-blue-400 truncate max-w-[100px]">{item.customer.name}</span>
                      </>
                    )}
                 </div>
@@ -218,7 +218,7 @@ export default function RecurringPage() {
 
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <div className={`font-bold ${type === 'INCOME' ? 'text-emerald-600' : 'text-red-600'} ${!item.isActive && 'opacity-50'}`}>
+                <div className={`font-bold ${type === 'INCOME' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'} ${!item.isActive && 'opacity-50'}`}>
                   {new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(item.amount)}
                 </div>
               </div>
@@ -226,21 +226,21 @@ export default function RecurringPage() {
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                  <button 
                    onClick={() => handleToggle(item.id)}
-                   className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors"
+                   className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors"
                    title={item.isActive ? "Durdur" : "Başlat"}
                  >
                    {item.isActive ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                  </button>
                  <button 
                    onClick={() => handleEdit(item)}
-                   className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                   className="p-1.5 text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 rounded-full transition-colors"
                    title="Düzenle"
                  >
                    <Edit2 className="h-4 w-4" />
                  </button>
                  <button 
                    onClick={() => handleDelete(item.id)}
-                   className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                   className="p-1.5 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-900/30 rounded-full transition-colors"
                    title="Sil"
                  >
                    <Trash2 className="h-4 w-4" />
@@ -261,10 +261,10 @@ export default function RecurringPage() {
     <div className="h-full flex flex-col">
       <div className="flex justify-between items-end mb-8">
         <div>
-          <h1 className="text-[28px] font-normal tracking-[-0.03em] text-slate-900">
+          <h1 className="text-[28px] font-normal tracking-[-0.03em] text-foreground">
             Düzenli İşlemler
           </h1>
-          <p className="text-slate-500 text-sm mt-2">
+          <p className="text-muted-foreground text-sm mt-2">
             Otomatik gelir ve gider tanımlarını yönetin.
           </p>
         </div>
@@ -275,16 +275,16 @@ export default function RecurringPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-12">
         {loading ? (
-          <div className="col-span-full text-center py-12">Yükleniyor...</div>
+          <div className="col-span-full text-center py-12 text-muted-foreground">Yükleniyor...</div>
         ) : (
           <>
             {/* Income Column */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between bg-emerald-50 p-4 rounded-lg border border-emerald-100">
-                <h2 className="font-bold text-emerald-800 flex items-center gap-2">
+              <div className="flex items-center justify-between bg-emerald-50 p-4 rounded-lg border border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-900/30">
+                <h2 className="font-bold text-emerald-800 flex items-center gap-2 dark:text-emerald-300">
                   <ArrowUpRight className="h-5 w-5" /> Düzenli Gelirler
                 </h2>
-                <span className="font-bold text-emerald-700 text-lg">
+                <span className="font-bold text-emerald-700 text-lg dark:text-emerald-400">
                   {new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(
                     incomes.reduce((acc, curr) => acc + curr.amount, 0)
                   )}/Ay
@@ -295,11 +295,11 @@ export default function RecurringPage() {
 
             {/* Expense Column */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between bg-red-50 p-4 rounded-lg border border-red-100">
-                <h2 className="font-bold text-red-800 flex items-center gap-2">
+              <div className="flex items-center justify-between bg-red-50 p-4 rounded-lg border border-red-100 dark:bg-red-900/20 dark:border-red-900/30">
+                <h2 className="font-bold text-red-800 flex items-center gap-2 dark:text-red-300">
                   <ArrowDownRight className="h-5 w-5" /> Düzenli Giderler
                 </h2>
-                <span className="font-bold text-red-700 text-lg">
+                <span className="font-bold text-red-700 text-lg dark:text-red-400">
                   {new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(
                     expenses.reduce((acc, curr) => acc + curr.amount, 0)
                   )}/Ay
@@ -313,15 +313,15 @@ export default function RecurringPage() {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
-            <h2 className="text-lg font-bold mb-4">{formData.id ? 'Tanımı Düzenle' : 'Yeni Düzenli İşlem'}</h2>
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-lg p-6 w-full max-w-md shadow-xl border border-border">
+            <h2 className="text-lg font-bold mb-4 text-foreground">{formData.id ? 'Tanımı Düzenle' : 'Yeni Düzenli İşlem'}</h2>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Tip</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Tip</label>
                   <select
-                    className="w-full border rounded-md p-2 text-sm"
+                    className="w-full border border-input bg-background text-foreground rounded-md p-2 text-sm"
                     value={formData.type}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                   >
@@ -330,12 +330,12 @@ export default function RecurringPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Tutar (TL)</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Tutar (TL)</label>
                   <input
                     type="number"
                     step="0.01"
                     required
-                    className="w-full border rounded-md p-2 text-sm"
+                    className="w-full border border-input bg-background text-foreground rounded-md p-2 text-sm"
                     value={formData.amount}
                     onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                   />
@@ -344,9 +344,9 @@ export default function RecurringPage() {
 
               <div className="grid grid-cols-2 gap-4">
                  <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Periyot</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Periyot</label>
                   <select
-                    className="w-full border rounded-md p-2 text-sm"
+                    className="w-full border border-input bg-background text-foreground rounded-md p-2 text-sm"
                     value={formData.interval}
                     onChange={(e) => setFormData({ ...formData, interval: e.target.value })}
                   >
@@ -357,11 +357,11 @@ export default function RecurringPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Başlangıç Tarihi</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Başlangıç Tarihi</label>
                   <input
                     type="date"
                     required
-                    className="w-full border rounded-md p-2 text-sm"
+                    className="w-full border border-input bg-background text-foreground rounded-md p-2 text-sm"
                     value={formData.nextRunDate}
                     onChange={(e) => setFormData({ ...formData, nextRunDate: e.target.value })}
                   />
@@ -369,10 +369,10 @@ export default function RecurringPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Kategori</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Kategori</label>
                 <select
                   required
-                  className="w-full border rounded-md p-2 text-sm"
+                  className="w-full border border-input bg-background text-foreground rounded-md p-2 text-sm"
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 >
@@ -385,9 +385,9 @@ export default function RecurringPage() {
 
               {formData.type === 'INCOME' && (
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">İlgili Müşteri (Opsiyonel)</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">İlgili Müşteri (Opsiyonel)</label>
                   <select
-                    className="w-full border rounded-md p-2 text-sm"
+                    className="w-full border border-input bg-background text-foreground rounded-md p-2 text-sm"
                     value={formData.customerId}
                     onChange={(e) => setFormData({ ...formData, customerId: e.target.value })}
                   >
@@ -400,10 +400,10 @@ export default function RecurringPage() {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">İşlem Adı / Açıklama</label>
+                <label className="block text-sm font-medium text-foreground mb-1">İşlem Adı / Açıklama</label>
                 <input
                   type="text"
-                  className="w-full border rounded-md p-2 text-sm"
+                  className="w-full border border-input bg-background text-foreground rounded-md p-2 text-sm"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Örn: Aylık Sunucu Gideri"
@@ -411,7 +411,7 @@ export default function RecurringPage() {
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
-                <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)}>İptal</Button>
+                <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)} className="text-muted-foreground">İptal</Button>
                 <Button type="submit">Kaydet</Button>
               </div>
             </form>

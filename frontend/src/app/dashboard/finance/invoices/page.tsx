@@ -279,34 +279,34 @@ export default function InvoicesPage() {
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-2xl border border-slate-100 my-8"
+        className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-2xl shadow-2xl border border-slate-100 dark:border-slate-800 my-8"
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-black text-slate-900">
+          <h2 className="text-xl font-black text-slate-900 dark:text-slate-50">
             {editingInvoice ? 'Faturayı Düzenle' : 'Yeni Fatura Oluştur'}
           </h2>
-          <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
-            <X className="h-5 w-5 text-slate-500" />
+          <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+            <X className="h-5 w-5 text-slate-500 dark:text-slate-400" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Fatura No</label>
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Fatura No</label>
               <input
                 type="text"
                 required
-                className="w-full bg-slate-50 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/20 transition-all"
+                className="w-full bg-slate-50 dark:bg-slate-800 dark:text-slate-100 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/20 transition-all"
                 value={formData.number}
                 onChange={(e) => setFormData({ ...formData, number: e.target.value })}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Müşteri</label>
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Müşteri</label>
               <select
                 required
-                className="w-full bg-slate-50 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/20 transition-all"
+                className="w-full bg-slate-50 dark:bg-slate-800 dark:text-slate-100 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/20 transition-all"
                 value={formData.customerId}
                 onChange={(e) => setFormData({ ...formData, customerId: e.target.value })}
               >
@@ -317,10 +317,10 @@ export default function InvoicesPage() {
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Para Birimi</label>
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Para Birimi</label>
               <select
                 required
-                className="w-full bg-slate-50 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/20 transition-all"
+                className="w-full bg-slate-50 dark:bg-slate-800 dark:text-slate-100 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/20 transition-all"
                 value={formData.currency}
                 onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
               >
@@ -334,21 +334,21 @@ export default function InvoicesPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Fatura Tarihi</label>
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Fatura Tarihi</label>
               <input
                 type="date"
                 required
-                className="w-full bg-slate-50 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/20 transition-all"
+                className="w-full bg-slate-50 dark:bg-slate-800 dark:text-slate-100 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/20 transition-all"
                 value={formData.issueDate}
                 onChange={(e) => setFormData({ ...formData, issueDate: e.target.value })}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Son Ödeme Tarihi</label>
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Son Ödeme Tarihi</label>
               <input
                 type="date"
                 required
-                className="w-full bg-slate-50 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/20 transition-all"
+                className="w-full bg-slate-50 dark:bg-slate-800 dark:text-slate-100 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500/20 transition-all"
                 value={formData.dueDate}
                 onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
               />
@@ -357,8 +357,8 @@ export default function InvoicesPage() {
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Hizmet Kalemleri</label>
-              <Button type="button" variant="outline" size="sm" onClick={addItem} className="rounded-lg h-8 text-xs border-dashed">
+              <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Hizmet Kalemleri</label>
+              <Button type="button" variant="outline" size="sm" onClick={addItem} className="rounded-lg h-8 text-xs border-dashed dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
                 + Kalem Ekle
               </Button>
             </div>
@@ -368,13 +368,13 @@ export default function InvoicesPage() {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   key={index} 
-                  className="flex gap-3 items-start bg-slate-50 p-3 rounded-xl relative group"
+                  className="flex gap-3 items-start bg-slate-50 dark:bg-slate-800 p-3 rounded-xl relative group"
                 >
                   <div className="flex-1">
                     <input
                       type="text"
                       placeholder="Hizmet/Ürün Açıklaması"
-                      className="w-full bg-transparent border-none p-0 text-sm focus:ring-0"
+                      className="w-full bg-transparent border-none p-0 text-sm focus:ring-0 dark:text-slate-100 dark:placeholder-slate-500"
                       value={item.description}
                       onChange={(e) => updateItem(index, 'description', e.target.value)}
                       required
@@ -384,7 +384,7 @@ export default function InvoicesPage() {
                     <input
                       type="number"
                       placeholder="Adet"
-                      className="w-full bg-transparent border-none p-0 text-sm text-center focus:ring-0"
+                      className="w-full bg-transparent border-none p-0 text-sm text-center focus:ring-0 dark:text-slate-100 dark:placeholder-slate-500"
                       value={item.quantity}
                       onChange={(e) => updateItem(index, 'quantity', e.target.value)}
                       required
@@ -394,7 +394,7 @@ export default function InvoicesPage() {
                     <input
                       type="number"
                       placeholder="Birim Fiyat"
-                      className="w-full bg-transparent border-none p-0 text-sm text-right focus:ring-0 font-mono"
+                      className="w-full bg-transparent border-none p-0 text-sm text-right focus:ring-0 font-mono dark:text-slate-100 dark:placeholder-slate-500"
                       value={item.unitPrice}
                       onChange={(e) => updateItem(index, 'unitPrice', e.target.value)}
                       required
@@ -403,7 +403,7 @@ export default function InvoicesPage() {
                   <button 
                     type="button" 
                     onClick={() => removeItem(index)}
-                    className="p-1 hover:bg-red-50 text-red-400 hover:text-red-500 rounded-lg transition-colors"
+                    className="p-1 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-400 hover:text-red-500 rounded-lg transition-colors"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -412,7 +412,7 @@ export default function InvoicesPage() {
             </div>
           </div>
 
-          <div className="bg-slate-900 rounded-2xl p-6 text-white">
+          <div className="bg-slate-900 dark:bg-slate-950 rounded-2xl p-6 text-white">
             <div className="flex items-center justify-between mb-2 opacity-60">
               <span className="text-xs font-bold uppercase tracking-widest">Ara Toplam</span>
               <span className="font-mono">
@@ -441,7 +441,7 @@ export default function InvoicesPage() {
               type="button" 
               variant="ghost" 
               onClick={() => setIsModalOpen(false)}
-              className="flex-1 h-12 rounded-xl text-slate-500"
+              className="flex-1 h-12 rounded-xl text-slate-500 dark:text-slate-400 dark:hover:bg-slate-800"
             >
               Vazgeç
             </Button>
@@ -454,6 +454,7 @@ export default function InvoicesPage() {
           </div>
         </form>
       </motion.div>
+
     </div>
   );
 
@@ -462,57 +463,57 @@ export default function InvoicesPage() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-3xl w-full max-w-4xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col"
+        className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-4xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 flex flex-col"
       >
-          <div className="flex items-center justify-between px-8 py-6 border-b bg-slate-50/50">
+          <div className="flex items-center justify-between px-8 py-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800">
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center overflow-hidden p-2">
+            <div className="h-12 w-12 rounded-2xl bg-white dark:bg-slate-950 shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-center overflow-hidden p-2">
               {tenant?.logoUrl ? (
                 <img src={tenant.logoUrl} alt="Logo" className="w-full h-full object-contain" />
               ) : (
-                <span className="font-black text-blue-600">A</span>
+                <span className="font-black text-blue-600 dark:text-blue-400">A</span>
               )}
             </div>
             <div>
-              <h3 className="font-black text-slate-900 text-base leading-none mb-1">
+              <h3 className="font-black text-slate-900 dark:text-slate-50 text-base leading-none mb-1">
                 {selectedInvoice?.number}
               </h3>
-              <p className="text-xs text-slate-500 font-medium tracking-wide uppercase">Fatura Önizleme</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide uppercase">Fatura Önizleme</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <span className={cn(
               "px-3 py-1.5 rounded-xl text-xs font-bold border tracking-wide uppercase",
-              selectedInvoice?.status === 'PAID' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
-              selectedInvoice?.status === 'SENT' ? 'bg-blue-50 text-blue-700 border-blue-100' :
-              'bg-slate-50 text-slate-600 border-slate-200'
+              selectedInvoice?.status === 'PAID' ? 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800' :
+              selectedInvoice?.status === 'SENT' ? 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800' :
+              'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
             )}>
               {selectedInvoice?.status === 'DRAFT' ? 'Taslak' : 
                selectedInvoice?.status === 'SENT' ? 'Gönderildi' : 
                selectedInvoice?.status === 'PAID' ? 'Ödendi' : selectedInvoice?.status}
             </span>
-            <button onClick={closePreview} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400">
+            <button onClick={closePreview} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors text-slate-400 dark:text-slate-500">
               <X className="h-6 w-6" />
             </button>
           </div>
         </div>
 
-        <div className="p-8 text-sm overflow-auto flex-1 bg-slate-50/30">
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 space-y-10">
+        <div className="p-8 text-sm overflow-auto flex-1 bg-slate-50/30 dark:bg-slate-950">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-8 space-y-10">
             <div className="flex flex-col md:flex-row justify-between gap-10">
               <div className="space-y-4">
                 <div>
                   <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Fatura Tarihleri</h4>
                   <div className="space-y-2">
                     <div className="flex items-center gap-4">
-                      <span className="text-xs text-slate-500 w-16">Oluşturma:</span>
-                      <span className="text-sm font-bold text-slate-900">
+                      <span className="text-xs text-slate-500 dark:text-slate-400 w-16">Oluşturma:</span>
+                      <span className="text-sm font-bold text-slate-900 dark:text-slate-50">
                         {selectedInvoice && format(new Date(selectedInvoice.issueDate), 'd MMMM yyyy', { locale: tr })}
                       </span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="text-xs text-slate-500 w-16">Vade:</span>
-                      <span className="text-sm font-bold text-slate-900">
+                      <span className="text-xs text-slate-500 dark:text-slate-400 w-16">Vade:</span>
+                      <span className="text-sm font-bold text-slate-900 dark:text-slate-50">
                         {selectedInvoice && format(new Date(selectedInvoice.dueDate), 'd MMMM yyyy', { locale: tr })}
                       </span>
                     </div>
@@ -523,35 +524,35 @@ export default function InvoicesPage() {
                 <div className="grid grid-cols-2 gap-12">
                   <div>
                     <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Düzenleyen</h4>
-                    <p className="text-sm font-black text-slate-900">{tenant?.name || 'Ajans'}</p>
+                    <p className="text-sm font-black text-slate-900 dark:text-slate-50">{tenant?.name || 'Ajans'}</p>
                   </div>
                   <div>
                     <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Müşteri</h4>
-                    <p className="text-sm font-black text-slate-900">{selectedInvoice?.customer?.name || '-'}</p>
-                    <p className="text-xs text-slate-500 mt-1 font-medium">{selectedInvoice?.customer?.email}</p>
+                    <p className="text-sm font-black text-slate-900 dark:text-slate-50">{selectedInvoice?.customer?.name || '-'}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">{selectedInvoice?.customer?.email}</p>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-4">
                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Hizmet Detayları</h4>
-                <div className="overflow-hidden rounded-2xl border border-slate-100">
+                <div className="overflow-hidden rounded-2xl border border-slate-100 dark:border-slate-800">
                   <table className="w-full text-sm">
                     <thead>
-                    <tr className="bg-slate-50 text-slate-500 border-b border-slate-100">
+                    <tr className="bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-700">
                       <th className="px-6 py-4 text-left font-bold text-xs uppercase tracking-wider">Açıklama</th>
                       <th className="px-6 py-4 text-center font-bold text-xs uppercase tracking-wider w-24">Adet</th>
                       <th className="px-6 py-4 text-right font-bold text-xs uppercase tracking-wider w-40">Birim Fiyat</th>
                       <th className="px-6 py-4 text-right font-bold text-xs uppercase tracking-wider w-40">Toplam</th>
                     </tr>
                   </thead>
-                      <tbody className="divide-y divide-slate-100">
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {selectedInvoice?.items?.map((item: any) => (
                           <tr key={item.id}>
-                            <td className="px-6 py-4 text-slate-700 font-medium">{item.description}</td>
-                            <td className="px-6 py-4 text-center text-slate-500 font-mono">{item.quantity}</td>
-                            <td className="px-6 py-4 text-right text-slate-500 font-mono">{formatCurrency(item.unitPrice, selectedInvoice?.currency)}</td>
-                            <td className="px-6 py-4 text-right text-slate-900 font-black font-mono">{formatCurrency(item.totalPrice, selectedInvoice?.currency)}</td>
+                            <td className="px-6 py-4 text-slate-700 dark:text-slate-300 font-medium">{item.description}</td>
+                            <td className="px-6 py-4 text-center text-slate-500 dark:text-slate-400 font-mono">{item.quantity}</td>
+                            <td className="px-6 py-4 text-right text-slate-500 dark:text-slate-400 font-mono">{formatCurrency(item.unitPrice, selectedInvoice?.currency)}</td>
+                            <td className="px-6 py-4 text-right text-slate-900 dark:text-slate-50 font-black font-mono">{formatCurrency(item.totalPrice, selectedInvoice?.currency)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -561,17 +562,17 @@ export default function InvoicesPage() {
 
               <div className="flex justify-end">
                 <div className="w-full max-w-xs space-y-3">
-                  <div className="flex justify-between items-center text-slate-500">
+                  <div className="flex justify-between items-center text-slate-500 dark:text-slate-400">
                     <span className="text-xs font-bold uppercase tracking-wider">Ara Toplam</span>
                     <span className="font-mono">{formatCurrency((selectedInvoice?.totalAmount || 0) - (selectedInvoice?.taxAmount || 0), selectedInvoice?.currency)}</span>
                   </div>
-                  <div className="flex justify-between items-center text-slate-500">
+                  <div className="flex justify-between items-center text-slate-500 dark:text-slate-400">
                     <span className="text-xs font-bold uppercase tracking-wider">KDV (%{selectedInvoice?.taxRate})</span>
                     <span className="font-mono">{formatCurrency(selectedInvoice?.taxAmount || 0, selectedInvoice?.currency)}</span>
                   </div>
-                  <div className="flex justify-between items-center pt-4 border-t border-slate-100">
-                    <span className="text-sm font-black uppercase tracking-widest text-slate-900">Genel Toplam</span>
-                    <span className="text-2xl font-black text-blue-600 font-mono">
+                  <div className="flex justify-between items-center pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <span className="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-slate-50">Genel Toplam</span>
+                    <span className="text-2xl font-black text-blue-600 dark:text-blue-400 font-mono">
                       {formatCurrency(selectedInvoice?.totalAmount || 0, selectedInvoice?.currency)}
                     </span>
                   </div>
@@ -579,19 +580,19 @@ export default function InvoicesPage() {
               </div>
 
             {selectedInvoice?.notes && (
-              <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
+              <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 border border-slate-100 dark:border-slate-700">
                 <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Notlar</h5>
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">{selectedInvoice.notes}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">{selectedInvoice.notes}</p>
               </div>
             )}
           </div>
         </div>
 
-        <div className="px-8 py-6 border-t bg-slate-50/50 flex justify-end gap-3">
-          <Button variant="ghost" onClick={closePreview} className="rounded-xl text-slate-500">Kapat</Button>
+        <div className="px-8 py-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800 flex justify-end gap-3">
+          <Button variant="ghost" onClick={closePreview} className="rounded-xl text-slate-500 dark:text-slate-400 dark:hover:bg-slate-700">Kapat</Button>
           <Button 
             onClick={() => downloadPDF(selectedInvoice)}
-            className="rounded-xl bg-slate-900 hover:bg-slate-800 gap-2"
+            className="rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200 gap-2"
           >
             <Download className="h-4 w-4" /> PDF İndir
           </Button>
@@ -906,7 +907,7 @@ export default function InvoicesPage() {
       <Card className="pb-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="bg-slate-50 text-slate-500 font-medium dark:bg-slate-900 dark:text-slate-400">
+            <thead className="bg-slate-50 text-slate-500 font-medium dark:bg-slate-800 dark:text-slate-400">
               <tr>
                 <th className="px-4 py-3">Fatura No</th>
                 <th className="px-4 py-3">Müşteri</th>

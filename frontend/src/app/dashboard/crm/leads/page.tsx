@@ -626,8 +626,8 @@ export default function LeadsPage() {
       </div>
 
       {/* Search and Main Filter */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1">
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1 w-full">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
           <Input 
             placeholder="Lead ara (İsim, firma, e-posta...)" 
@@ -639,7 +639,7 @@ export default function LeadsPage() {
         
         <Dialog open={isFilterOpen} onOpenChange={setIsFilterOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" className="h-12 px-6 rounded-xl border-slate-200 bg-white gap-2 text-slate-600 font-medium dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300">
+            <Button variant="outline" className="w-full md:w-auto h-12 px-6 rounded-xl border-slate-200 bg-white gap-2 text-slate-600 font-medium dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300">
               <Filter className="h-5 w-5" />
               Filtreler
             </Button>
