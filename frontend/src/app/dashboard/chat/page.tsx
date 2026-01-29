@@ -1315,7 +1315,7 @@ export default function ChatPage() {
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-gray-400 dark:text-slate-500">
-            <MessageSquare size={48} className="mb-4 opacity-20" />
+            <MessageSquare className="w-12 h-12 mb-4 opacity-20" />
             <div className="text-lg font-medium">Bir sohbet seçin</div>
             <div className="text-sm">Mesajlaşmaya başlamak için soldaki listeden birini seçin.</div>
           </div>
