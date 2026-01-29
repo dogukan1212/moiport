@@ -232,33 +232,43 @@ export default function InstagramPage() {
   const isCommentRoom = selectedRoom?.type === 'CHANNEL';
 
   return (
-    <div className="flex h-full bg-gray-50 dark:bg-slate-950">
+    <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-background">
       {/* Sidebar List */}
-      <div className="w-80 bg-white border-r border-gray-200 flex flex-col dark:bg-slate-900 dark:border-slate-800">
-        <div className="p-4 border-b border-gray-100 dark:border-slate-800">
-          <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2 mb-4 dark:text-slate-50">
-            <Instagram className="text-pink-600" />
-            Instagram
-          </h1>
+      <div className="w-[360px] bg-card border-r border-border flex flex-col shrink-0">
+        <div className="p-4 border-b border-border space-y-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+              <Instagram className="text-pink-600" />
+              Instagram
+            </h1>
+            <div className="flex items-center gap-1">
+              <button className="p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted transition-colors">
+                <RefreshCw size={18} className={isSyncing ? 'animate-spin' : ''} onClick={handleSync} />
+              </button>
+              <button className="p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted transition-colors">
+                <MoreHorizontal size={18} />
+              </button>
+            </div>
+          </div>
           
           {/* Tabs */}
-          <div className="flex p-1 bg-gray-100 rounded-lg dark:bg-slate-800">
+          <div className="grid grid-cols-2 p-1 bg-muted/50 rounded-lg">
             <button
               onClick={() => setActiveTab('dm')}
-              className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all ${
+              className={`py-2 text-sm font-medium rounded-md transition-all ${
                 activeTab === 'dm' 
-                  ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-slate-50' 
-                  : 'text-gray-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                  ? 'bg-background text-foreground shadow-sm' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
               }`}
             >
               Mesajlar
             </button>
             <button
               onClick={() => setActiveTab('comments')}
-              className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all ${
+              className={`py-2 text-sm font-medium rounded-md transition-all ${
                 activeTab === 'comments' 
-                  ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-slate-50' 
-                  : 'text-gray-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+                  ? 'bg-background text-foreground shadow-sm' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
               }`}
             >
               Yorumlar
@@ -268,75 +278,88 @@ export default function InstagramPage() {
 
         <div className="flex-1 overflow-y-auto">
           {loadingRooms ? (
-            <div className="p-4 text-center text-gray-400 text-sm dark:text-slate-500">Yükleniyor...</div>
+            <div className="flex flex-col items-center justify-center h-40 gap-3 text-muted-foreground">
+              <div className="w-6 h-6 border-2 border-pink-600 border-t-transparent rounded-full animate-spin" />
+              <span className="text-sm">Sohbetler yükleniyor...</span>
+            </div>
           ) : currentList.length === 0 ? (
-            <div className="p-8 text-center text-gray-400 text-sm flex flex-col items-center gap-2 dark:text-slate-500">
-              <MessageSquare size={32} className="opacity-20" />
-              <p>Henüz {activeTab === 'dm' ? 'mesaj' : 'yorum'} yok.</p>
+            <div className="flex flex-col items-center justify-center h-full p-8 text-center text-muted-foreground">
+              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                <MessageCircle size={32} className="opacity-50" />
+              </div>
+              <p className="font-medium text-foreground">Henüz mesaj yok</p>
+              <p className="text-sm mt-1">Gelen mesajlar burada listelenecek.</p>
             </div>
           ) : (
-            currentList.map(room => (
-              <button
-                key={room.id}
-                onClick={() => setSelectedRoomId(room.id)}
-                className={`w-full p-4 text-left border-b border-gray-50 transition-colors hover:bg-gray-50 flex gap-3 dark:border-slate-800 dark:hover:bg-slate-800 ${
-                  selectedRoomId === room.id ? 'bg-blue-50/50 dark:bg-slate-800/70' : ''
-                }`}
-              >
-                <div className="relative w-10 h-10 shrink-0">
-                    {/* Avatar Logic */}
-                    {(() => {
-                        const otherMember = room.memberships?.find(m => m.userId !== user?.id);
-                        const avatar = otherMember?.user?.avatar;
-                        const initial = (getRoomLabel(room) || '?')[0];
-                        
-                        return avatar ? (
-                            <img src={getAvatarUrl(avatar) || ''} className="w-full h-full rounded-full object-cover" />
-                        ) : (
-                            <div className="w-full h-full rounded-full bg-gradient-to-br from-pink-500 to-orange-400 flex items-center justify-center text-white font-bold">
-                                {initial}
-                            </div>
-                        );
-                    })()}
-                </div>
-                <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start mb-1">
-                        <span className="font-semibold text-slate-900 truncate text-sm dark:text-slate-50">
-                            {getRoomLabel(room)}
-                        </span>
-                        {room.updatedAt && (
-                            <span className="text-[10px] text-gray-400 dark:text-slate-500">
-                                {format(new Date(room.updatedAt), 'HH:mm')}
-                            </span>
-                        )}
-                    </div>
-                    <div className="flex justify-between items-center">
-                        <span className="text-xs text-gray-500 truncate dark:text-slate-400">
-                            {activeTab === 'comments' ? 'Bir gönderiye yorum yaptı' : 'Sohbeti görüntüle'}
-                        </span>
-                        {room.unreadCount ? (
-                            <span className="bg-pink-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                                {room.unreadCount}
-                            </span>
-                        ) : null}
-                    </div>
-                </div>
-              </button>
-            ))
+            <div className="divide-y divide-border">
+              {currentList.map(room => (
+                <button
+                  key={room.id}
+                  onClick={() => setSelectedRoomId(room.id)}
+                  className={`w-full p-4 text-left transition-colors hover:bg-muted/50 flex gap-3 ${
+                    selectedRoomId === room.id ? 'bg-muted/80' : ''
+                  }`}
+                >
+                  <div className="relative w-12 h-12 shrink-0">
+                      {/* Avatar Logic */}
+                      {(() => {
+                          const otherMember = room.memberships?.find(m => m.userId !== user?.id);
+                          const avatar = otherMember?.user?.avatar;
+                          const initial = (getRoomLabel(room) || '?')[0];
+                          
+                          return avatar ? (
+                              <img src={getAvatarUrl(avatar) || ''} className="w-full h-full rounded-full object-cover ring-2 ring-background" />
+                          ) : (
+                              <div className="w-full h-full rounded-full bg-gradient-to-br from-pink-500 to-orange-400 flex items-center justify-center text-white font-bold text-lg ring-2 ring-background">
+                                  {initial}
+                              </div>
+                          );
+                      })()}
+                      {room.platform === 'INSTAGRAM' && (
+                        <div className="absolute -bottom-1 -right-1 bg-background rounded-full p-0.5">
+                          <div className="bg-gradient-to-tr from-yellow-400 to-pink-600 rounded-full p-1">
+                            <Instagram size={10} className="text-white" />
+                          </div>
+                        </div>
+                      )}
+                  </div>
+                  <div className="flex-1 min-w-0 flex flex-col justify-center">
+                      <div className="flex justify-between items-center mb-0.5">
+                          <span className="font-semibold text-foreground truncate text-sm">
+                              {getRoomLabel(room)}
+                          </span>
+                          {room.updatedAt && (
+                              <span className="text-[10px] text-muted-foreground shrink-0 ml-2">
+                                  {format(new Date(room.updatedAt), 'HH:mm')}
+                              </span>
+                          )}
+                      </div>
+                      <div className="flex justify-between items-center">
+                          <span className="text-xs text-muted-foreground truncate pr-2">
+                              {activeTab === 'comments' ? 'Bir gönderiye yorum yaptı' : 'Sohbeti görüntüle'}
+                          </span>
+                          {room.unreadCount ? (
+                              <span className="bg-pink-600 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">
+                                  {room.unreadCount}
+                              </span>
+                          ) : null}
+                      </div>
+                  </div>
+                </button>
+              ))}
+            </div>
           )}
         </div>
       </div>
 
       {/* Chat Area */}
-      <div className={`flex-1 flex flex-col relative bg-slate-50 dark:bg-slate-900`}>
-        {/* Chat Background Pattern removed for cleaner IG look */}
-        
+      <div className="flex-1 flex flex-col relative bg-muted/20">
         {selectedRoomId ? (
           <>
             {/* Header */}
-            <div className="h-16 bg-white border-b border-gray-200 px-6 flex items-center justify-between shrink-0 z-10 dark:bg-slate-900 dark:border-slate-800">
-                <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-gray-200 overflow-hidden dark:bg-slate-700">
+            <div className="h-[73px] bg-card border-b border-border px-6 flex items-center justify-between shrink-0 z-10">
+                <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-muted overflow-hidden shrink-0">
                          {(() => {
                             const room = rooms.find(r => r.id === selectedRoomId);
                             if (!room) return null;
@@ -354,26 +377,13 @@ export default function InstagramPage() {
                         })()}
                     </div>
                     <div>
-                        <h3 className="font-bold text-slate-900 dark:text-slate-50">
+                        <h3 className="font-bold text-foreground text-sm">
                             {rooms.find(r => r.id === selectedRoomId) ? getRoomLabel(rooms.find(r => r.id === selectedRoomId)!) : 'Sohbet'}
                         </h3>
-                        <span className="text-xs text-gray-500 dark:text-slate-400">
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
                             {isCommentRoom ? 'Gönderi Yorumları' : 'Instagram Direct'}
                         </span>
                     </div>
-                </div>
-                <div className="flex items-center gap-2">
-                    <button 
-                        onClick={handleSync}
-                        disabled={isSyncing}
-                        className={`p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-all dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800 ${isSyncing ? 'animate-spin' : ''}`}
-                        title="Mesajları Senkronize Et"
-                    >
-                        <RefreshCw size={20} />
-                    </button>
-                    <button className="text-gray-400 hover:text-gray-600 dark:text-slate-400 dark:hover:text-slate-200">
-                        <MoreHorizontal />
-                    </button>
                 </div>
             </div>
 
@@ -382,7 +392,7 @@ export default function InstagramPage() {
                 className="flex-1 overflow-y-auto p-6 z-10" 
                 ref={messagesListRef}
             >
-                <div className={`space-y-${isCommentRoom ? '6' : '4'}`}>
+                <div className={`space-y-${isCommentRoom ? '6' : '2'} max-w-4xl mx-auto`}>
                 {messages.map((msg, i) => {
                     const isMe = msg.userId === user?.id;
                     const showDate = i === 0 || !isSameDay(new Date(msg.createdAt), new Date(messages[i-1].createdAt));
@@ -392,7 +402,7 @@ export default function InstagramPage() {
                         return (
                             <div key={msg.id} className="group">
                                 <div className="flex gap-3 items-start">
-                                    <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0 overflow-hidden mt-1">
+                                    <div className="w-8 h-8 rounded-full bg-muted shrink-0 overflow-hidden mt-1">
                                          {/* Mock Avatar for message sender - in real app fetch user details */}
                                          <div className="w-full h-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white text-xs font-bold">
                                             {isMe ? user?.name?.[0] || 'B' : '?'}
@@ -400,20 +410,20 @@ export default function InstagramPage() {
                                     </div>
                                     <div className="flex-1">
                                         <div className="bg-transparent">
-                                            <span className="font-bold text-sm text-slate-900 mr-2 dark:text-slate-50">
+                                            <span className="font-bold text-sm text-foreground mr-2">
                                                 {isMe ? (user?.name || 'Ben') : 'Kullanıcı'}
                                             </span>
-                                            <span className="text-sm text-slate-800 leading-relaxed dark:text-slate-100">
+                                            <span className="text-sm text-foreground/90 leading-relaxed">
                                                 {msg.content}
                                             </span>
                                         </div>
-                                        <div className="flex items-center gap-4 mt-1 text-xs text-gray-500 font-medium dark:text-slate-400">
+                                        <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground font-medium">
                                             <span>{format(new Date(msg.createdAt), 'd MMM', { locale: tr })}</span>
-                                            <button className="hover:text-gray-800">Yanıtla</button>
-                                            <button className="hover:text-gray-800">Çevirisini Gör</button>
+                                            <button className="hover:text-foreground">Yanıtla</button>
+                                            <button className="hover:text-foreground">Çevirisini Gör</button>
                                         </div>
                                     </div>
-                                    <button className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 dark:text-slate-400 dark:hover:text-red-400">
+                                    <button className="text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1">
                                         <Heart size={14} />
                                     </button>
                                 </div>
@@ -423,31 +433,33 @@ export default function InstagramPage() {
 
                     // DM STYLE (Instagram Direct)
                     return (
-                        <div key={msg.id} className={`flex gap-2 mb-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
-                            {/* Avatar for received messages */}
-                            {!isMe && (
-                                <div className="w-7 h-7 rounded-full bg-gray-200 overflow-hidden shrink-0 self-end mb-1 dark:bg-slate-700">
-                                    {/* In real app use actual user avatar */}
-                                    <div className="w-full h-full bg-gradient-to-tr from-yellow-400 to-pink-600 flex items-center justify-center text-white text-[10px] font-bold">
-                                        {getRoomLabel(selectedRoom!)?.[0] || '?'}
+                        <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                            <div className={`flex gap-2 max-w-[70%] ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                                {/* Avatar for received messages */}
+                                {!isMe && (
+                                    <div className="w-7 h-7 rounded-full bg-muted overflow-hidden shrink-0 self-end mb-1">
+                                        {/* In real app use actual user avatar */}
+                                        <div className="w-full h-full bg-gradient-to-tr from-yellow-400 to-pink-600 flex items-center justify-center text-white text-[10px] font-bold">
+                                            {getRoomLabel(selectedRoom!)?.[0] || '?'}
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                )}
 
-                            <div 
-                                className={`max-w-[70%] px-4 py-3 text-sm relative break-words ${
-                                    isMe 
-                                        ? 'bg-[#0095F6] text-white rounded-3xl rounded-br-md' 
-                                        : 'bg-gray-100 text-slate-900 rounded-3xl rounded-bl-md dark:bg-slate-800 dark:text-slate-100'
-                                }`}
-                            >
-                                <p className="leading-relaxed">
-                                    {msg.content}
-                                </p>
-                                
-                                {/* Status/Time - Minimalist for IG */}
-                                {/* Only show status for own messages if needed, usually just "Seen" text at bottom of chat */}
+                                <div 
+                                    className={`px-4 py-2.5 text-sm relative break-words shadow-sm ${
+                                        isMe 
+                                            ? 'bg-pink-600 text-white rounded-2xl rounded-br-sm' 
+                                            : 'bg-card border border-border text-foreground rounded-2xl rounded-bl-sm'
+                                    }`}
+                                >
+                                    <p className="leading-relaxed">
+                                        {msg.content}
+                                    </p>
+                                </div>
                             </div>
+                            <span className={`text-[10px] text-muted-foreground mt-1 px-1 ${isMe ? 'mr-1' : 'ml-10'}`}>
+                                {format(new Date(msg.createdAt), 'HH:mm')}
+                            </span>
                         </div>
                     );
                 })}
@@ -455,26 +467,26 @@ export default function InstagramPage() {
             </div>
 
             {/* Input */}
-            <div className="bg-white p-4 border-t border-gray-200 z-10 dark:bg-slate-900 dark:border-slate-800">
-                <form onSubmit={handleSendMessage} className="flex gap-2 items-end">
+            <div className="bg-card p-4 border-t border-border z-10">
+                <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto flex gap-3 items-end">
                     <button 
                         type="button"
-                        className="p-3 text-slate-400 hover:text-slate-600 hover:bg-gray-100 rounded-full transition-colors dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800"
+                        className="p-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors shrink-0"
                     >
                         <Smile size={24} />
                     </button>
-                    <div className="flex-1 bg-gray-100 rounded-3xl flex items-center px-4 py-2 focus-within:ring-2 focus-within:ring-pink-500/50 focus-within:bg-white transition-all border border-transparent focus-within:border-pink-200 dark:bg-slate-800 dark:focus-within:bg-slate-900 dark:border-slate-700">
+                    <div className="flex-1 bg-muted/50 hover:bg-muted transition-colors rounded-[24px] flex items-center px-4 py-2 border border-transparent focus-within:border-pink-500/30 focus-within:bg-background focus-within:ring-4 focus-within:ring-pink-500/10">
                         <input
                             type="text"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             placeholder={isCommentRoom ? "Yorum ekle..." : "Mesaj gönder..."}
-                            className="flex-1 bg-transparent border-0 focus:ring-0 p-1 text-slate-900 placeholder:text-gray-400 dark:text-slate-100 dark:placeholder:text-slate-500"
+                            className="flex-1 bg-transparent border-0 focus:ring-0 p-1 text-foreground placeholder:text-muted-foreground"
                         />
                         {input.trim() && (
                             <button 
                                 type="submit" 
-                                className="ml-2 text-pink-600 font-semibold text-sm hover:text-pink-700"
+                                className="ml-2 text-pink-600 font-semibold text-sm hover:text-pink-700 px-2"
                             >
                                 Paylaş
                             </button>
@@ -482,29 +494,48 @@ export default function InstagramPage() {
                     </div>
                     {!input.trim() && (
                          <div className="flex gap-1">
-                             {/* Optional: Add Like/Image buttons for empty state if needed */}
+                            <button type="button" className="p-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors">
+                                <Heart size={24} />
+                            </button>
                          </div>
                     )}
                 </form>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center bg-white z-10 dark:bg-slate-900">
-            <div className="relative">
-                <div className="w-24 h-24 rounded-full border-2 border-pink-100 flex items-center justify-center mb-6 relative z-10 bg-white dark:bg-slate-900 dark:border-pink-500/40">
-                    <Instagram size={48} className="text-pink-600" />
+          <div className="flex-1 flex flex-col items-center justify-center bg-muted/10 p-8">
+            <div className="max-w-md w-full text-center space-y-8">
+                <div className="relative mx-auto w-32 h-32">
+                    <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 rounded-[32px] rotate-6 opacity-20 blur-xl animate-pulse"></div>
+                    <div className="relative w-full h-full bg-card rounded-[32px] shadow-2xl flex items-center justify-center border border-border/50">
+                        <Instagram size={64} className="text-pink-600" />
+                    </div>
                 </div>
-                <div className="absolute inset-0 bg-pink-50 rounded-full blur-xl opacity-50 dark:bg-pink-500/20"></div>
+                
+                <div className="space-y-3">
+                    <h2 className="text-2xl font-bold text-foreground">Instagram Sohbetleri</h2>
+                    <p className="text-muted-foreground">
+                        DM kutunuzu ve yorumlarınızı buradan yönetin. Müşterilerinizle etkileşime geçmek için sol menüden bir sohbet seçin.
+                    </p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 pt-4">
+                    <div className="bg-card p-4 rounded-2xl border border-border/50 shadow-sm">
+                        <div className="w-10 h-10 rounded-full bg-pink-100 dark:bg-pink-900/20 flex items-center justify-center mb-3 mx-auto">
+                            <MessageSquare size={20} className="text-pink-600" />
+                        </div>
+                        <h3 className="font-semibold text-sm mb-1">Mesajlar</h3>
+                        <p className="text-xs text-muted-foreground">Direkt mesajları anında yanıtlayın</p>
+                    </div>
+                    <div className="bg-card p-4 rounded-2xl border border-border/50 shadow-sm">
+                        <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center mb-3 mx-auto">
+                            <MessageCircle size={20} className="text-purple-600" />
+                        </div>
+                        <h3 className="font-semibold text-sm mb-1">Yorumlar</h3>
+                        <p className="text-xs text-muted-foreground">Gönderi yorumlarını takip edin</p>
+                    </div>
+                </div>
             </div>
-            
-            <h2 className="text-xl font-bold text-slate-900 mb-2 dark:text-slate-50">Instagram Sohbetleri</h2>
-            <p className="text-gray-500 text-center max-w-xs dark:text-slate-400">
-                Görüşmelerinizi ve yorumlarınızı buradan yönetebilirsiniz. Başlamak için soldan bir sohbet seçin.
-            </p>
-            
-            <button className="mt-8 px-6 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
-                Yeni Mesaj Gönder
-            </button>
           </div>
         )}
       </div>
