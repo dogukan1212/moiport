@@ -307,6 +307,8 @@ export type Hotel = {
     amenities: string[];
     contractedRooms: number;
     totalCapacity: number;
+    occupiedRooms?: number;
+    images?: string[];
 };
 
 export type Accommodation = {
