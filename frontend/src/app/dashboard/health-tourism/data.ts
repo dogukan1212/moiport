@@ -297,7 +297,7 @@ export const rooms: Room[] = [];
 
 export const initialAppointments: Appointment[] = [];
 
-export type AccommodationStatus = "BOOKED" | "CHECKED_IN" | "CHECKED_OUT" | "CANCELLED";
+export type AccommodationStatus = "BOOKED" | "CHECKED_IN" | "CHECKED_OUT" | "CANCELLED" | "CHECK_IN_PENDING";
 
 export type Hotel = {
     id: string;
