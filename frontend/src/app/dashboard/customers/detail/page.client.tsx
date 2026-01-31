@@ -63,6 +63,7 @@ import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import jsPDF from 'jspdf';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 export default function CustomerDetailClient() {
   const searchParams = useSearchParams();
