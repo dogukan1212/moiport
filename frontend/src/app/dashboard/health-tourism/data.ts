@@ -267,7 +267,7 @@ I Accept.`,
 
 export const patientContracts: PatientContract[] = [];
 
-export type AppointmentStatus = "SCHEDULED" | "COMPLETED" | "CANCELLED" | "NOSHOW";
+export type AppointmentStatus = "SCHEDULED" | "COMPLETED" | "CANCELLED" | "NOSHOW" | "PENDING" | "CONFIRMED";
 
 export type Doctor = {
     id: string;
@@ -297,7 +297,7 @@ export const rooms: Room[] = [];
 
 export const initialAppointments: Appointment[] = [];
 
-export type AccommodationStatus = "BOOKED" | "CHECKED_IN" | "CHECKED_OUT" | "CANCELLED" | "CHECK_IN_PENDING";
+export type AccommodationStatus = "BOOKED" | "CHECKED_IN" | "CHECKED_OUT" | "CANCELLED" | "CHECK_IN_PENDING" | "CHECK_OUT_PENDING";
 
 export type Hotel = {
     id: string;
@@ -305,6 +305,8 @@ export type Hotel = {
     location: string;
     stars: number;
     amenities: string[];
+    contractedRooms: number;
+    totalCapacity: number;
 };
 
 export type Accommodation = {
@@ -317,6 +319,8 @@ export type Accommodation = {
     status: AccommodationStatus;
     notes?: string;
     confirmationCode?: string;
+    roomNumber?: string;
+    companionCount?: number;
 };
 
 export const hotels: Hotel[] = [];

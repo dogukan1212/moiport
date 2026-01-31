@@ -442,7 +442,7 @@ export default function SettingsPage() {
       // HEALTH_TOURISM ve DENTAL_CLINIC ana anahtarlarını state'ten çıkar
       // (artık sadece alt modüller UI'da toggle ediliyor)
       modulesArray = modulesArray.filter(
-        (m) => m !== 'HEALTH_TOURISM' && m !== 'DENTAL_CLINIC',
+        (m: string) => m !== 'HEALTH_TOURISM' && m !== 'DENTAL_CLINIC',
       );
 
       setEnabledModules(modulesArray);
@@ -1617,9 +1617,9 @@ export default function SettingsPage() {
       });
       
       // Update local state
-      setTenant(prev => prev ? {
+      setTenant((prev: any) => prev ? {
         ...prev,
-        users: prev.users.map(u => u.id === userId ? { ...u, allowedModules: newModules.join(',') } : u)
+        users: prev.users.map((u: any) => u.id === userId ? { ...u, allowedModules: newModules.join(',') } : u)
       } : null);
       
       toast.success('Erişim güncellendi.');
@@ -2508,13 +2508,13 @@ export default function SettingsPage() {
                   </div>
 
                   <div className="p-0 max-h-[60vh] overflow-y-auto">
-                    {tenant?.users.filter(u => u.role === 'CLIENT').length === 0 ? (
+                    {tenant?.users.filter((u: any) => u.role === 'CLIENT').length === 0 ? (
                       <div className="p-8 text-center text-slate-500 text-sm">
                         Henüz sisteme kayıtlı müşteri (Client rolünde kullanıcı) bulunmuyor.
                       </div>
                     ) : (
                       <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                        {tenant?.users.filter(u => u.role === 'CLIENT').map(user => {
+                        {tenant?.users.filter((u: any) => u.role === 'CLIENT').map((user: any) => {
                           const hasAccess = (user.allowedModules || "").split(',').includes(accessModuleKey);
                           return (
                             <div key={user.id} className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">

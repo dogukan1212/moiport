@@ -132,6 +132,17 @@ export default function LegalPage() {
     }
   };
 
+  const handleApproveContract = (contractId: string) => {
+    setContracts(prev => prev.map(c => c.id === contractId ? {
+      ...c,
+      status: 'APPROVED',
+      approvedAt: new Date().toISOString(),
+      approvedByIp: '192.168.1.1', // Mock IP
+      approvedByDevice: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' // Mock Device
+    } : c));
+    toast.success("Sözleşme başarıyla onaylandı.");
+  };
+
   const handleCreateContract = () => {
     const newContract: PatientContract = {
         id: `PC-${Math.random().toString(36).substr(2, 6).toUpperCase()}`,

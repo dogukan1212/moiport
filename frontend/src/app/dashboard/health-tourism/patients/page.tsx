@@ -396,7 +396,7 @@ export default function PatientsPage() {
       }
 
       const mediaFiles = Array.from(files);
-      const uploadedMedia = [];
+      const uploadedMedia: { id: string; name: string; url: string; category: "BEFORE" | "AFTER" | "XRAY" | "OTHER" }[] = [];
 
       for (const file of mediaFiles) {
         const formData = new FormData();
