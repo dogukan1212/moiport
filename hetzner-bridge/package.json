@@ -1,0 +1,16 @@
+{
+  "name": "hetzner-bridge",
+  "version": "1.0.0",
+  "description": "MCP server for Hetzner Cloud",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "latest",
+    "axios": "latest",
+    "dotenv": "latest",
+    "zod": "latest"
+  }
+}
