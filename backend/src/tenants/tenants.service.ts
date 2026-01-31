@@ -37,7 +37,9 @@ export class TenantsService {
     if (!tenant || !tenant.maxStorage) return true;
 
     // Use DB usage if available, else fallback to FS calculation (deprecated)
-    const currentUsage = tenant.storageUsed ? BigInt(tenant.storageUsed) : BigInt(this.getStorageUsage(tenantId));
+    const currentUsage = tenant.storageUsed
+      ? BigInt(tenant.storageUsed)
+      : BigInt(this.getStorageUsage(tenantId));
     const maxBytes = BigInt(tenant.maxStorage); // Now stored as bytes
 
     return currentUsage + BigInt(additionalBytes) <= maxBytes;
@@ -262,6 +264,9 @@ export class TenantsService {
       phone?: string;
       email?: string;
       wordpressModuleEnabled?: boolean;
+      industry?: string;
+      industrySubType?: string;
+      enabledModules?: string;
     },
   ) {
     return this.prisma.tenant.update({
@@ -445,6 +450,10 @@ export class TenantsService {
         }
         updateData.password = await bcrypt.hash(nextPassword, 10);
       }
+    }
+
+    if (typeof data.allowedModules === 'string') {
+      updateData.allowedModules = data.allowedModules;
     }
 
     if (!Object.keys(updateData).length) {

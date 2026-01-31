@@ -207,7 +207,7 @@ export default function CustomersPage() {
                     </td>
                     <td className="py-4 px-6 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Link href={`/dashboard/customers/${customer.id}`}>
+                        <Link href={`/dashboard/customers/detail?id=${customer.id}`}>
                           <button className="size-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-50">
                             <ExternalLink size={14} />
                           </button>

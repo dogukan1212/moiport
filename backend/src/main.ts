@@ -19,7 +19,6 @@ export class SocketAdapter extends IoAdapter {
   }
 }
 
-
 // BigInt serialization fix
 (BigInt.prototype as any).toJSON = function () {
   return Number(this);

@@ -155,6 +155,8 @@ export class TasksService {
 
   async create(tenantId: string, data: any, user?: any) {
     const preparedData = this.prepareDataForSave(data);
+    
+    // Auto-link Project for CLIENTs
     if (
       user?.role === 'CLIENT' &&
       user?.customerId &&
@@ -180,6 +182,12 @@ export class TasksService {
       }
       preparedData.projectId = projectId;
     }
+
+    // Handle polymorphic fields (referenceId, referenceType, tags)
+    // These are already part of `data` and `preparedData` via spread,
+    // but we can add validation or logic here if needed.
+    // For now, we trust the DTO/input.
+
     const task = await this.prisma.task.create({
       data: {
         ...preparedData,
@@ -187,114 +195,6 @@ export class TasksService {
       },
     });
     const mapped = await this.getTaskForRealtime(task.id, tenantId);
-
-    // Only emit event for this specific task
-    // If it's a mirror task, we might want to be careful not to emit twice if we are creating both in a loop elsewhere?
-    // But create() is atomic per task.
-    // The issue is that frontend receives BOTH events and adds both.
-
-    // If this task has a mirrorGroupId, we should check if we should emit it to everyone.
-    // Agency users should only see ONE of the mirror tasks (preferably the Agency one).
-    // Client users should only see the Client one.
-
-    // Let's rely on frontend or gateway filtering?
-    // Or we can attach a flag to the event.
-
-    // Better: If I am an Agency User, and I receive an event for a task that has a mirrorGroupId.
-    // If I already have a task with that mirrorGroupId, I should ignore/merge.
-    // But create event implies a NEW task.
-
-    // When ProjectsService creates 2 tasks:
-    // 1. Agency Task (BRANDS) -> emit
-    // 2. Client Task (TODO) -> emit
-
-    // Frontend receives 2 'tasks:created' events.
-    // It adds both to the list.
-    // We need to stop this.
-
-    // Solution:
-    // If task is part of a mirror group, and status is 'TODO' (which usually means Client side in this context of auto-create),
-    // maybe we shouldn't emit to Agency room if we already emitted the BRANDS one?
-    // But we don't know the order or existence easily here without querying.
-
-    // Alternative: Emit to specific rooms.
-    // Currently `emitTaskCreated` emits to `tenant-${tenantId}`.
-    // Everyone in the tenant listens to this.
-
-    // Let's modify `emitTaskCreated` in Gateway to handle this?
-    // Or just filter here.
-
-    // If this is the Client-side mirror task (usually status != BRANDS in our auto-create logic, but can vary),
-    // and we know it's a mirror...
-
-    // Actually, the simplest fix for the "Double Card on Create" issue for Agency users is:
-    // If I am creating a task that is intended for the Client (e.g. created via ProjectsService auto-create),
-    // maybe I shouldn't emit it to the general tenant room if I also created an Agency one?
-
-    // But `create` is generic.
-
-    // Let's look at `ProjectsService`. It calls `prisma.task.create` directly.
-    // Ah! `ProjectsService` does NOT call `TasksService.create`.
-    // It calls `prisma.task.create`.
-    // So `TasksService.create` logic is NOT executed for auto-created tasks in `ProjectsService`.
-    // Wait, let me check `ProjectsService` again.
-
-    // ... Checked ProjectsService ...
-    // It calls `this.prisma.task.create`. It does NOT emit socket events!
-    // So where do the events come from?
-    // If ProjectsService doesn't emit, then the user shouldn't see them in realtime until refresh?
-    // UNLESS `ProjectsService` was modified to emit?
-    // I don't see emit calls in `ProjectsService.create` in the file I just read.
-
-    // Wait, if `ProjectsService` creates tasks directly via Prisma and doesn't emit events,
-    // then the user wouldn't see 2 cards *immediately* upon creation without refresh.
-    // But the user says "yeni proje oluşturup kullanıcı ataması yaptım".
-    // Maybe they refreshed? Or maybe they are talking about "Atama yaptım" -> Update event?
-
-    // "yeni proje oluşturup kullanıcı ataması yaptım"
-    // 1. Create Project -> 2 tasks created (db only, no socket if ProjectsService doesn't emit).
-    // 2. User sees project? Or user goes to Tasks page?
-    // If user goes to Tasks page, `findAll` is called.
-    // `findAll` returns 2 tasks if not filtered.
-    // I fixed `findAll` in the previous turn to filter mirror tasks.
-
-    // So if `findAll` is fixed, why 2 cards?
-    // Maybe the user assigned a user to the task?
-    // "kullanıcı ataması yaptım"
-    // When assignment happens, `update` is called.
-    // `update` emits `tasks:bulkUpdated` (if mirror) or `tasks:updated`.
-
-    // If `update` is called on ONE of the mirror tasks (e.g. the Agency one),
-    // `update` logic detects mirrorGroupId, updates BOTH tasks in DB.
-    // Then it emits `tasks:bulkUpdated` with BOTH tasks mapped.
-    // `this.tasksGateway?.emitTasksBulkUpdated(tenantId, mapped);`
-
-    // The `mapped` array contains BOTH tasks.
-    // Frontend receives `tasks:bulkUpdated` with 2 tasks.
-    // Frontend updates/adds both tasks to the list.
-
-    // Bingo! `tasks:bulkUpdated` sends both mirror tasks to the frontend.
-    // And frontend blindly merges them.
-
-    // Fix: In `update` method, before emitting `emitTasksBulkUpdated`,
-    // we should filter `mapped` list for Agency (tenant room) just like we did in `findAll`.
-    // But `emitTasksBulkUpdated` sends to the whole tenant.
-    // We can't filter there because we don't know who is listening (Client vs Staff).
-    // Wait, Clients listen to `tenant-client-...` room usually?
-    // `emitTasksBulkUpdated` -> `server.to(tenantId).emit(...)`.
-    // Staff are in `tenantId` room.
-    // Clients are in `tenant-client...` room?
-    // Let's check Gateway (memory or file).
-    // Memory says: "CRM Gateway joins STAFF/ADMIN to tenant:<tenantId>, CLIENT to tenant-client:<tenantId>:<customerId>."
-
-    // So `emitTasksBulkUpdated` (which emits to `tenantId` room) goes to STAFF/ADMIN only.
-    // Clients don't receive this event. Clients receive `emitTasksBulkUpdatedClient`.
-
-    // So for Staff/Admin, they receive `emitTasksBulkUpdated` with ALL mirror tasks.
-    // We should filter this list before emitting to `tenantId` room.
-    // We should only send the "Agency" version of the mirror group to the Staff room.
-
-    // Let's modify `update` in `TasksService`.
 
     this.tasksGateway?.emitTaskCreated(tenantId, mapped);
     const customerId = mapped?.project?.customerId;

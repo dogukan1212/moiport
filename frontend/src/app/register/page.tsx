@@ -16,65 +16,187 @@ export default function RegisterPage() {
     password: "",
     agencyName: "",
     phone: "",
+    industry: "AGENCY",
+    industrySubType: "",
     acceptTrial: false,
     acceptLegal: false,
     marketingEmails: false,
   });
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [step, setStep] = useState<"register" | "email_verify">("register");
+  const [step, setStep] = useState<"register" | "module_selection" | "email_verify">("register");
+  const [selectedModules, setSelectedModules] = useState<string[]>(["CRM", "FINANCE", "TASKS", "STORAGE", "CHAT"]);
   const [emailVerifyToken, setEmailVerifyToken] = useState("");
   const [emailVerifyCode, setEmailVerifyCode] = useState("");
   const { login } = useAuth();
+
+  const toggleModule = (module: string) => {
+    if (selectedModules.includes(module)) {
+      setSelectedModules(selectedModules.filter((m) => m !== module));
+    } else {
+      setSelectedModules([...selectedModules, module]);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setMessage("");
-    if (!formData.acceptLegal) {
+    
+    if (!formData.acceptLegal && step === "register") {
       setError(
         "Devam etmek için KVKK Aydınlatma Metni'ni, Gizlilik, Çerez Politikası ve Kullanım Şartları'nı kabul etmelisiniz."
       );
       return;
     }
-    try {
-      const payload: {
-        agencyName: string;
-        name: string;
-        email: string;
-        password: string;
-        phone?: string;
-      } = {
-        agencyName: formData.agencyName,
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      };
 
-      const phone = String(formData.phone || "").trim();
-      if (phone) payload.phone = phone;
-
-      const res = await api.post("/auth/register", payload);
-      if (res.data?.requiresEmailVerification && res.data?.token) {
-        setEmailVerifyToken(String(res.data.token));
-        setEmailVerifyCode("");
-        setStep("email_verify");
-        setMessage("E-postanıza doğrulama kodu gönderdik. Kaydı tamamlamak için kodu girin.");
-        return;
+    // Step 1: Initial Register Form -> Go to Module Selection
+    if (step === "register") {
+      // Health Tourism Pre-selection Logic
+      if (
+        formData.industry === "HEALTH" &&
+        formData.industrySubType === "HEALTH_TOURISM"
+      ) {
+        setSelectedModules((prev) => {
+          const defaults = ["CRM", "TASKS", "STORAGE", "CHAT", "HEALTH_TOURISM"];
+          // Merge unique
+          return Array.from(new Set([...prev, ...defaults]));
+        });
       }
-      login(res.data.access_token, res.data.user);
-    } catch (err: any) {
-      const data = err?.response?.data;
-      const message = data?.message;
 
-      if (Array.isArray(message)) {
-        setError(message.join(" • "));
-      } else if (message === "Email already in use") {
-        setError("Bu e-posta adresi zaten kayıtlı, lütfen giriş yapın.");
-      } else {
-        setError(message || "Kayıt başarısız");
+      // Dental Clinic Pre-selection Logic
+      if (
+        formData.industry === "HEALTH" &&
+        formData.industrySubType === "DENTAL_CLINIC"
+      ) {
+        setSelectedModules((prev) => {
+          const defaults = ["CRM", "TASKS", "STORAGE", "CHAT", "DENTAL_CLINIC"];
+          // Merge unique
+          return Array.from(new Set([...prev, ...defaults]));
+        });
+      }
+      
+      setStep("module_selection");
+      return;
+    }
+
+    // Step 2: Module Selection -> Submit to Backend
+    if (step === "module_selection") {
+      try {
+        const payload: {
+          agencyName: string;
+          name: string;
+          email: string;
+          password: string;
+          phone?: string;
+          industry?: string;
+          industrySubType?: string;
+          enabledModules?: string;
+        } = {
+          agencyName: formData.agencyName,
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        };
+
+        const phone = String(formData.phone || "").trim();
+        if (phone) payload.phone = phone;
+
+        const industry = String(formData.industry || "").trim();
+        if (industry) payload.industry = industry;
+        const industrySubType = String(formData.industrySubType || "").trim();
+        if (industrySubType) payload.industrySubType = industrySubType;
+
+        if (selectedModules.length > 0) {
+          let modulesToSend = [...selectedModules];
+          // CRM seçilirse Müşteriler modülünü de ekle
+          if (modulesToSend.includes("CRM") && !modulesToSend.includes("CUSTOMERS")) {
+            modulesToSend.push("CUSTOMERS");
+          }
+          // Görevler seçilirse Projeler modülünü de ekle
+          if (modulesToSend.includes("TASKS") && !modulesToSend.includes("PROJECTS")) {
+            modulesToSend.push("PROJECTS");
+          }
+
+          if (modulesToSend.includes("HEALTH_TOURISM")) {
+            const healthTourismModules = [
+              "HEALTH_TOURISM_PATIENTS",
+              "HEALTH_TOURISM_TRAVEL",
+              "HEALTH_TOURISM_APPOINTMENTS",
+              "HEALTH_TOURISM_ACCOMMODATION",
+              "HEALTH_TOURISM_TREATMENT_PLANS",
+              "HEALTH_TOURISM_LEGAL",
+              "HEALTH_TOURISM_AUTOMATIONS",
+              "HEALTH_TOURISM_ANALYTICS",
+              "HEALTH_TOURISM_PATIENT_PORTAL",
+            ];
+            healthTourismModules.forEach((m) => {
+              if (!modulesToSend.includes(m)) {
+                modulesToSend.push(m);
+              }
+            });
+
+            // Modül seçildiyse sektör bilgisini de güncelle
+            // ARTIK GÜNCELLEMİYORUZ - HEPSİ AJANS ÇATISI ALTINDA
+            // payload.industry = "HEALTH";
+            // payload.industrySubType = "HEALTH_TOURISM";
+          }
+
+          if (modulesToSend.includes("DENTAL_CLINIC")) {
+            const dentalModules = [
+              "DENTAL_PATIENTS",
+              "DENTAL_CHARTING",
+              "DENTAL_TREATMENT_PLANS",
+              "DENTAL_LAB_TRACKING",
+              "DENTAL_IMAGING",
+              "DENTAL_INVENTORY",
+            ];
+            dentalModules.forEach((m) => {
+              if (!modulesToSend.includes(m)) {
+                modulesToSend.push(m);
+              }
+            });
+
+            // Modül seçildiyse sektör bilgisini de güncelle
+            // ARTIK GÜNCELLEMİYORUZ - HEPSİ AJANS ÇATISI ALTINDA
+            // payload.industry = "HEALTH";
+            // payload.industrySubType = "DENTAL_CLINIC";
+          }
+          payload.enabledModules = modulesToSend.join(",");
+        }
+
+        const res = await api.post("/auth/register", payload);
+        if (res.data?.requiresEmailVerification && res.data?.token) {
+          setEmailVerifyToken(String(res.data.token));
+          setEmailVerifyCode("");
+          setStep("email_verify");
+          setMessage(
+            "E-postanıza doğrulama kodu gönderdik. Kaydı tamamlamak için kodu girin."
+          );
+          return;
+        }
+        login(res.data.access_token, res.data.user);
+      } catch (err: any) {
+        const data = err?.response?.data;
+        const message = data?.message;
+
+        if (Array.isArray(message)) {
+          setError(message.join(" • "));
+        } else if (message === "Email already in use") {
+          setError("Bu e-posta adresi zaten kayıtlı, lütfen giriş yapın.");
+        } else {
+          setError(message || "Kayıt başarısız");
+        }
       }
     }
+  };
+
+  const handleModuleToggle = (moduleKey: string) => {
+    setSelectedModules(prev => 
+      prev.includes(moduleKey) 
+        ? prev.filter(m => m !== moduleKey)
+        : [...prev, moduleKey]
+    );
   };
 
   const handleVerifyEmail = async (e: React.FormEvent) => {
@@ -123,7 +245,10 @@ export default function RegisterPage() {
           <p className="text-zinc-400">Ajansınızı saniyeler içinde kurun ve yönetmeye başlayın.</p>
         </div>
 
-        <form onSubmit={step === "register" ? handleSubmit : handleVerifyEmail} className="space-y-5 max-w-xl">
+        <form
+          onSubmit={step === "email_verify" ? handleVerifyEmail : handleSubmit}
+          className="space-y-5 max-w-xl"
+        >
           {error && (
             <motion.div 
               initial={{ opacity: 0, y: -10 }}
@@ -171,6 +296,48 @@ export default function RegisterPage() {
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       required
                     />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider ml-1">Sektör</label>
+                  <div className="relative group">
+                    <select
+                      className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-4 text-white outline-none focus:border-[#00e676]/50 focus:bg-white/[0.05] transition-all"
+                      value={
+                        formData.industry === "HEALTH" && formData.industrySubType === "HEALTH_TOURISM"
+                          ? "HEALTH_TOURISM"
+                          : formData.industry === "HEALTH" && formData.industrySubType === "DENTAL_CLINIC"
+                          ? "DENTAL_CLINIC"
+                          : "AGENCY"
+                      }
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        if (v === "HEALTH_TOURISM") {
+                          setFormData({
+                            ...formData,
+                            industry: "HEALTH",
+                            industrySubType: "HEALTH_TOURISM",
+                          });
+                        } else if (v === "DENTAL_CLINIC") {
+                          setFormData({
+                            ...formData,
+                            industry: "HEALTH",
+                            industrySubType: "DENTAL_CLINIC",
+                          });
+                        } else {
+                          setFormData({
+                            ...formData,
+                            industry: "AGENCY",
+                            industrySubType: "",
+                          });
+                        }
+                      }}
+                    >
+                      <option value="AGENCY">Ajans / Dijital Ajans / Reklam</option>
+                      <option value="HEALTH_TOURISM">Sağlık Turizmi</option>
+                      <option value="DENTAL_CLINIC">Diş Kliniği</option>
+                    </select>
                   </div>
                 </div>
 
@@ -303,6 +470,72 @@ export default function RegisterPage() {
                 Hesap Oluştur <ArrowRight className="ml-2" size={20} />
               </Button>
             </>
+          ) : step === "module_selection" ? (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-white">Modül Seçimi</h2>
+                <p className="text-zinc-400">
+                  İhtiyacınız olan modülleri seçerek panelinizi özelleştirin.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
+                {[
+                  { id: "CRM", label: "CRM & Müşteri Yönetimi", desc: "Müşterilerinizi ve satış süreçlerinizi yönetin." },
+                  { id: "FINANCE", label: "Finans Yönetimi", desc: "Gelir/gider takibi ve faturalandırma." },
+                  { id: "TASKS", label: "Görev ve Proje Yönetimi", desc: "Ekip içi görev dağılımı ve proje takibi." },
+                  { id: "STORAGE", label: "Dosya Depolama", desc: "Belge ve dosyalarınızı güvenle saklayın." },
+                  { id: "WHATSAPP", label: "WhatsApp Entegrasyonu", desc: "WhatsApp üzerinden müşterilerinizle iletişim kurun." },
+                  { id: "INSTAGRAM", label: "Instagram Entegrasyonu", desc: "Instagram mesajlarınızı panelden yönetin." },
+                  { id: "HEALTH_TOURISM", label: "Sağlık Turizmi", desc: "Hasta, seyahat, randevu, konaklama ve tedavi modülleri." },
+                  { id: "DENTAL_CLINIC", label: "Diş Kliniği", desc: "Diş şeması, tedavi planları, laboratuvar ve stok takibi." },
+                ].map((module) => (
+                  <div
+                    key={module.id}
+                    onClick={() => toggleModule(module.id)}
+                    className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                      selectedModules.includes(module.id)
+                        ? "bg-[#00e676]/10 border-[#00e676] ring-1 ring-[#00e676]"
+                        : "bg-white/5 border-white/10 hover:bg-white/10"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className={`font-semibold ${selectedModules.includes(module.id) ? "text-[#00e676]" : "text-white"}`}>
+                          {module.label}
+                        </div>
+                        <div className="text-sm text-zinc-400 mt-1">{module.desc}</div>
+                      </div>
+                      <div
+                        className={`size-6 rounded-full border flex items-center justify-center transition-colors ${
+                          selectedModules.includes(module.id)
+                            ? "bg-[#00e676] border-[#00e676]"
+                            : "border-zinc-600"
+                        }`}
+                      >
+                        {selectedModules.includes(module.id) && <CheckCircle2 size={14} className="text-black" />}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setStep("register")}
+                  className="w-1/3 h-14 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-colors font-semibold"
+                >
+                  Geri
+                </button>
+                <Button 
+                  type="submit" 
+                  className="flex-1 bg-[#00e676] hover:bg-[#00c853] text-black font-bold h-14 rounded-xl text-base transition-transform active:scale-[0.98]"
+                >
+                  Tamamla ve Giriş Yap <ArrowRight className="ml-2" size={20} />
+                </Button>
+              </div>
+            </div>
           ) : (
             <>
               <div className="space-y-2">

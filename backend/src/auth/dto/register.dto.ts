@@ -27,4 +27,16 @@ export class RegisterDto {
   @IsOptional()
   @IsString()
   phone?: string;
+
+  @IsOptional()
+  @IsString()
+  industry?: string;
+
+  @IsOptional()
+  @IsString()
+  industrySubType?: string;
+
+  @IsOptional()
+  @IsString()
+  enabledModules?: string;
 }

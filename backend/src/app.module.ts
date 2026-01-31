@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -27,9 +28,15 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { WordpressModule } from './wordpress/wordpress.module';
 import { SmsModule } from './sms/sms.module';
 import { StorageModule } from './storage/storage.module';
+import { HealthTourismModule } from './health-tourism/health-tourism.module';
+import { DentalModule } from './dental/dental.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
     ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,
@@ -51,6 +58,8 @@ import { StorageModule } from './storage/storage.module';
     IntegrationsModule,
     SmsModule,
     StorageModule,
+    HealthTourismModule,
+    DentalModule,
     SubscriptionsModule,
     WordpressModule,
   ],

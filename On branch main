@@ -1,5 +1,0 @@
-[33mcommit 22b736aa4259d8b2f92692d8542f28ed08221ee4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
-Author: Dogukan <dogukanadak44@gmail.com>
-Date:   Thu Jan 29 00:07:36 2026 +0300
-
-    Fix lint errors: useMobilePush declaration order

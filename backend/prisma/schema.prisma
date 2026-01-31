@@ -19,6 +19,10 @@ model Tenant {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  industry        String?  @default("AGENCY")
+  industrySubType String?
+  enabledModules  String?
+
   payrollCalculationStartDay      Int?    @default(1)
   payrollCalculationEndDay        Int?    @default(30)
   payrollPaymentDay               Int?    @default(15)
@@ -76,6 +80,22 @@ model Tenant {
   crmActivities         CrmActivity[]
   paymentMethods        PaymentMethod[]
   subscriptionPayments  SubscriptionPayment[]
+
+  // Health Tourism
+  healthPatients        HealthPatient[]
+  healthTreatments      HealthTreatment[]
+  healthTransfers       HealthTransfer[]
+  healthAccommodations  HealthAccommodation[]
+  healthAppointments    HealthAppointment[]
+  healthDocuments       HealthDocument[]
+  healthAutomationRules HealthAutomationRule[]
+
+  // Dental Clinic
+  dentalPatients        DentalPatient[]
+  dentalTeeth           DentalTooth[]
+  dentalTreatments      DentalTreatment[]
+  dentalLabOrders       DentalLabOrder[]
+  dentalImages          DentalImage[]
 
   // Modules
   wordpressModuleEnabled Boolean @default(false)
@@ -253,6 +273,9 @@ model Customer {
   parasutConfigs  ParasutConfig[]
   pipelines       Pipeline[]
   wordpressSites  WordpressSite[]
+  
+  healthPatient   HealthPatient?
+  dentalPatient   DentalPatient?
 }
 
 model Project {
@@ -286,6 +309,11 @@ model Task {
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
   dueDate     DateTime?
   
+  // Polymorphic Relations for Multi-Vertical Support
+  referenceId   String?  // ID of the related entity (Patient, Property, Deal, etc.)
+  referenceType String?  // Type of the related entity (PATIENT, PROPERTY, DEAL, etc.)
+  tags          String?  // JSON array of tags for filtering (e.g. ["health", "surgery"] or ["real-estate", "rental"])
+  
   labels             String? // JSON array of label IDs
   checklist          String? // JSON array of checklist items
   checklistTotal     Int     @default(0)
@@ -302,6 +330,8 @@ model Task {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([tenantId, referenceType, referenceId])
 }
 
 model ColumnWatcher {
@@ -341,10 +371,25 @@ model Transaction {
   payrollId   String?
   payroll     Payroll? @relation(fields: [payrollId], references: [id])
 
+  // Split / Payout Logic
+  parentId    String?  // Parent Transaction ID (e.g. Total Income)
+  parent      Transaction? @relation("SplitTransaction", fields: [parentId], references: [id], onDelete: Cascade)
+  splits      Transaction[] @relation("SplitTransaction")
+  
+  // Polymorphic Relations for Multi-Vertical Support
+  referenceId   String?  // ID of the related entity (HealthOperation, RealEstateSale, etc.)
+  referenceType String?  // Type of the related entity (HEALTH_OPERATION, REAL_ESTATE_SALE)
+  allocationType String? // DOCTOR_PAYOUT, HOSPITAL_SHARE, HOTEL_COST, AGENCY_COMMISSION
+
+  currency    String   @default("TRY") // EUR, USD, TRY
+  exchangeRate Float?  // Rate at the time of transaction (relative to Tenant Base Currency or TRY)
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   // Map to old FinanceRecord table name if needed, but let's just use Transaction
+  @@index([tenantId, referenceType, referenceId])
+  @@index([tenantId, parentId])
 }
 
 model RecurringTransaction {
@@ -1070,4 +1115,281 @@ model StorageFile {
   updatedAt    DateTime @updatedAt
 
   @@index([tenantId, folderId])
+}
+
+// --- Health Tourism ---
+
+model HealthPatient {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  
+  customerId String? @unique
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  
+  fullName   String
+  email      String?
+  phone      String?
+  country    String?
+  
+  passportNumber String?
+  nationality    String?
+  birthDate      DateTime?
+  gender         String?
+  bloodType      String?
+  
+  treatments      HealthTreatment[]
+  transfers       HealthTransfer[]
+  accommodations  HealthAccommodation[]
+  appointments    HealthAppointment[]
+  documents       HealthDocument[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model HealthTreatment {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  patientId String
+  patient   HealthPatient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  type          String // HAIR_TRANSPLANT, DENTAL, PLASTIC_SURGERY, OPHTHALMOLOGY, OTHER
+  procedureName String // e.g. "Sapphire FUE", "Hollywood Smile"
+  status        String @default("PLANNED") // PLANNED, IN_PROGRESS, COMPLETED, CANCELLED
+  startDate     DateTime?
+  endDate       DateTime?
+  cost          Float?
+  currency      String @default("EUR")
+  notes         String?
+  
+  doctorName    String?
+  hospitalName  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model HealthTransfer {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  patientId String
+  patient   HealthPatient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  type          String // AIRPORT_PICKUP, AIRPORT_DROPOFF, HOTEL_TO_CLINIC, CLINIC_TO_HOTEL, OTHER
+  vehicleType   String? // VIP_VAN, SEDAN
+  driverName    String?
+  driverPhone   String?
+  plateNumber   String?
+  
+  pickupLocation  String
+  dropoffLocation String
+  pickupTime      DateTime
+  
+  flightNumber    String?
+  notes           String?
+  
+  status          String @default("SCHEDULED") // SCHEDULED, COMPLETED, CANCELLED
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model HealthAccommodation {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  patientId String
+  patient   HealthPatient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  hotelName          String
+  roomType           String?
+  checkInDate        DateTime
+  checkOutDate       DateTime
+  confirmationNumber String?
+  address            String?
+  
+  status             String @default("BOOKED") // BOOKED, CHECKED_IN, CHECKED_OUT, CANCELLED
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model HealthAppointment {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  patientId String
+  patient   HealthPatient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  doctorId      String?
+  doctorName    String?
+  appointmentDate DateTime
+  type          String // CONSULTATION, CHECKUP, OPERATION, CONTROL
+  status        String @default("SCHEDULED") // SCHEDULED, COMPLETED, CANCELLED, NO_SHOW
+  notes         String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model HealthDocument {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  patientId String
+  patient   HealthPatient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  type      String // KVKK, CONSENT_FORM, CONTRACT, PASSPORT, TICKET
+  name      String
+  fileUrl   String?
+  status    String @default("PENDING") // PENDING, SIGNED, APPROVED, REJECTED
+  
+  signedAt  DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model HealthAutomationRule {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  
+  triggerType   String // NEW_LEAD, STAGE_CHANGE, DATE_REACHED, etc.
+  triggerDetail String?
+  
+  actionType    String // SEND_WHATSAPP, SEND_EMAIL, CREATE_TASK, etc.
+  actionDetail  String?
+  recipient     String? // CUSTOMER, STAFF, MANAGER
+  
+  runCount      Int      @default(0)
+  lastRun       DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// --- Dental Clinic ---
+
+model DentalPatient {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  customerId String? @unique
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  
+  fullName   String
+  phone      String?
+  email      String?
+  birthDate  DateTime?
+  gender     String?
+
+  medicalHistory String? // JSON: allergies, diseases, etc.
+  
+  teeth      DentalTooth[]
+  treatments DentalTreatment[]
+  labOrders  DentalLabOrder[]
+  images     DentalImage[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DentalTooth {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  patientId String
+  patient   DentalPatient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  number    Int // 1-32
+  condition String? // HEALTHY, DECAYED, FILLED, MISSING, IMPLANT, CROWN
+  notes     String?
+  
+  history   DentalToothHistory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([patientId, number])
+}
+
+model DentalToothHistory {
+  id        String   @id @default(uuid())
+  toothId   String
+  tooth     DentalTooth @relation(fields: [toothId], references: [id], onDelete: Cascade)
+  
+  action    String // Condition change or treatment
+  date      DateTime @default(now())
+  notes     String?
+  
+  createdAt DateTime @default(now())
+}
+
+model DentalTreatment {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  patientId String
+  patient   DentalPatient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  toothNumber Int? // Nullable if general
+  procedureName String
+  cost        Float
+  currency    String @default("TRY")
+  status      String @default("PLANNED") // PLANNED, IN_PROGRESS, COMPLETED
+  
+  startDate   DateTime?
+  completedDate DateTime?
+  
+  invoiceId   String? // Link to finance
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DentalLabOrder {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  patientId String
+  patient   DentalPatient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  labName   String
+  type      String // PROSTHESIS, CROWN, BRIDGE, NIGHT_GUARD
+  colorCode String? // A1, B2 etc.
+  material  String? // Zirconium, Porcelain
+  
+  status    String @default("IMPRESSION_TAKEN") // IMPRESSION_TAKEN, SENT_TO_LAB, PROOFING, FINAL_ASSEMBLY, DELIVERED
+  
+  sentDate      DateTime?
+  expectedDate  DateTime?
+  receivedDate  DateTime?
+  
+  notes     String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DentalImage {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  patientId String
+  patient   DentalPatient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  type      String // XRAY, INTRAORAL, TOMOGRAPHY, BEFORE_PHOTO, AFTER_PHOTO
+  fileUrl   String
+  notes     String?
+  takenAt   DateTime @default(now())
+  
+  createdAt DateTime @default(now())
 }

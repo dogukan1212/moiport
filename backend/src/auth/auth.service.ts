@@ -186,6 +186,43 @@ export class AuthService {
     const email = (dto.email || '').trim().toLowerCase();
     const phone = String(dto.phone || '').trim();
 
+    const disableRegistrationEmailVerification =
+      String(process.env.DISABLE_REGISTRATION_EMAIL_VERIFICATION || '')
+        .trim()
+        .toLowerCase() === 'true';
+
+    const industryRaw = (dto.industry || '').trim().toUpperCase();
+    const subIndustryRaw = (dto.industrySubType || '').trim().toUpperCase();
+    const tenantIndustry = industryRaw || 'AGENCY';
+    let tenantIndustrySubType: string | null = null;
+    let tenantEnabledModules: string | null = null;
+
+    if (
+      tenantIndustry === 'HEALTH' &&
+      (subIndustryRaw === 'HEALTH_TOURISM' ||
+        subIndustryRaw === 'HEALTH-TOURISM')
+    ) {
+      tenantIndustrySubType = 'HEALTH_TOURISM';
+      // Default modules if not provided
+      if (!dto.enabledModules) {
+        tenantEnabledModules =
+          'CRM,WHATSAPP,INSTAGRAM,CUSTOMERS,PROJECTS,TASKS,FINANCE,CHAT,STORAGE,SOCIAL_MEDIA_PLANS';
+      }
+    } else if (
+      tenantIndustry === 'HEALTH' &&
+      subIndustryRaw === 'DENTAL_CLINIC'
+    ) {
+      tenantIndustrySubType = 'DENTAL_CLINIC';
+      if (!dto.enabledModules) {
+        tenantEnabledModules =
+          'CRM,CUSTOMERS,PROJECTS,TASKS,FINANCE,CHAT,STORAGE,DENTAL_CLINIC,DENTAL_CHARTING,DENTAL_TREATMENT_PLANS,DENTAL_LAB_TRACKING,DENTAL_IMAGING,DENTAL_INVENTORY,DENTAL_FINANCE';
+      }
+    }
+
+    if (dto.enabledModules) {
+      tenantEnabledModules = dto.enabledModules.trim();
+    }
+
     const existingUser = await this.prisma.user.findUnique({
       where: { email },
     });
@@ -229,6 +266,9 @@ export class AuthService {
                 autoRenew: true,
                 email,
                 phone: phone || undefined,
+                industry: tenantIndustry,
+                industrySubType: tenantIndustrySubType || undefined,
+                enabledModules: tenantEnabledModules || undefined,
               },
               select: { id: true, slug: true },
             });
@@ -253,8 +293,21 @@ export class AuthService {
             role: 'ADMIN',
             tenantId: tenant.id,
             phone: phone || undefined,
+            emailVerifiedAt: disableRegistrationEmailVerification
+              ? now
+              : undefined,
           },
         });
+
+        createdTenantId = tenant.id;
+        createdUserId = user.id;
+
+        if (disableRegistrationEmailVerification) {
+          return {
+            ...user,
+            bypassVerification: true,
+          };
+        }
 
         await tx.userVerification.create({
           data: {
@@ -266,11 +319,12 @@ export class AuthService {
           },
         });
 
-        createdTenantId = tenant.id;
-        createdUserId = user.id;
-
         return { requiresEmailVerification: true, token, expiresAt };
       });
+
+      if (disableRegistrationEmailVerification) {
+        return this.buildAuthResponseForUser(result);
+      }
 
       await this.smtp2goService.sendEmail({
         to: email,

@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import {
-  Settings,
   Building2,
   Users,
   Plus,
@@ -16,6 +15,7 @@ import {
   User,
   Shield,
   Image as ImageIcon,
+  Settings,
   Facebook,
   Instagram,
   Link2,
@@ -28,6 +28,15 @@ import {
   CreditCard,
   LayoutGrid,
   Calendar,
+  Briefcase,
+  Folder,
+  MessageSquare,
+  Wallet,
+  Plane,
+  ClipboardList,
+  FileText,
+  BarChart3,
+  ArrowLeft,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -35,16 +44,29 @@ import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { toast } from 'sonner';
+import { useTenant } from '@/contexts/tenant-context';
 
 export default function SettingsPage() {
   const [tenant, setTenant] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || "agency");
+  const [activeTab, setActiveTab] = useState<string | null>(searchParams.get('tab') || null);
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const isClient = (user?.role || '').includes('CLIENT');
+  const { refreshTenant } = useTenant();
+
+  const handleTabChange = (tab: string | null) => {
+    setActiveTab(tab);
+    const url = new URL(window.location.href);
+    if (tab) {
+      url.searchParams.set('tab', tab);
+    } else {
+      url.searchParams.delete('tab');
+    }
+    window.history.pushState({}, '', url.toString());
+  };
 
   // Agency Settings State
   const [agencyName, setAgencyName] = useState('');
@@ -56,6 +78,8 @@ export default function SettingsPage() {
   
   // WordPress Module State
   const [wordpressModuleEnabled, setWordpressModuleEnabled] = useState(false);
+
+  const [enabledModules, setEnabledModules] = useState<string[]>([]);
 
   // Team Management State
   const [newUser, setNewUser] = useState({ name: '', email: '', role: 'STAFF' });
@@ -177,6 +201,10 @@ export default function SettingsPage() {
       return String(value);
     }
   };
+
+  const [accessDialogOpen, setAccessDialogOpen] = useState(false);
+  const [accessModuleKey, setAccessModuleKey] = useState<string | null>(null);
+  const [accessDialogLoading, setAccessDialogLoading] = useState(false);
 
   useEffect(() => {
     // Get user from local storage or API
@@ -366,6 +394,58 @@ export default function SettingsPage() {
       setPhone(response.data.phone || '');
       setEmail(response.data.email || '');
       setWordpressModuleEnabled(response.data.wordpressModuleEnabled || false);
+      const rawModules =
+        typeof response.data.enabledModules === 'string'
+          ? response.data.enabledModules
+          : '';
+      let modulesArray = rawModules
+        .split(',')
+        .map((m: string) => m.trim().toUpperCase())
+        .filter(Boolean);
+
+      if (modulesArray.includes('HEALTH_TOURISM')) {
+        const healthTourismKeys = [
+          'HEALTH_TOURISM_PATIENTS',
+          'HEALTH_TOURISM_TRAVEL',
+          'HEALTH_TOURISM_APPOINTMENTS',
+          'HEALTH_TOURISM_ACCOMMODATION',
+          'HEALTH_TOURISM_TREATMENT_PLANS',
+          'HEALTH_TOURISM_LEGAL',
+          'HEALTH_TOURISM_AUTOMATIONS',
+          'HEALTH_TOURISM_ANALYTICS',
+          'HEALTH_TOURISM_PATIENT_PORTAL',
+        ];
+        healthTourismKeys.forEach((key) => {
+          if (!modulesArray.includes(key)) {
+            modulesArray.push(key);
+          }
+        });
+      }
+
+      if (modulesArray.includes('DENTAL_CLINIC')) {
+        const dentalKeys = [
+          'DENTAL_PATIENTS',
+          'DENTAL_CHARTING',
+          'DENTAL_LAB_TRACKING',
+          'DENTAL_IMAGING',
+          'DENTAL_FINANCE',
+          'DENTAL_INVENTORY',
+          'DENTAL_PATIENT_PORTAL',
+        ];
+        dentalKeys.forEach((key) => {
+          if (!modulesArray.includes(key)) {
+            modulesArray.push(key);
+          }
+        });
+      }
+
+      // HEALTH_TOURISM ve DENTAL_CLINIC ana anahtarlarını state'ten çıkar
+      // (artık sadece alt modüller UI'da toggle ediliyor)
+      modulesArray = modulesArray.filter(
+        (m) => m !== 'HEALTH_TOURISM' && m !== 'DENTAL_CLINIC',
+      );
+
+      setEnabledModules(modulesArray);
     } catch (error) {
       console.error('Tenant bilgileri yüklenemedi:', error);
     } finally {
@@ -1214,10 +1294,262 @@ export default function SettingsPage() {
         wordpressModuleEnabled,
       });
       await fetchTenant();
+      await refreshTenant();
       toast.success('Ajans bilgileri güncellendi.');
     } catch (error) {
       console.error('Güncelleme hatası:', error);
       toast.error('Güncelleme başarısız oldu.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const moduleDefinitions = [
+    {
+      key: 'CRM',
+      label: 'CRM & Müşteri Yönetimi',
+      description: 'Satış hunisi ve müşteri ilişkileri yönetimi.',
+      sector: 'GENERAL',
+      icon: <LayoutGrid className="h-5 w-5 text-indigo-500" />,
+    },
+    {
+      key: 'CUSTOMERS',
+      label: 'Müşteri Kartları',
+      description: 'Detaylı müşteri kartları ve geçmiş kayıtlar.',
+      sector: 'GENERAL',
+      icon: <Users className="h-5 w-5 text-slate-600" />,
+    },
+    {
+      key: 'TASKS',
+      label: 'Görev ve Proje',
+      description: 'Görev, board ve proje planlama araçları.',
+      sector: 'GENERAL',
+      icon: <LayoutGrid className="h-5 w-5 text-emerald-500" />,
+    },
+    {
+      key: 'PROJECTS',
+      label: 'Projeler',
+      description: 'Marka bazlı proje ve teslimat takibi.',
+      sector: 'GENERAL',
+      icon: <Briefcase className="h-5 w-5 text-emerald-600" />,
+    },
+    {
+      key: 'STORAGE',
+      label: 'Dosya Depolama',
+      description: 'Tek dosya alanında güvenli bulut depolama.',
+      sector: 'GENERAL',
+      icon: <Folder className="h-5 w-5 text-sky-500" />,
+    },
+    {
+      key: 'CHAT',
+      label: 'Sohbet',
+      description: 'Ekip içi kanal ve proje sohbet odaları.',
+      sector: 'GENERAL',
+      icon: <MessageSquare className="h-5 w-5 text-slate-700" />,
+    },
+    {
+      key: 'FINANCE',
+      label: 'Finans',
+      description: 'Gelir, gider, fatura ve tahsilat yönetimi.',
+      sector: 'GENERAL',
+      icon: <Wallet className="h-5 w-5 text-amber-500" />,
+    },
+    {
+      key: 'WHATSAPP',
+      label: 'WhatsApp Entegrasyonu',
+      description: 'WhatsApp mesajlarını panelden yönetin.',
+      sector: 'GENERAL',
+      icon: <MessageCircle className="h-5 w-5 text-green-500" />,
+    },
+    {
+      key: 'INSTAGRAM',
+      label: 'Instagram Entegrasyonu',
+      description: 'DM ve yorumları tek ekrandan yönetin.',
+      sector: 'GENERAL',
+      icon: <Instagram className="h-5 w-5 text-pink-500" />,
+    },
+    {
+      key: 'SOCIAL_MEDIA_PLANS',
+      label: 'Sosyal Medya Planları',
+      description: 'İçerik takvimi ve onay süreçleri.',
+      sector: 'GENERAL',
+      icon: <LayoutGrid className="h-5 w-5 text-purple-500" />,
+    },
+    {
+      key: 'HEALTH_TOURISM_PATIENTS',
+      label: 'Hasta Yönetimi',
+      description: 'Yurt dışı hastalar için hasta kartları ve tıbbi bilgiler.',
+      sector: 'HEALTH_TOURISM',
+      icon: <Users className="h-5 w-5 text-emerald-500" />,
+    },
+    {
+      key: 'HEALTH_TOURISM_TRAVEL',
+      label: 'Seyahat & Transfer',
+      description: 'Uçuş, havaalanı karşılama ve transfer planlaması.',
+      sector: 'HEALTH_TOURISM',
+      icon: <Plane className="h-5 w-5 text-sky-500" />,
+    },
+    {
+      key: 'HEALTH_TOURISM_APPOINTMENTS',
+      label: 'Muayene Randevuları',
+      description: 'Doktor muayeneleri ve klinik randevu takibi.',
+      sector: 'HEALTH_TOURISM',
+      icon: <Calendar className="h-5 w-5 text-emerald-500" />,
+    },
+    {
+      key: 'HEALTH_TOURISM_ACCOMMODATION',
+      label: 'Konaklama Yönetimi',
+      description: 'Otel, oda ve konaklama süreçleri.',
+      sector: 'HEALTH_TOURISM',
+      icon: <Building2 className="h-5 w-5 text-amber-500" />,
+    },
+    {
+      key: 'HEALTH_TOURISM_TREATMENT_PLANS',
+      label: 'Tedavi Planları',
+      description: 'Operasyon ve tedavi planı takibi.',
+      sector: 'HEALTH_TOURISM',
+      icon: <ClipboardList className="h-5 w-5 text-indigo-500" />,
+    },
+    {
+      key: 'HEALTH_TOURISM_LEGAL',
+      label: 'Legal & KVKK',
+      description: 'KVKK onayları, onam formları ve pasaport/vize kasası.',
+      sector: 'HEALTH_TOURISM',
+      icon: <FileText className="h-5 w-5 text-slate-700" />,
+    },
+    {
+      key: 'HEALTH_TOURISM_AUTOMATIONS',
+      label: 'Otomasyonlar',
+      description: 'Lead scoring, WhatsApp akışları ve post-op hatırlatmalar.',
+      sector: 'HEALTH_TOURISM',
+      icon: <MessageCircle className="h-5 w-5 text-emerald-500" />,
+    },
+    {
+      key: 'HEALTH_TOURISM_ANALYTICS',
+      label: 'Raporlama & Analitik',
+      description: 'Maliyet analizi ve ülke bazlı lead performansı.',
+      sector: 'HEALTH_TOURISM',
+      icon: <BarChart3 className="h-5 w-5 text-indigo-500" />,
+    },
+    {
+      key: 'HEALTH_TOURISM_PATIENT_PORTAL',
+      label: 'Hasta Portalı',
+      description: 'Timeline, belgelerim, transfer ve destek ekranları.',
+      sector: 'HEALTH_TOURISM',
+      icon: <LayoutGrid className="h-5 w-5 text-emerald-500" />,
+    },
+    {
+      key: 'DENTAL_PATIENTS',
+      label: 'Hasta Yönetimi',
+      description: 'Diş kliniği hastaları için temel hasta kartları.',
+      sector: 'DENTAL_CLINIC',
+      icon: <Users className="h-5 w-5 text-emerald-500" />,
+    },
+    {
+      key: 'DENTAL_CHARTING',
+      label: 'Diş Şeması',
+      description: 'İnteraktif diş şeması ve tedavi planlama.',
+      sector: 'DENTAL_CLINIC',
+      icon: <LayoutGrid className="h-5 w-5 text-blue-500" />,
+    },
+    {
+      key: 'DENTAL_LAB_TRACKING',
+      label: 'Laboratuvar Takibi',
+      description: 'Diş protez ve laboratuvar iş süreçleri.',
+      sector: 'DENTAL_CLINIC',
+      icon: <ClipboardList className="h-5 w-5 text-purple-500" />,
+    },
+    {
+      key: 'DENTAL_IMAGING',
+      label: 'Görüntüleme',
+      description: 'Röntgen ve ağız içi görüntü arşivi.',
+      sector: 'DENTAL_CLINIC',
+      icon: <FileText className="h-5 w-5 text-indigo-500" />,
+    },
+    {
+      key: 'DENTAL_FINANCE',
+      label: 'Finansman',
+      description: 'Hasta ödemeleri ve taksitlendirme.',
+      sector: 'DENTAL_CLINIC',
+      icon: <Wallet className="h-5 w-5 text-green-500" />,
+    },
+    {
+      key: 'DENTAL_INVENTORY',
+      label: 'Stok Takibi',
+      description: 'Klinik malzeme ve stok yönetimi.',
+      sector: 'DENTAL_CLINIC',
+      icon: <Folder className="h-5 w-5 text-orange-500" />,
+    },
+    {
+      key: 'DENTAL_PATIENT_PORTAL',
+      label: 'Hasta Portalı',
+      description: 'Hastalar için randevu ve tedavi süreci portalı.',
+      sector: 'DENTAL_CLINIC',
+      icon: <LayoutGrid className="h-5 w-5 text-emerald-500" />,
+    },
+  ];
+
+  const toggleModule = (key: string) => {
+    setEnabledModules((prev) => {
+      const upperKey = key.toUpperCase();
+      if (prev.includes(upperKey)) {
+        return prev.filter((m) => m !== upperKey);
+      }
+      return [...prev, upperKey];
+    });
+  };
+
+  const getFinalModulesToSave = (modules: string[]) => {
+    const set = new Set(modules.map((m) => m.toUpperCase()));
+    if (set.has('CRM')) {
+      set.add('CUSTOMERS');
+    }
+    if (set.has('TASKS')) {
+      set.add('PROJECTS');
+    }
+    const healthTourismKeys = [
+      'HEALTH_TOURISM_PATIENTS',
+      'HEALTH_TOURISM_TRAVEL',
+      'HEALTH_TOURISM_APPOINTMENTS',
+      'HEALTH_TOURISM_ACCOMMODATION',
+      'HEALTH_TOURISM_TREATMENT_PLANS',
+      'HEALTH_TOURISM_LEGAL',
+      'HEALTH_TOURISM_AUTOMATIONS',
+      'HEALTH_TOURISM_ANALYTICS',
+      'HEALTH_TOURISM_PATIENT_PORTAL',
+    ];
+    if (healthTourismKeys.some((key) => set.has(key))) {
+      set.add('HEALTH_TOURISM');
+    }
+    
+    const dentalKeys = [
+      'DENTAL_PATIENTS',
+      'DENTAL_CHARTING',
+      'DENTAL_LAB_TRACKING',
+      'DENTAL_IMAGING',
+      'DENTAL_FINANCE',
+      'DENTAL_INVENTORY',
+      'DENTAL_PATIENT_PORTAL',
+    ];
+    if (dentalKeys.some((key) => set.has(key))) {
+      set.add('DENTAL_CLINIC');
+    }
+
+    return Array.from(set);
+  };
+
+  const handleSaveModules = async () => {
+    try {
+      setSaving(true);
+      const finalModules = getFinalModulesToSave(enabledModules);
+      await api.patch('/tenants/me', {
+        enabledModules: finalModules.length > 0 ? finalModules.join(',') : null,
+      });
+      await fetchTenant();
+      await refreshTenant();
+      toast.success('Modüller güncellendi.');
+    } catch (error) {
+      toast.error('Modüller kaydedilemedi.');
     } finally {
       setSaving(false);
     }
@@ -1270,6 +1602,37 @@ export default function SettingsPage() {
       role: String(u?.role || 'STAFF'),
       newPassword: '',
     });
+  };
+
+  const toggleClientModule = async (userId: string, moduleKey: string, currentModules: string) => {
+    try {
+      setAccessDialogLoading(true);
+      const modules = currentModules ? currentModules.split(',') : [];
+      const newModules = modules.includes(moduleKey)
+        ? modules.filter(m => m !== moduleKey)
+        : [...modules, moduleKey];
+      
+      await api.patch(`/tenants/users/${userId}`, {
+        allowedModules: newModules.join(',')
+      });
+      
+      // Update local state
+      setTenant(prev => prev ? {
+        ...prev,
+        users: prev.users.map(u => u.id === userId ? { ...u, allowedModules: newModules.join(',') } : u)
+      } : null);
+      
+      toast.success('Erişim güncellendi.');
+    } catch (error) {
+      toast.error('Güncelleme başarısız.');
+    } finally {
+      setAccessDialogLoading(false);
+    }
+  };
+
+  const openAccessDialog = (moduleKey: string) => {
+    setAccessModuleKey(moduleKey);
+    setAccessDialogOpen(true);
   };
 
   const handleUpdateUser = async () => {
@@ -1383,6 +1746,83 @@ export default function SettingsPage() {
     CUSTOMER_USERS: 'Müşteri kullanıcıları',
   };
 
+  const settingsCards = [
+    {
+      id: 'agency',
+      title: 'Ajans & Ekip',
+      description: 'Ajans bilgileri, logo, adres ve ekip üyeleri yönetimi.',
+      icon: <Building2 className="h-6 w-6 text-indigo-500" />,
+      show: !isClient
+    },
+    {
+      id: 'modules',
+      title: 'Modüller',
+      description: 'Sistem modüllerini açıp kapatın ve yetkilendirmeleri yönetin.',
+      icon: <Settings className="h-6 w-6 text-slate-500" />,
+      show: !isClient
+    },
+    {
+      id: 'facebook',
+      title: 'Facebook Leads',
+      description: 'Facebook Lead Ads formlarını CRM ile entegre edin.',
+      icon: <Facebook className="h-6 w-6 text-blue-600" />,
+      show: true
+    },
+    {
+      id: 'instagram',
+      title: 'Instagram',
+      description: 'Instagram DM ve yorum entegrasyonu.',
+      icon: <Instagram className="h-6 w-6 text-pink-500" />,
+      show: true
+    },
+    {
+      id: 'parasut',
+      title: 'Paraşüt',
+      description: 'Fatura ve cari takibi için Paraşüt entegrasyonu.',
+      icon: <Link2 className="h-6 w-6 text-orange-500" />,
+      show: true
+    },
+    {
+      id: 'google-calendar',
+      title: 'Google Calendar',
+      description: 'Takvim senkronizasyonu ve etkinlik yönetimi.',
+      icon: <Calendar className="h-6 w-6 text-blue-500" />,
+      show: !isClient
+    },
+    {
+      id: 'paytr',
+      title: 'PayTR',
+      description: 'Online ödeme alma altyapısı.',
+      icon: <CreditCard className="h-6 w-6 text-green-600" />,
+      show: !isClient
+    },
+    {
+      id: 'trello',
+      title: 'Trello',
+      description: 'Proje ve görev senkronizasyonu.',
+      icon: <LayoutGrid className="h-6 w-6 text-blue-400" />,
+      show: !isClient
+    },
+    {
+      id: 'whatsapp',
+      title: 'WhatsApp',
+      description: 'WhatsApp Business API entegrasyonu.',
+      icon: <MessageCircle className="h-6 w-6 text-green-500" />,
+      show: true
+    },
+    {
+      id: 'sms',
+      title: 'SMS',
+      description: 'Toplu SMS ve bildirim ayarları.',
+      icon: <Phone className="h-6 w-6 text-slate-600" />,
+      show: !isClient
+    }
+  ];
+
+  const getTabTitle = (tabId: string) => {
+    return settingsCards.find(c => c.id === tabId)?.title || 'Ayarlar';
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -1392,66 +1832,49 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="mb-8">
-        <h1 className="text-[28px] font-normal tracking-[-0.03em] text-slate-900 dark:text-slate-50 flex items-center gap-2">
-          <Settings className="h-6 w-6 text-slate-900 dark:text-slate-50" />
-          <span>Ayarlar</span>
-        </h1>
-        <p className="text-slate-500 dark:text-slate-300 text-sm mt-2">
-          Ajans bilgilerinizi ve entegrasyonlarınızı yönetin.
-        </p>
+    <div className="p-8 max-w-[1600px] mx-auto">
+      <div className="flex items-center gap-4 mb-8">
+        {activeTab && (
+          <Button variant="ghost" size="icon" onClick={() => handleTabChange(null)} className="rounded-full">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        )}
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            {!activeTab && <Settings className="h-7 w-7 text-slate-400" />}
+            <span>{activeTab ? getTabTitle(activeTab) : 'Ayarlar'}</span>
+          </h1>
+          <p className="text-slate-500 dark:text-slate-300 text-sm mt-1">
+            {activeTab 
+              ? settingsCards.find(c => c.id === activeTab)?.description 
+              : 'Ajans bilgilerinizi ve entegrasyonlarınızı yönetin.'}
+          </p>
+        </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-8">
-          {!isClient && (
-            <TabsTrigger value="agency" className="flex items-center gap-2">
-              <Building2 className="h-4 w-4" />
-              Ajans & Ekip
-            </TabsTrigger>
-          )}
-          <TabsTrigger value="facebook" className="flex items-center gap-2">
-            <Facebook className="h-4 w-4" />
-            Facebook Leads
-          </TabsTrigger>
-          <TabsTrigger value="instagram" className="flex items-center gap-2">
-            <Instagram className="h-4 w-4" />
-            Instagram
-          </TabsTrigger>
-          <TabsTrigger value="parasut" className="flex items-center gap-2">
-            <Link2 className="h-4 w-4" />
-            Paraşüt
-          </TabsTrigger>
-          {!isClient && (
-            <TabsTrigger value="google-calendar" className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              Google Calendar
-            </TabsTrigger>
-          )}
-          {!isClient && (
-            <TabsTrigger value="paytr" className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
-              PayTR
-            </TabsTrigger>
-          )}
-          {!isClient && (
-            <TabsTrigger value="trello" className="flex items-center gap-2">
-              <LayoutGrid className="h-4 w-4" />
-              Trello
-            </TabsTrigger>
-          )}
-          <TabsTrigger value="whatsapp" className="flex items-center gap-2">
-            <MessageCircle className="h-4 w-4" />
-            WhatsApp
-          </TabsTrigger>
-          {!isClient && (
-            <TabsTrigger value="sms" className="flex items-center gap-2">
-              <Phone className="h-4 w-4" />
-              SMS
-            </TabsTrigger>
-          )}
-        </TabsList>
+      {!activeTab ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {settingsCards.filter(c => c.show).map((card) => (
+            <button
+              key={card.id}
+              onClick={() => handleTabChange(card.id)}
+              className="flex flex-col text-left h-full p-6 rounded-2xl border border-slate-200 bg-white hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/5 transition-all group dark:bg-slate-900 dark:border-slate-800 dark:hover:border-emerald-500"
+            >
+              <div className="mb-4 p-3 rounded-xl bg-slate-50 group-hover:bg-emerald-50 transition-colors dark:bg-slate-800 dark:group-hover:bg-emerald-900/20">
+                {card.icon}
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 group-hover:text-emerald-600 transition-colors">
+                {card.title}
+              </h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                {card.description}
+              </p>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="animate-in fade-in slide-in-from-right-8 duration-300">
+          <Tabs value={activeTab} className="w-full">
 
         {!isClient && (
         <TabsContent value="agency">
@@ -1770,6 +2193,374 @@ export default function SettingsPage() {
             </Card>
           </div>
         </TabsContent>
+        )}
+
+        {!isClient && (
+          <TabsContent value="modules">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-12">
+              <Card className="p-6 col-span-2 space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold flex items-center gap-2 text-slate-900 dark:text-slate-50">
+                      <Settings className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
+                      Modül Yönetimi
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      Sol menüde görünmesini istediğiniz modülleri seçin.
+                    </p>
+                  </div>
+                  <div className="text-xs rounded-full px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                    Sektör:{' '}
+                    {tenant?.industry === 'HEALTH' && tenant?.industrySubType === 'HEALTH_TOURISM'
+                      ? 'Sağlık Turizmi'
+                      : tenant?.industry === 'HEALTH' && tenant?.industrySubType === 'DENTAL_CLINIC'
+                      ? 'Diş Kliniği'
+                      : 'Genel'}
+                  </div>
+                </div>
+
+                <div className="space-y-8">
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-3">
+                      Temel Modüller
+                    </h4>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      {moduleDefinitions
+                        .filter((m) => m.sector === 'GENERAL')
+                        .map((m) => {
+                          const active = enabledModules.includes(m.key);
+                          return (
+                            <div key={m.key} className="relative group">
+                              <button
+                                type="button"
+                                onClick={() => toggleModule(m.key)}
+                                className={cn(
+                                  'w-full text-left p-4 rounded-xl border transition bg-white dark:bg-slate-900',
+                                  active
+                                    ? 'border-emerald-500 ring-1 ring-emerald-500/40'
+                                    : 'border-slate-200/70 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500'
+                                )}
+                              >
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="flex items-start gap-3">
+                                    <div className="flex items-center justify-center h-9 w-9 rounded-lg bg-slate-50 dark:bg-slate-800">
+                                      {m.icon}
+                                    </div>
+                                    <div>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                                          {m.label}
+                                        </span>
+                                      </div>
+                                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                        {m.description}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div
+                                    className={cn(
+                                      'h-5 w-5 rounded-full border flex items-center justify-center text-[10px]',
+                                      active
+                                        ? 'border-emerald-500 bg-emerald-500 text-black'
+                                        : 'border-slate-300 dark:border-slate-600 text-slate-400 dark:text-slate-500'
+                                    )}
+                                  >
+                                    {active ? 'Açık' : 'Kapalı'}
+                                  </div>
+                                </div>
+                              </button>
+                              {/* Always show manage access button regardless of active state */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openAccessDialog(m.key);
+                                }}
+                                className={cn(
+                                  "absolute top-2 right-2 p-1.5 rounded-md transition-colors opacity-0 group-hover:opacity-100",
+                                  "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-500",
+                                  active 
+                                    ? "text-slate-400" 
+                                    : "text-slate-300 dark:text-slate-600"
+                                )}
+                                title="Müşteri Erişimini Yönet"
+                              >
+                                <Users className="h-4 w-4" />
+                              </button>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </div>
+
+                  {tenant?.industry === 'HEALTH' &&
+                    (tenant?.industrySubType === 'HEALTH_TOURISM' ||
+                      tenant?.industrySubType === 'DENTAL_CLINIC') && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-3">
+                        Sağlık Turizmi Modülleri
+                      </h4>
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        {moduleDefinitions
+                          .filter((m) => m.sector === 'HEALTH_TOURISM')
+                          .map((m) => {
+                            const active = enabledModules.includes(m.key);
+                            return (
+                              <div key={m.key} className="relative group">
+                                <button
+                                  type="button"
+                                  onClick={() => toggleModule(m.key)}
+                                  className={cn(
+                                    'w-full text-left p-4 rounded-xl border transition bg-white dark:bg-slate-900',
+                                    active
+                                      ? 'border-emerald-500 ring-1 ring-emerald-500/40'
+                                      : 'border-slate-200/70 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500'
+                                  )}
+                                >
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div className="flex items-start gap-3">
+                                      <div className="flex items-center justify-center h-9 w-9 rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
+                                        {m.icon}
+                                      </div>
+                                      <div>
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                                            {m.label}
+                                          </span>
+                                        </div>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                          {m.description}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div
+                                      className={cn(
+                                        'h-5 w-5 rounded-full border flex items-center justify-center text-[10px]',
+                                        active
+                                          ? 'border-emerald-500 bg-emerald-500 text-black'
+                                          : 'border-slate-300 dark:border-slate-600 text-slate-400 dark:text-slate-500'
+                                      )}
+                                    >
+                                      {active ? 'Açık' : 'Kapalı'}
+                                    </div>
+                                  </div>
+                                </button>
+                                {/* Always show manage access button regardless of active state */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openAccessDialog(m.key);
+                                }}
+                                className={cn(
+                                  "absolute top-2 right-2 p-1.5 rounded-md transition-colors opacity-0 group-hover:opacity-100",
+                                  "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-500",
+                                  active 
+                                    ? "text-slate-400" 
+                                    : "text-slate-300 dark:text-slate-600"
+                                )}
+                                title="Müşteri Erişimini Yönet"
+                              >
+                                <Users className="h-4 w-4" />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {tenant?.industry === 'HEALTH' && tenant?.industrySubType === 'DENTAL_CLINIC' && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-3">
+                        Diş Kliniği Modülleri
+                      </h4>
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        {moduleDefinitions
+                          .filter((m) => m.sector === 'DENTAL_CLINIC')
+                          .map((m) => {
+                            const active = enabledModules.includes(m.key);
+                            return (
+                              <div key={m.key} className="relative group">
+                                <button
+                                  type="button"
+                                  onClick={() => toggleModule(m.key)}
+                                  className={cn(
+                                    'w-full text-left p-4 rounded-xl border transition bg-white dark:bg-slate-900',
+                                    active
+                                      ? 'border-emerald-500 ring-1 ring-emerald-500/40'
+                                      : 'border-slate-200/70 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500'
+                                  )}
+                                >
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div className="flex items-start gap-3">
+                                      <div className="flex items-center justify-center h-9 w-9 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                                        {m.icon}
+                                      </div>
+                                      <div>
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                                            {m.label}
+                                          </span>
+                                        </div>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                          {m.description}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div
+                                      className={cn(
+                                        'h-5 w-5 rounded-full border flex items-center justify-center text-[10px]',
+                                        active
+                                          ? 'border-emerald-500 bg-emerald-500 text-black'
+                                          : 'border-slate-300 dark:border-slate-600 text-slate-400 dark:text-slate-500'
+                                      )}
+                                    >
+                                      {active ? 'Açık' : 'Kapalı'}
+                                    </div>
+                                  </div>
+                                </button>
+                                {/* Always show manage access button regardless of active state */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openAccessDialog(m.key);
+                                }}
+                                className={cn(
+                                  "absolute top-2 right-2 p-1.5 rounded-md transition-colors opacity-0 group-hover:opacity-100",
+                                  "hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-500",
+                                  active 
+                                    ? "text-slate-400" 
+                                    : "text-slate-300 dark:text-slate-600"
+                                )}
+                                title="Müşteri Erişimini Yönet"
+                              >
+                                <Users className="h-4 w-4" />
+                              </button>
+                            </div>
+                          );
+                          })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex justify-end">
+                  <Button
+                    className="bg-black text-white hover:bg-neutral-900"
+                    onClick={handleSaveModules}
+                    disabled={saving}
+                  >
+                    {saving ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <Save className="h-4 w-4 mr-2" />
+                    )}
+                    Modülleri Kaydet
+                  </Button>
+                </div>
+              </Card>
+
+              <Card className="p-6 space-y-4">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                  Modül Mantığı
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Modüller, sol menüde hangi bölümlerin görüneceğini belirler. Bir modülü
+                  kapatırsanız, ilgili menü öğeleri ekip üyeleri için gizlenir.
+                </p>
+                <div className="text-xs text-slate-500 dark:text-slate-400 space-y-2">
+                  <p>
+                    CRM aktif olduğunda Müşteriler modülü otomatik olarak eklenir. Görevler
+                    aktif olduğunda Projeler modülü de birlikte açılır.
+                  </p>
+                  {tenant?.industrySubType === 'HEALTH_TOURISM' && (
+                    <p>
+                      Sağlık turizmi modüllerini açtığınızda; Hasta Yönetimi, Seyahat,
+                      Randevu, Konaklama ve Tedavi Planları menüleri sol menüde görünür.
+                    </p>
+                  )}
+                  {tenant?.industrySubType === 'DENTAL_CLINIC' && (
+                    <p>
+                      Diş kliniği modüllerini açtığınızda; Diş Şeması, Laboratuvar,
+                      Görüntüleme, Finansman ve Stok Takibi menüleri sol menüde görünür.
+                    </p>
+                  )}
+                </div>
+              </Card>
+            </div>
+
+            {/* Access Dialog */}
+            {accessDialogOpen && accessModuleKey && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200 dark:bg-slate-900 dark:border dark:border-slate-800">
+                  <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
+                    <div>
+                      <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Müşteri Erişimi</h2>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        {moduleDefinitions.find(m => m.key === accessModuleKey)?.label} modülünü kullanabilecek müşterileri seçin.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setAccessDialogOpen(false)}
+                      className="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
+                    >
+                      <XCircle className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  <div className="p-0 max-h-[60vh] overflow-y-auto">
+                    {tenant?.users.filter(u => u.role === 'CLIENT').length === 0 ? (
+                      <div className="p-8 text-center text-slate-500 text-sm">
+                        Henüz sisteme kayıtlı müşteri (Client rolünde kullanıcı) bulunmuyor.
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                        {tenant?.users.filter(u => u.role === 'CLIENT').map(user => {
+                          const hasAccess = (user.allowedModules || "").split(',').includes(accessModuleKey);
+                          return (
+                            <div key={user.id} className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                              <div className="flex items-center gap-3">
+                                <div className="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xs">
+                                  {user.name?.charAt(0) || user.email.charAt(0)}
+                                </div>
+                                <div>
+                                  <div className="text-sm font-medium text-slate-900 dark:text-slate-100">{user.name || 'İsimsiz'}</div>
+                                  <div className="text-xs text-slate-500 dark:text-slate-400">{user.email}</div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className={cn(
+                                  "text-[10px] font-medium px-2 py-0.5 rounded-full",
+                                  hasAccess ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                                )}>
+                                  {hasAccess ? 'Erişim Var' : 'Erişim Yok'}
+                                </span>
+                                <Button
+                                  size="sm"
+                                  variant={hasAccess ? "destructive" : "default"}
+                                  className={cn(
+                                    "h-7 text-xs",
+                                    hasAccess ? "" : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                                  )}
+                                  onClick={() => toggleClientModule(user.id, accessModuleKey, user.allowedModules || "")}
+                                  disabled={accessDialogLoading}
+                                >
+                                  {hasAccess ? 'Kaldır' : 'Yetki Ver'}
+                                </Button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 text-center">
+                    Değişiklikler anında kaydedilir.
+                  </div>
+                </div>
+              </div>
+            )}
+          </TabsContent>
         )}
 
         <TabsContent value="facebook">
@@ -3848,7 +4639,9 @@ export default function SettingsPage() {
             </Card>
           </div>
         </TabsContent>
-      </Tabs>
+          </Tabs>
+        </div>
+      )}
     </div>
   );
 }

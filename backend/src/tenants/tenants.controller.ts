@@ -97,6 +97,9 @@ export class TenantsController {
       phone?: string;
       email?: string;
       wordpressModuleEnabled?: boolean;
+      industry?: string;
+      industrySubType?: string;
+      enabledModules?: string;
     },
   ) {
     return this.tenantsService.updateTenant(tenantId, data);
@@ -151,6 +154,7 @@ export class TenantsController {
       email?: string;
       role?: string;
       newPassword?: string;
+      allowedModules?: string;
     },
   ) {
     return this.tenantsService.updateUser(tenantId, userId, data);
