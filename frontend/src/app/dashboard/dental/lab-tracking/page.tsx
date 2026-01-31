@@ -66,7 +66,7 @@ import { Separator } from "@/components/ui/separator";
 
 // --- Types & Mock Data ---
 
-type LabStatus = "PENDING" | "SENT" | "IN_PROGRESS" | "SHIPPED" | "COMPLETED" | "CANCELLED";
+type LabStatus = "PENDING" | "PREPARED" | "SENT" | "IN_PROGRESS" | "SHIPPED" | "COMPLETED" | "CANCELLED" | "REVIEWED";
 
 interface LabAttachment {
   id: string;
